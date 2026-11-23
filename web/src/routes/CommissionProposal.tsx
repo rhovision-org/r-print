@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ActionPanel } from "../components/ActionPanel";
+import { FormFor } from "../components/forms";
 import { AsyncBlock } from "../components/AsyncBlock";
 import { Hash } from "../components/Hash";
 import { MilestoneTimeline } from "../components/MilestoneTimeline";
@@ -85,34 +85,12 @@ export function CommissionProposal() {
               <MilestoneTimeline milestones={value.milestones} />
             </section>
 
-            <ActionPanel
-              title="Proposal actions"
-              description="Editor accepts; a funder creates the escrow. Attaching an r-sure policy is optional and does not change escrow semantics."
-              actions={[
-                {
-                  label: "Accept",
-                  method: "acceptProposal",
-                  description: "Editor or publisher",
-                  run: (api) => api.acceptProposal(uri, { opId: "accept-op" }),
-                },
-                {
-                  label: "Fund",
-                  method: "fundProposal",
-                  description: "Create the escrow",
-                  run: (api) => api.fundProposal(uri, { opId: "fund-op" }),
-                },
-                {
-                  label: "Attach cover",
-                  method: "attachCover",
-                  description: "Verified through RsureAdapter",
-                  run: (api) =>
-                    api.attachCover(uri, {
-                      opId: "cover-op",
-                      coverUri: "rho:id:policy",
-                    }),
-                },
-              ]}
-            />
+            <section className="grid">
+              <FormFor method="acceptProposal" uri={uri} onDone={proposal.reload} />
+              <FormFor method="fundProposal" uri={uri} onDone={proposal.reload} />
+              <FormFor method="cancelProposal" uri={uri} onDone={proposal.reload} />
+              <FormFor method="attachCover" uri={uri} onDone={proposal.reload} />
+            </section>
 
             <SurfaceChecklist
               title="Surface on this screen"
@@ -120,6 +98,7 @@ export function CommissionProposal() {
                 "commissionProposalInfo",
                 "acceptProposal",
                 "fundProposal",
+                "cancelProposal",
                 "attachCover",
               ]}
             />

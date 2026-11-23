@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ActionPanel } from "../components/ActionPanel";
+import { FormFor } from "../components/forms";
 import { AsyncBlock } from "../components/AsyncBlock";
 import { Hash } from "../components/Hash";
 import { MemberTable } from "../components/MemberTable";
@@ -14,6 +14,17 @@ export function Publication() {
   const info = useAsync(() => api.publicationInfo(uri), `${uri}:info`);
   const charter = useAsync(() => api.publicationCharter(uri), `${uri}:charter`);
   const members = useAsync(() => api.publicationMembers(uri), `${uri}:members`);
+  const arbitration = useAsync(
+    () => api.publicationArbitration(uri),
+    `${uri}:arbitration`,
+  );
+
+  function reloadAll() {
+    info.reload();
+    charter.reload();
+    members.reload();
+    arbitration.reload();
+  }
 
   return (
     <div>
@@ -91,6 +102,16 @@ export function Publication() {
                       ? `publication ${publication.threshold}-of-${publication.admins.length}`
                       : "platform PrintAdmin fallback (solo publication)"}
                   </dd>
+                  <dt>Effective arbitration</dt>
+                  <dd>
+                    <AsyncBlock state={arbitration}>
+                      {(value) => (
+                        <>
+                          {value.kind} · {value.threshold}-of-{value.keys.length}
+                        </>
+                      )}
+                    </AsyncBlock>
+                  </dd>
                 </dl>
               </div>
             </section>
@@ -100,36 +121,10 @@ export function Publication() {
               <AsyncBlock state={members}>{(value) => <MemberTable members={value} />}</AsyncBlock>
             </section>
 
-            <ActionPanel
-              title="Publication admin"
-              description="Pause blocks new commissions and articles; existing escrow releases remain available. Multisig actions use the publication admin set."
-              actions={[
-                {
-                  label: "Pause publication",
-                  method: "pausePublication",
-                  description: "Block new work",
-                  run: (api) => api.pausePublication(uri, { opId: "pause-op", paused: true }),
-                },
-                {
-                  label: "Resume publication",
-                  method: "pausePublication",
-                  description: "Allow new work",
-                  run: (api) => api.pausePublication(uri, { opId: "resume-op", paused: false }),
-                },
-                {
-                  label: "Set treasury",
-                  method: "publicationAdmin",
-                  description: "Signed admin action",
-                  run: (api) =>
-                    api.publicationAdmin(uri, {
-                      nonce: 1,
-                      action: "setTreasury",
-                      args: ["1111treasury"],
-                      sigs: [],
-                    }),
-                },
-              ]}
-            />
+            <section className="grid">
+              <FormFor method="pausePublication" uri={uri} onDone={reloadAll} />
+              <FormFor method="publicationAdmin" uri={uri} onDone={reloadAll} />
+            </section>
 
             <SurfaceChecklist
               title="Surface on this screen"
@@ -137,6 +132,7 @@ export function Publication() {
                 "publicationInfo",
                 "publicationCharter",
                 "publicationMembers",
+                "publicationArbitration",
                 "pausePublication",
                 "publicationAdmin",
               ]}

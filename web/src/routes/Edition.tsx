@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ActionPanel } from "../components/ActionPanel";
+import { FormFor } from "../components/forms";
 import { AsyncBlock } from "../components/AsyncBlock";
 import { Hash } from "../components/Hash";
 import { SurfaceChecklist } from "../components/SurfaceChecklist";
@@ -82,43 +82,19 @@ export function Edition() {
               </div>
             </section>
 
-            <ActionPanel
-              title="Edition actions"
-              description="Create the issue, append published articles, then seal with an editor signature over the canonical manifest hash."
-              actions={[
-                {
-                  label: "Create edition",
-                  method: "createEdition",
-                  description: "Issue number and cover",
-                  run: (api) =>
-                    api.createEdition({
-                      editionId: "edition:new",
-                      opId: "create-op",
-                      publicationId: value.publicationId,
-                      publicationUri: value.publicationUri,
-                      number: value.number + 1,
-                      titleHash: "issue:new",
-                      coverHash: "cover:new",
-                    }),
-                },
-                {
-                  label: "Append article",
-                  method: "appendEditionArticle",
-                  description: "Published article only",
-                  run: (api) =>
-                    api.appendEditionArticle(uri, {
-                      opId: "append-op",
-                      articleUri: "rho:id:article",
-                    }),
-                },
-                {
-                  label: "Seal",
-                  method: "sealEdition",
-                  description: "Editor signature",
-                  run: (api) => api.sealEdition(uri, { opId: "seal-op", editorSig: "sig" }),
-                },
-              ]}
-            />
+            <section className="grid">
+              <FormFor
+                method="createEdition"
+                onDone={edition.reload}
+                defaults={{
+                  publicationId: value.publicationId,
+                  publicationUri: value.publicationUri,
+                  number: value.number + 1,
+                }}
+              />
+              <FormFor method="appendEditionArticle" uri={uri} onDone={edition.reload} />
+            </section>
+            <FormFor method="sealEdition" uri={uri} onDone={edition.reload} />
 
             <SurfaceChecklist
               title="Surface on this screen"

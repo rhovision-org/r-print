@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ActionPanel } from "../components/ActionPanel";
+import { FormFor } from "../components/forms";
 import { AsyncBlock } from "../components/AsyncBlock";
 import { Hash } from "../components/Hash";
 import { SurfaceChecklist } from "../components/SurfaceChecklist";
@@ -122,78 +122,15 @@ export function Article() {
               </div>
             </section>
 
-            <ActionPanel
-              title="Article actions"
-              description="Author submits; fact-checker attests; editor approves and publishes. Attaching knowledge is optional. Corrections and retractions append."
-              actions={[
-                {
-                  label: "Submit draft",
-                  method: "submitArticle",
-                  description: "Author content hash",
-                  run: (api) =>
-                    api.submitArticle(uri, {
-                      opId: "submit-op",
-                      contentHash: value.contentHash,
-                    }),
-                },
-                {
-                  label: "Attach knowledge",
-                  method: "attachKnowledge",
-                  description: "r-gen links",
-                  run: (api) =>
-                    api.attachKnowledge(uri, {
-                      opId: "know-op",
-                      kassetUri: "rho:id:kasset",
-                      claimUri: "rho:id:claim",
-                      provenanceUri: "rho:id:provenance",
-                      credentialUri: "",
-                    }),
-                },
-                {
-                  label: "Attest",
-                  method: "attestArticle",
-                  description: "Fact-check/legal/editorial",
-                  run: (api) =>
-                    api.attestArticle(uri, {
-                      opId: "attest-op",
-                      attestationId: "fact-1",
-                      kind: "factcheck",
-                      evidenceHash: "evidence:fact",
-                    }),
-                },
-                {
-                  label: "Approve",
-                  method: "approveArticle",
-                  description: "Editor or publisher",
-                  run: (api) => api.approveArticle(uri, { opId: "approve-op" }),
-                },
-                {
-                  label: "Publish",
-                  method: "publishArticle",
-                  description: "Freeze the content hash",
-                  run: (api) => api.publishArticle(uri, { opId: "publish-op" }),
-                },
-                {
-                  label: "Correct",
-                  method: "correctArticle",
-                  description: "Append a correction",
-                  run: (api) =>
-                    api.correctArticle(uri, {
-                      opId: "correct-op",
-                      correctionId: "corr",
-                      kind: "correction",
-                      bodyHash: "body",
-                      reasonHash: "reason",
-                    }),
-                },
-                {
-                  label: "Retract",
-                  method: "retractArticle",
-                  description: "Append a retraction",
-                  run: (api) => api.retractArticle(uri, { opId: "retract-op", reasonHash: "reason" }),
-                },
-              ]}
-            />
+            <section className="grid">
+              <FormFor method="submitArticle" uri={uri} onDone={article.reload} />
+              <FormFor method="attachKnowledge" uri={uri} onDone={article.reload} />
+              <FormFor method="attestArticle" uri={uri} onDone={article.reload} />
+              <FormFor method="approveArticle" uri={uri} onDone={article.reload} />
+              <FormFor method="publishArticle" uri={uri} onDone={article.reload} />
+              <FormFor method="correctArticle" uri={uri} onDone={article.reload} />
+              <FormFor method="retractArticle" uri={uri} onDone={article.reload} />
+            </section>
 
             <SurfaceChecklist
               title="Surface on this screen"

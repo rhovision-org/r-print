@@ -9,7 +9,7 @@ export function AsyncBlock<T>({
   state: AsyncState<T>;
   children: (value: T) => ReactNode;
 }) {
-  if (state.loading) return <p className="muted">Loading fixture…</p>;
+  if (state.loading) return <p className="muted">Loading…</p>;
   if (state.error) return <p className="error">{state.error}</p>;
   if (!state.reply) return <p className="error">No reply.</p>;
   if (!state.reply.ok) {

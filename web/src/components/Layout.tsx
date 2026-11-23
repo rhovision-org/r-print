@@ -29,7 +29,7 @@ export function Layout() {
         <Outlet />
       </main>
       <footer>
-        <span>Fixture reads. Writes are typed stubs. No wallet, no indexer.</span>
+        <span>Devnet only. Opt-in live mode. No indexer.</span>
         <a href="https://github.com/rhovision-org/r-print">source</a>
       </footer>
     </div>

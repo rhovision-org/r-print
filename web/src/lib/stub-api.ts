@@ -9,6 +9,7 @@ import type {
   AdminInput,
   ArbitrateInput,
   AttestInput,
+  CancelProposalInput,
   CorrectionInput,
   CreateArticleInput,
   CreateEditionInput,
@@ -20,6 +21,7 @@ import type {
   MilestoneActionInput,
   ProposeCommissionInput,
   Reply,
+  ResolveDisputeInput,
   SealEditionInput,
 } from "./types";
 
@@ -55,6 +57,9 @@ export class StubApi {
   }
   publicationMembers(_uri: string): Promise<Reply<any>> {
     return fail("publicationMembers");
+  }
+  publicationArbitration(_uri: string): Promise<Reply<any>> {
+    return fail("publicationArbitration");
   }
   addMember(_uri: string, _input: MemberInput): Promise<Reply<any>> {
     return fail("addMember");
@@ -95,6 +100,9 @@ export class StubApi {
   fundProposal(_uri: string, _input: { opId: string }): Promise<Reply<any>> {
     return fail("fundProposal");
   }
+  cancelProposal(_uri: string, _input: CancelProposalInput): Promise<Reply<any>> {
+    return fail("cancelProposal");
+  }
   submitMilestone(
     _escrowUri: string,
     _input: MilestoneActionInput,
@@ -124,6 +132,9 @@ export class StubApi {
   }
   expireEscrow(_escrowUri: string, _input: { opId: string }): Promise<Reply<any>> {
     return fail("expireEscrow");
+  }
+  resolveDispute(_escrowUri: string, _input: ResolveDisputeInput): Promise<Reply<any>> {
+    return fail("resolveDispute");
   }
   escrowInfo(_uri: string): Promise<Reply<any>> {
     return fail("escrowInfo");

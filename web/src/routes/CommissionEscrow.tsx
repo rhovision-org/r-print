@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ActionPanel } from "../components/ActionPanel";
+import { FormFor } from "../components/forms";
 import { AsyncBlock } from "../components/AsyncBlock";
 import { Hash } from "../components/Hash";
 import { MilestoneTimeline } from "../components/MilestoneTimeline";
@@ -84,62 +84,16 @@ export function CommissionEscrow() {
                 <MilestoneTimeline milestones={value.milestones} />
               </section>
 
-              <ActionPanel
-                title="Escrow actions"
-                description="The writer submits evidence before the deadline; an editor releases. Cancel/expire refund the remaining balance. Arbitration uses the publication arbitrators, publication admins, or the platform quorum."
-                actions={[
-                  {
-                    label: "Submit milestone",
-                    method: "submitMilestone",
-                    description: "Writer evidence hash",
-                    run: (api) =>
-                      api.submitMilestone(uri, {
-                        opId: "submit-op",
-                        milestoneId: "m2",
-                        evidenceHash: "evidence:draft",
-                      }),
-                  },
-                  {
-                    label: "Release milestone",
-                    method: "releaseMilestone",
-                    description: "Editor or publisher",
-                    run: (api) =>
-                      api.releaseMilestone(uri, { opId: "release-op", milestoneId: "m2" }),
-                  },
-                  {
-                    label: "Cancel",
-                    method: "cancelEscrow",
-                    description: "Refund remaining",
-                    run: (api) =>
-                      api.cancelEscrow(uri, { opId: "cancel-op", reasonHash: "reason" }),
-                  },
-                  {
-                    label: "Dispute",
-                    method: "disputeEscrow",
-                    description: "Freeze payouts",
-                    run: (api) =>
-                      api.disputeEscrow(uri, { opId: "dispute-op", reasonHash: "reason" }),
-                  },
-                  {
-                    label: "Arbitrate",
-                    method: "arbitrateEscrow",
-                    description: "Quorum split",
-                    run: (api) =>
-                      api.arbitrateEscrow(uri, {
-                        nonce: 1,
-                        writerBps: 5000,
-                        sigs: [],
-                        opId: "arbitrate-op",
-                      }),
-                  },
-                  {
-                    label: "Expire",
-                    method: "expireEscrow",
-                    description: "Permissionless refund",
-                    run: (api) => api.expireEscrow(uri, { opId: "expire-op" }),
-                  },
-                ]}
-              />
+              <section className="grid">
+                <FormFor method="submitMilestone" uri={uri} onDone={escrow.reload} />
+                <FormFor method="releaseMilestone" uri={uri} onDone={escrow.reload} />
+                <FormFor method="cancelEscrow" uri={uri} onDone={escrow.reload} />
+                <FormFor method="disputeEscrow" uri={uri} onDone={escrow.reload} />
+                <FormFor method="expireEscrow" uri={uri} onDone={escrow.reload} />
+                <FormFor method="resolveDispute" uri={uri} onDone={escrow.reload} />
+              </section>
+
+              <FormFor method="arbitrateEscrow" uri={uri} onDone={escrow.reload} />
 
               <SurfaceChecklist
                 title="Surface on this screen"
@@ -151,6 +105,7 @@ export function CommissionEscrow() {
                   "disputeEscrow",
                   "arbitrateEscrow",
                   "expireEscrow",
+                  "resolveDispute",
                 ]}
               />
             </>

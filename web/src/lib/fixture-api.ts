@@ -13,6 +13,7 @@ import publicationJson from "../fixtures/publication.json";
 import type { RprintApi } from "./api";
 import { StubApi } from "./stub-api";
 import type {
+  ArbitrationAuthority,
   ArticleState,
   CatalogueEntry,
   Charter,
@@ -93,6 +94,20 @@ export class FixtureApi extends StubApi implements RprintApi {
       return Promise.resolve({ ok: false, reason: "unknown publication" });
     }
     return Promise.resolve({ ok: true, value: publication.members });
+  }
+
+  override publicationArbitration(uri: string): Promise<Reply<ArbitrationAuthority>> {
+    if (uri !== FIXTURE_PUBLICATION_URI) {
+      return Promise.resolve({ ok: false, reason: "unknown publication" });
+    }
+    return Promise.resolve({
+      ok: true,
+      value: {
+        kind: "publication",
+        keys: publication.admins,
+        threshold: publication.threshold,
+      },
+    });
   }
 
   override commissionProposalInfo(uri: string): Promise<Reply<ProposalState>> {

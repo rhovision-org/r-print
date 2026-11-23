@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { ActionPanel } from "../components/ActionPanel";
+import { FormFor } from "../components/forms";
 import { AsyncBlock } from "../components/AsyncBlock";
 import { MemberTable } from "../components/MemberTable";
 import { SurfaceChecklist } from "../components/SurfaceChecklist";
@@ -28,50 +28,12 @@ export function MemberEditor() {
         <AsyncBlock state={members}>{(value) => <MemberTable members={value} />}</AsyncBlock>
       </section>
 
-      <ActionPanel
-        title="Roster actions"
-        description="Publisher-only roster writes. Each action is idempotent by op id on the chain."
-        actions={[
-          {
-            label: "Add member",
-            method: "addMember",
-            description: "REV address + role + DID",
-            run: (api) =>
-              api.addMember(uri, {
-                opId: "add-op",
-                memberId: "1111member",
-                role: "writer",
-                did: "did:byoid:writer",
-                attestationHash: "att:writer",
-              }),
-          },
-          {
-            label: "Set role",
-            method: "setRole",
-            description: "Change a role",
-            run: (api) =>
-              api.setRole(uri, { opId: "role-op", memberId: "1111member", role: "editor" }),
-          },
-          {
-            label: "Remove member",
-            method: "removeMember",
-            description: "Mark removed, never delete",
-            run: (api) => api.removeMember(uri, { opId: "remove-op", memberId: "1111member" }),
-          },
-          {
-            label: "Attest self",
-            method: "attestSelf",
-            description: "Attach a DID/credential anchor",
-            run: (api) =>
-              api.attestSelf(uri, {
-                opId: "attest-op",
-                memberId: "1111self",
-                did: "did:byoid:self",
-                attestationHash: "att:self",
-              }),
-          },
-        ]}
-      />
+      <section className="grid">
+        <FormFor method="addMember" uri={uri} onDone={members.reload} />
+        <FormFor method="setRole" uri={uri} onDone={members.reload} />
+        <FormFor method="removeMember" uri={uri} onDone={members.reload} />
+        <FormFor method="attestSelf" uri={uri} onDone={members.reload} />
+      </section>
 
       <SurfaceChecklist
         title="Surface on this screen"

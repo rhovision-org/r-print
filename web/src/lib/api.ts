@@ -12,9 +12,11 @@
  */
 import type {
   AdminInput,
+  ArbitrationAuthority,
   ArbitrateInput,
   ArticleState,
   AttestInput,
+  CancelProposalInput,
   CatalogueEntry,
   Charter,
   CoordinationState,
@@ -35,6 +37,7 @@ import type {
   ProposalState,
   PublicationState,
   Reply,
+  ResolveDisputeInput,
   ResolveResult,
   SealEditionInput,
 } from "./types";
@@ -54,6 +57,8 @@ export interface RprintApi {
   publicationCharter(uri: string): Promise<Reply<Charter>>;
   /** `Publication("members")`. Reply `(true, {revAddress: member})`. */
   publicationMembers(uri: string): Promise<Reply<Record<string, Member>>>;
+  /** `Publication("arbitration")`. Reply `(true, kind, keys, threshold)`; `kind` is `publication` or the platform fallback. */
+  publicationArbitration(uri: string): Promise<Reply<ArbitrationAuthority>>;
   /** `Publication("addMember", dId, opId, memberId, role, did, attestationHash)`. Reply `(true, Nil)`; refuses `paused`, `role`, `duplicate`, `members`, `member`. */
   addMember(uri: string, input: MemberInput): Promise<Reply<null>>;
   /** `Publication("removeMember", dId, opId, memberId)`. Reply `(true, Nil)`; refuses `role`, `unknown member`, `last publisher`. */
@@ -77,6 +82,8 @@ export interface RprintApi {
   acceptProposal(uri: string, input: { opId: string }): Promise<Reply<null>>;
   /** `CommissionProposal("fund", dId, opId)`. Reply `(true, escrowUri)`; refuses `status`, `editor`, `proposal`. */
   fundProposal(uri: string, input: { opId: string }): Promise<Reply<{ escrowUri: string }>>;
+  /** `CommissionProposal("cancel", dId, opId, reasonHash)`. Reply `(true, Nil)`; refuses `status`, `role`. */
+  cancelProposal(uri: string, input: CancelProposalInput): Promise<Reply<null>>;
   /** `CommissionEscrow("submit", dId, opId, milestoneId, evidenceHash)`. Reply `(true, Nil)`; refuses `not writer`, `status`, `milestone`, `too late`. */
   submitMilestone(escrowUri: string, input: MilestoneActionInput): Promise<Reply<null>>;
   /** `CommissionEscrow("release", dId, opId, milestoneId)`. Reply `(true, Nil)`; refuses `status`, `role`, `not submitted`, `milestone`. */
@@ -89,6 +96,8 @@ export interface RprintApi {
   arbitrateEscrow(escrowUri: string, input: ArbitrateInput): Promise<Reply<null>>;
   /** `CommissionEscrow("expire", opId)`. Reply `(true, Nil)`; refuses `status`, `too early`. */
   expireEscrow(escrowUri: string, input: { opId: string }): Promise<Reply<null>>;
+  /** `CommissionEscrow("resolveDispute", opId)`. Permissionless after the dispute window; reply `(true, Nil)` or `(false, "too early"|"status")`. */
+  resolveDispute(escrowUri: string, input: ResolveDisputeInput): Promise<Reply<null>>;
   /** `CommissionEscrow("info")`. Reply `(true, escrowState)`. */
   escrowInfo(uri: string): Promise<Reply<EscrowState>>;
 
@@ -137,6 +146,7 @@ export const API_METHODS = [
   "publicationInfo",
   "publicationCharter",
   "publicationMembers",
+  "publicationArbitration",
   "addMember",
   "removeMember",
   "setRole",
@@ -148,12 +158,14 @@ export const API_METHODS = [
   "commissionProposalInfo",
   "acceptProposal",
   "fundProposal",
+  "cancelProposal",
   "submitMilestone",
   "releaseMilestone",
   "cancelEscrow",
   "disputeEscrow",
   "arbitrateEscrow",
   "expireEscrow",
+  "resolveDispute",
   "escrowInfo",
   "createArticle",
   "submitArticle",
@@ -174,5 +186,59 @@ export const API_METHODS = [
 ] as const;
 
 export type ApiMethod = (typeof API_METHODS)[number];
+
+/** Read-only methods: explore-deploy, no wallet, no finality wait. */
+export const READ_METHODS = [
+  "resolveComponent",
+  "networkStatus",
+  "publicationInfo",
+  "publicationCharter",
+  "publicationMembers",
+  "publicationArbitration",
+  "commissionProposalInfo",
+  "escrowInfo",
+  "articleInfo",
+  "editionInfo",
+  "coordinationInfo",
+] as const satisfies readonly ApiMethod[];
+
+/** Value-moving or state-changing methods: signed deploy, processed + final. */
+export const WRITE_METHODS = [
+  "createPublication",
+  "addMember",
+  "removeMember",
+  "setRole",
+  "attestSelf",
+  "pausePublication",
+  "publicationAdmin",
+  "attachCover",
+  "proposeCommission",
+  "acceptProposal",
+  "fundProposal",
+  "cancelProposal",
+  "submitMilestone",
+  "releaseMilestone",
+  "cancelEscrow",
+  "disputeEscrow",
+  "arbitrateEscrow",
+  "expireEscrow",
+  "resolveDispute",
+  "createArticle",
+  "submitArticle",
+  "attachKnowledge",
+  "attestArticle",
+  "approveArticle",
+  "publishArticle",
+  "correctArticle",
+  "retractArticle",
+  "createEdition",
+  "appendEditionArticle",
+  "sealEdition",
+  "keystoreCreate",
+  "keystoreUnlock",
+] as const satisfies readonly ApiMethod[];
+
+export type ReadMethod = (typeof READ_METHODS)[number];
+export type WriteMethod = (typeof WRITE_METHODS)[number];
 
 export type Catalogue = CatalogueEntry[];

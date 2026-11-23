@@ -16,6 +16,10 @@ export function Coordination() {
       <p className="crumbs">
         <Link to="/">Catalogue</Link> / coordination record
       </p>
+      <p className="muted">
+        Design only: the coordination-record contract is not deployed. Fixture mode shows the
+        intended shape; live mode returns a design refusal.
+      </p>
       <AsyncBlock state={record}>
         {(value) => (
           <>

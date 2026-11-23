@@ -352,3 +352,31 @@ export interface KeystoreInput {
   password: string;
   name?: string;
 }
+
+export interface CancelProposalInput {
+  opId: string;
+  reasonHash: string;
+}
+
+export interface ResolveDisputeInput {
+  opId: string;
+}
+
+/** The effective arbitration quorum from `Publication("arbitration")`. */
+export interface ArbitrationAuthority {
+  kind: "publication" | "platform";
+  keys: string[];
+  threshold: number;
+}
+
+/** Live client configuration, independent of React. */
+export interface LiveConfig {
+  nodeUrl: string;
+  rootUri: string;
+  shardId: string;
+  phloLimit: number;
+  phloPrice: number;
+  processedTimeoutMs: number;
+  finalityTimeoutMs: number;
+  componentUris?: Record<string, string>;
+}
