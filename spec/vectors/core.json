@@ -1,0 +1,46 @@
+{
+  "schema": "rprint.vectors/v1",
+  "vectors": [
+    {
+      "id": "admin.pause.empty",
+      "kind": "admin",
+      "domain": "publication:p",
+      "nonce": 3,
+      "action": "pause",
+      "args": [],
+      "payload": "rprint:admin:v1|publication:p|3|pause|"
+    },
+    {
+      "id": "admin.treasury",
+      "kind": "admin",
+      "domain": "publication:p",
+      "nonce": 4,
+      "action": "setTreasury",
+      "args": ["1111treasury"],
+      "payload": "rprint:admin:v1|publication:p|4|setTreasury|1111treasury"
+    },
+    {
+      "id": "admin.split",
+      "kind": "admin",
+      "domain": "commission:proposal:1",
+      "nonce": 1,
+      "action": "split",
+      "args": ["proposal:1", "5000"],
+      "payload": "rprint:admin:v1|commission:proposal:1|1|split|proposal:1,5000"
+    },
+    {
+      "id": "edition.manifest",
+      "kind": "canonical",
+      "schema": "rprint:edition:v1",
+      "items": ["edition:1", "pub:1", "1", "title", "cover", "content:a", "content:b"],
+      "canonical": "rprint:edition:v1|edition:1|pub:1|1|title|cover|content:a|content:b"
+    },
+    {
+      "id": "charter.hash",
+      "kind": "canonical",
+      "schema": "rprint:charter:v1",
+      "items": ["pub:1", "name", "masthead", "tagline", "1111treasury", "REV"],
+      "canonical": "rprint:charter:v1|pub:1|name|masthead|tagline|1111treasury|REV"
+    }
+  ]
+}

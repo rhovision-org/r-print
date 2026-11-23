@@ -47,9 +47,9 @@
       "contracts": 20
     },
     "20_commission.rho": {
-      "bytes": 9926,
+      "bytes": 10132,
       "depth": 30,
-      "contracts": 12
+      "contracts": 13
     },
     "21_commission_escrow.rho": {
       "bytes": 22005,

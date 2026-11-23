@@ -10,6 +10,8 @@ component_versions:
   PrintAdmin: 1
   Payments: 1
   Terms: 1
+  RgenAdapter: 1
+  RsureAdapter: 1
   PublicationFactory: 1
   Publication: 1
   CommissionFactory: 1
@@ -20,5 +22,6 @@ component_versions:
   Article: 1
   EditionFactory: 1
   Edition: 1
-  CoordinationFactory: 1
-  CoordinationRecord: 1
+  # Design only in v0.1
+  CoordinationFactory: 0
+  CoordinationRecord: 0

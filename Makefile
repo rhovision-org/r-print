@@ -71,7 +71,7 @@ check-graph:
 	$(PY) tools/check_graph.py
 
 spec-check: build-check measure-check metrics-compare check-arch check-captures check-select \
-            check-placeholders check-money check-suites check-graph
+            check-placeholders check-money check-suites check-graph check-flows check-vectors
 
 parse-check:
 	$(PY) harness/install.py --dry-run --profile safe

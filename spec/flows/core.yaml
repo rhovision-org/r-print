@@ -1,16 +1,16 @@
-# Cornerstone flow manifest. Each rule names a source arm and its v0.1 obligation.
-# `implemented` means the source exists and a behavioural suite is intended; it is not a
-# formal proof. `owed` marks an arm outside the cornerstone model. There is no Lean model in
-# v0.1.
+# Cornerstone flow manifest. `implemented` means the source arm exists and a behavioural
+# suite exercises it; `surface` is an optional sibling adapter; `design` is not deployed.
 schema: rprint.flows/v1
 subsystem: cornerstone
 source_globs:
   - contracts/src/deploy/10_publication.rho
+  - contracts/src/deploy/11_publication_cell.rho
   - contracts/src/deploy/20_commission.rho
   - contracts/src/deploy/21_commission_escrow.rho
   - contracts/src/deploy/30_article.rho
   - contracts/src/deploy/31_edition.rho
-  - contracts/src/deploy/50_coordination.rho
+  - contracts/src/deploy/05_rgen.rho
+  - contracts/src/deploy/06_rsure.rho
 invariants:
   I1: {statement: "one cell, consume and repost once", status: implemented}
   I2: {statement: "canonical masthead binding", status: implemented}
@@ -20,5 +20,94 @@ invariants:
   I12: {statement: "a published content hash is frozen", status: implemented}
   I13: {statement: "corrections are append-only", status: implemented}
   I16: {statement: "a sealed edition is immutable", status: implemented}
-rules: []
-core_arms: []
+rules:
+  - id: P-member
+    arm: 'Publication@"addMember"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+  - id: P-role
+    arm: 'Publication@"setRole"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+  - id: P-arbitration
+    arm: 'Publication@"arbitration"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+  - id: C-propose
+    arm: 'CommissionFactory@"propose"'
+    source: contracts/src/deploy/20_commission.rho
+    status: implemented
+  - id: C-accept
+    arm: 'CommissionProposal@"accept"'
+    source: contracts/src/deploy/20_commission.rho
+    status: implemented
+  - id: C-cover
+    arm: 'CommissionProposal@"attachCover"'
+    source: contracts/src/deploy/20_commission.rho
+    status: surface
+  - id: E-release
+    arm: 'CommissionEscrow@"release"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+  - id: E-cancel
+    arm: 'CommissionEscrow@"cancel"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+  - id: E-expire
+    arm: 'CommissionEscrow@"expire"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+  - id: E-arbitrate
+    arm: 'CommissionEscrow@"arbitrate"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+  - id: A-knowledge
+    arm: 'Article@"attachKnowledge"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+  - id: A-approve
+    arm: 'Article@"approve"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+  - id: A-publish
+    arm: 'Article@"publish"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+  - id: A-correct
+    arm: 'Article@"correct"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+  - id: A-retract
+    arm: 'Article@"retract"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+  - id: D-append
+    arm: 'Edition@"append"'
+    source: contracts/src/deploy/31_edition.rho
+    status: implemented
+  - id: D-seal
+    arm: 'Edition@"seal"'
+    source: contracts/src/deploy/31_edition.rho
+    status: implemented
+  - id: G-claim
+    arm: 'RgenAdapter@"claim"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: surface
+  - id: G-provenance
+    arm: 'RgenAdapter@"provenance"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: surface
+  - id: S-policy
+    arm: 'RsureAdapter@"policy"'
+    source: contracts/src/deploy/06_rsure.rho
+    status: surface
+  - id: Q-record
+    arm: 'CoordinationRecord@"record"'
+    source: spec/spec-only.md
+    status: design
+core_arms:
+  - 'Publication@"addMember"'
+  - 'CommissionFactory@"propose"'
+  - 'CommissionEscrow@"release"'
+  - 'Article@"publish"'
+  - 'Edition@"seal"'

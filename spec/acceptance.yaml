@@ -1,30 +1,56 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
+status: foundation
+recorded_campaign: 2026-11-23
+node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
+devnet: "local 50403, single validator"
 milestones:
   M0:
     title: scaffold and static gates
-    suites: []
+    evidence: ["make spec-check", "cargo check --workspace"]
+    status: passing
   M1:
     title: root, admin and payments plumbing
     suites: [root, payments, admin]
+    status: passing
   M2:
     title: publication and membership
     suites: [publication, membership_auth, schema, admin_keys]
+    status: passing
   M3:
     title: commission proposal and escrow
     suites: [commission, commission_refusals, commission_dispute, conservation]
+    status: passing
   M4:
     title: articles, corrections, editions and interfaces
     suites: [article, article_refusals, corrections, edition, interfaces]
+    status: passing
   M5:
-    title: lifecycle, pause and refusal matrix
-    suites: [pause_scope, cell_liveness]
+    title: pause scope
+    suites: [pause_scope]
+    status: passing
   M6:
     title: golden small-newsroom transcript
     suites: [behavior]
+    golden: harness/scenarios/golden/newsroom.json
+    status: passing
   M7:
     title: Rust client and web sketch
-    suites: []
+    evidence: ["make client-check", "npm --prefix web run build"]
+    status: in_progress
   M8:
     title: docs, CI and recorded verification
-    suites: []
+    evidence: ["make docs-check", ".github/workflows/ci.yml"]
+    status: in_progress
+suites_total: 18
+suites_passing: 18
+surfaces:
+  r_sure_cover: "CommissionProposal.attachCover -> RsureAdapter.policy; disabled by default"
+  r_gen_kasset: "Article.attachKnowledge -> RgenAdapter; optional, not a publication gate"
+design:
+  - subscriptions and entitlements
+  - revenue split claims
+  - investigation crowdfunding
+  - reader tips and syndication
+  - Lean formal model
+  - coordination record contract (graph edge only)

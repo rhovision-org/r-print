@@ -5,7 +5,7 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 repository.workspace = true
-description = "Command-line client for r-print."
+description = "Command-line term builder for r-print."
 
 [[bin]]
 name = "rprint"
@@ -17,3 +17,5 @@ workspace = true
 [dependencies]
 rprint-core.workspace = true
 rprint-sdk.workspace = true
+serde_json.workspace = true
+clap.workspace = true
