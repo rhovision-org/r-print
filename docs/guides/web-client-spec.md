@@ -86,7 +86,8 @@ editions and commissions are reached by URI.
   write form; `/api` and `/wasm` are blocked to prove isolation.
 - Playwright live: one Chromium journey, 13 steps, 10 finalized deploys and 1 refusal; two
   keystores, a 2-of-2 publication, article lifecycle, edition seal, admin multisig pause and
-  a deliberate `paused` refusal, then a reload and read-back.
+  a deliberate `paused` refusal, then a reload and read-back. CI dispatch 45270193372
+  recorded both browser suites on the pinned node `e2d073d`.
 
 ## Browser end-to-end
 

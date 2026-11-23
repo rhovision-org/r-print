@@ -45,8 +45,9 @@ suite.
 
 Playwright covers the browser: 27 fixture tests in Chromium and a Pixel 7 project (all 12
 routes, all 32 write methods, settings, catalogue, keystore, deploy history), plus one live
-Chromium journey with 13 steps, 10 finalized writes and 1 refusal. The fixture suite blocks
-`/api` and `/wasm`; the live suite runs against a devnet.
+Chromium journey with 13 steps, 10 finalized writes and 1 refusal; CI dispatch 45270193372
+recorded both on the pinned node `e2d073d`. The fixture suite blocks `/api` and `/wasm`; the
+live suite runs against a devnet.
 
 ## What is not built
 

@@ -12,7 +12,9 @@ and sealed an edition: 11 steps, 11 finalized deploys. The CI dispatch devnet on
 node build `e2d073d` independently recorded 18/18 suites and 11/11 finalized live steps. A
 browser fixture suite covers every route and write form with the node and WASM blocked; a
 live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the local
-devnet. All are local or CI Docker results, not a public testnet or mainnet claim.
+devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 suites,
+11/11 live-client steps and the same 13-step browser journey on the pinned node build
+`e2d073d`. All are local or CI Docker results, not a public testnet or mainnet claim.
 
 ## Labels
 

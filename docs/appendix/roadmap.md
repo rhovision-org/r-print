@@ -16,15 +16,16 @@
 | M7 | Rust client and live web client | Passing |
 | M8 | Docs, CI and recorded verification | Passing (dispatch run 45250733118) |
 | M9 | Horizontal live client layer | Passing on the recorded local and CI devnets |
-| M10 | Browser end-to-end layer | Passing: 27 fixture tests and a 13-step live browser journey |
+| M10 | Browser end-to-end layer | Passing: 27 fixture tests and a 13-step live browser journey (CI dispatch 45270193372) |
 
 The acceptance map is `spec/acceptance.yaml`; the recorded contract campaign is 18/18 suites
 on the local 50403 devnet with rholo node build `8fe0136`. The live client smoke recorded 11
 finalized steps on the same devnet with node build `5b9685e`. The CI devnet dispatch run
 recorded 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
 The browser layer records 27 fixture tests over two projects and a 13-step live Chromium
-journey with 10 finalized writes and 1 refusal on the local 40403 devnet (node build
-`5b9685e`).
+journey with 10 finalized writes and 1 refusal, locally on node build `5b9685e` and in CI
+dispatch 45270193372 on the pinned node build `e2d073d` (18/18 suites and 11/11 live-client
+steps in the same job).
 
 ## Next
 

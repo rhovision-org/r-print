@@ -18,8 +18,10 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
 > A Chromium fixture suite renders every route and every write form with `/api` and `/wasm`
 > blocked; a live browser journey records 10 finalized writes and 1 refusal on the local
-> devnet. Subscriptions, revenue splits, crowdfunding, reader tips, syndication, the
-> coordination-record contract and the Lean model remain design.
+> devnet. CI dispatch 45270193372 recorded the 27 fixture tests and the 13-step browser
+> journey on the pinned node `e2d073d`, alongside 18/18 suites. Subscriptions, revenue
+> splits, crowdfunding, reader tips, syndication, the coordination-record contract and the
+> Lean model remain design.
 
 ## Why
 
@@ -94,9 +96,9 @@ The measured contract campaign on 2026-11-23 passed all 18 suites on a local sin
 devnet (rholo node 0.1.0 build `8fe0136`). The live client smoke was recorded later on the
 local 50403 devnet (node build `5b9685e`): 11 steps, 11 finalized deploys. The CI dispatch
 devnet on the pinned node build `e2d073d` recorded 18/18 suites and 11/11 finalized live
-steps. The browser fixture suite records 27 tests over two projects; the local browser live
-journey records 13 steps, 10 finalized writes and 1 refusal. There is no claim of a public
-testnet or audited deployment.
+steps. The browser fixture suite records 27 tests over two projects; the browser live
+journey recorded 13 steps, 10 finalized writes and 1 refusal locally and in the CI dispatch
+run 45270193372. There is no claim of a public testnet or audited deployment.
 
 ## The graph
 

@@ -7,7 +7,8 @@
 > sealed an edition with 11 finalized deploys; the CI dispatch devnet independently recorded
 > 18/18 suites and 11/11 finalized live steps. A Chromium fixture suite covers every route
 > and write form with the node and WASM blocked, and a live browser journey records 10
-> finalized writes and 1 refusal. The baseline escrow is implemented; r-sure cover and r-gen
+> finalized writes and 1 refusal; CI dispatch 45270193372 recorded 27 fixture tests and the
+> browser journey on the pinned node. The baseline escrow is implemented; r-sure cover and r-gen
 > K-Assets are optional surfaces; subscriptions, revenue splits, crowdfunding and the Lean
 > model are design.
 

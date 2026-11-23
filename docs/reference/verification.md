@@ -59,6 +59,14 @@ The recorded local run used rholo node build `5b9685e` on the local 40403 devnet
 is `deployments/browser-e2e-results.json`. The fixture suite is a push/PR CI gate; the live
 suite runs in the dispatch/schedule devnet job.
 
+The dispatch run
+[45270193372](https://github.com/rhovision-org/r-print/actions/runs/45270193372) passed
+every job. The `web` job recorded the **27** fixture tests. On the pinned node
+`RChain Node 0.1.0` build `e2d073dcd02f1e560ccb84749937138a1e184b0b`, the `devnet` job
+recorded **18/18** suites, **11/11** live-client steps and a **13-step** browser journey with
+**10 finalized** writes and **1 refusal**. The artifacts are `playwright-fixture`,
+`browser-e2e` and `suite-results`.
+
 ## CI devnet campaign
 
 The dispatch run
@@ -73,7 +81,10 @@ every job, including the `devnet` job. On the pinned node `RChain Node 0.1.0` bu
   `suite-results` artifact.
 
 Push and pull-request runs keep static/docs/parse/client/web as gates; the devnet job runs
-on dispatch and schedule because it builds the node image and a Docker network.
+on dispatch and schedule because it builds the node image and a Docker network. The browser
+tranche dispatch run 45270193372 passed the same gates plus the fixture suite in the `web`
+job and the live browser journey in the `devnet` job; see the browser section above for its
+counts.
 
 ## Static and parser gates
 

@@ -95,5 +95,10 @@ suites and the Node/CLI smokes, with `NODE=http://127.0.0.1:40403`. It uploads
 `browser-e2e` with both Playwright reports and `deployments/browser-e2e-results.json`.
 The live suite is `not_run` when the dispatch/schedule job is not invoked, never a pass.
 
+The recorded dispatch run
+[45270193372](https://github.com/rhovision-org/r-print/actions/runs/45270193372) passed
+every job: 27 fixture tests in `web`, and on pinned node `e2d073d` 18/18 suites, 11/11
+live-client steps and a 13-step browser journey with 10 finalized writes and 1 refusal.
+
 See [verification](../reference/verification.md) for the recorded counts and
 [web client spec](web-client-spec.md) for the client contract.

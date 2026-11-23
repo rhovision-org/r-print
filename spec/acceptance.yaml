@@ -72,7 +72,8 @@ milestones:
     title: browser end-to-end layer
     evidence:
       ["make web-e2e-fixture", "make web-e2e-live",
-       "deployments/browser-e2e-results.json"]
+       "deployments/browser-e2e-results.json",
+       "CI run 45270193372"]
     recorded: 2026-11-23
     node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
     status: passing
@@ -98,6 +99,15 @@ browser_e2e:
     refused_deploys: 1
     scope: "live boot, network status and root resolve, two keystores, faucet, 2-of-2 publication, member, article lifecycle, edition append/seal, admin multisig pause, paused refusal, reload read-back"
   artifact: "deployments/browser-e2e-results.json"
+  ci:
+    run: 45270193372
+    url: "https://github.com/rhovision-org/r-print/actions/runs/45270193372"
+    node: "RChain Node 0.1.0 (e2d073dcd02f1e560ccb84749937138a1e184b0b)"
+    fixture_tests: 27
+    live_steps: 13
+    finalized_deploys: 10
+    refused_deploys: 1
+    suites_passing: 18
   not_covered: "live commission funding, r-sure and r-gen roots, public testnet, multi-validator finality, all 32 writes live-submitted"
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover -> RsureAdapter.policy; disabled by default"
