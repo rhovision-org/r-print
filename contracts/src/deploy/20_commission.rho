@@ -8,7 +8,7 @@ new
   deployId(`rho:rchain:deployId`),
   rootCh, c, ack,
   authOwner, authIsOwner, authPubKey, resolveComponent,
-  commCanonical, commRole, commNowHeight, commActive, pubProposalGo
+  commCanonical, commRole, commCharter, commNowHeight, commActive, pubProposalGo
 in {
   // @@INLINE:lib/Resolve.rho@@
   // @@INLINE:lib/Auth.rho@@
@@ -43,6 +43,15 @@ in {
       rl!(publicationUri, *cCh) |
       for (Publication <- cCh) {
         Publication!("roleOf", callerId, *ret)
+      }
+    }
+  } |
+
+  contract commCharter(@publicationUri, ret) = {
+    new cCh in {
+      rl!(publicationUri, *cCh) |
+      for (Publication <- cCh) {
+        Publication!("charter", *ret)
       }
     }
   } |
@@ -141,7 +150,8 @@ in {
       for (@n <- nCh) {
         match n {
           (true, now) => {
-            new CommissionProposal, proposalState, proposalCoverGo, proposalCoverAttach, uCh in {
+            new CommissionProposal, proposalState, proposalCoverGo, proposalCoverBind,
+                proposalCoverAttach, uCh in {
               proposalState!({
                 "proposalId": proposalId,
                 "publicationId": data.get("publicationId"),
@@ -156,8 +166,12 @@ in {
                 "graceBlocks": data.get("graceBlocks"),
                 "disputeWindowBlocks": data.get("disputeWindowBlocks"),
                 "requireFactCheck": data.get("requireFactCheck"),
-                "coverUri": data.get("coverUri"),
+                "coverUri": "",
                 "coverStatus": "",
+                "coverAssetId": "",
+                "coverPerClaimLimit": 0,
+                "coverAggregateRemaining": 0,
+                "coverInsured": "",
                 "status": "proposed",
                 "escrowUri": "",
                 "createdAtHeight": now,
@@ -177,6 +191,17 @@ in {
               contract CommissionProposal(@"cover", ret2) = {
                 for (@s <<- proposalState) {
                   ret2!((true, s.get("coverUri"), s.get("coverStatus")))
+                }
+              } |
+
+              contract CommissionProposal(@"coverInfo", ret2) = {
+                for (@s <<- proposalState) {
+                  ret2!((true, {"coverUri": s.get("coverUri"),
+                                "coverStatus": s.get("coverStatus"),
+                                "coverAssetId": s.get("coverAssetId"),
+                                "coverPerClaimLimit": s.get("coverPerClaimLimit"),
+                                "coverAggregateRemaining": s.get("coverAggregateRemaining"),
+                                "coverInsured": s.get("coverInsured")}))
                 }
               } |
 
@@ -215,39 +240,86 @@ in {
               } |
 
               contract proposalCoverGo(@coverUri, ret2) = {
-                new aCh in {
-                  resolveComponent!("component:rsure-adapter", *aCh) |
-                  for (@a <- aCh) {
-                    match a {
-                      (true, Adapter) => {
-                        new vCh in {
-                          @Adapter!("policy", coverUri, *vCh) |
-                          for (@v <- vCh) {
-                            match v {
-                              (true, info) => { ret2!((true, info.get("status"))) }
-                              _ => { ret2!(v) }
+                if (coverUri.length() == 0) {
+                  ret2!((false, "policy"))
+                } else {
+                  new aCh in {
+                    resolveComponent!("component:rsure-adapter", *aCh) |
+                    for (@a <- aCh) {
+                      match a {
+                        (true, Adapter) => {
+                          new vCh in {
+                            @Adapter!("policy", coverUri, *vCh) |
+                            for (@v <- vCh) {
+                              match v {
+                                (true, info) => { ret2!((true, info)) }
+                                _ => { ret2!((false, "policy")) }
+                              }
                             }
                           }
                         }
+                        _ => { ret2!((false, "rsure adapter")) }
                       }
-                      _ => { ret2!((false, "rsure adapter")) }
+                    }
+                  }
+                }
+              } |
+
+              contract proposalCoverBind(@s, @callerId, @opId, @coverUri, @info,
+                                         @charter, ret2) = {
+                if (info.get("status") != "active") {
+                  proposalState!(s) | ret2!((false, "policy status"))
+                } else {
+                  if (info.get("insured") != charter.get("treasuryAccountId")) {
+                    proposalState!(s) | ret2!((false, "insured"))
+                  } else {
+                    if (info.get("assetId") != charter.get("assetId")) {
+                      proposalState!(s) | ret2!((false, "asset"))
+                    } else {
+                      proposalState!(
+                        s.set("coverUri", coverUri)
+                         .set("coverStatus", info.get("status"))
+                         .set("coverAssetId", info.get("assetId"))
+                         .set("coverPerClaimLimit", info.get("perClaimLimit"))
+                         .set("coverAggregateRemaining", info.get("aggregateRemaining"))
+                         .set("coverInsured", info.get("insured"))
+                         .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                      ret2!((true, Nil))
                     }
                   }
                 }
               } |
 
               contract proposalCoverAttach(@s, @callerId, @opId, @coverUri, ret2) = {
-                new cCh in {
-                  proposalCoverGo!(coverUri, *cCh) |
-                  for (@c <- cCh) {
-                    match c {
-                      (true, status) => {
-                        proposalState!(
-                          s.set("coverUri", coverUri).set("coverStatus", status)
-                           .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
-                        ret2!((true, Nil))
+                if (s.get("coverUri") != "") {
+                  if (s.get("coverUri") == coverUri) {
+                    proposalState!(
+                      s.set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                    ret2!((true, Nil))
+                  } else {
+                    proposalState!(s) | ret2!((false, "cover"))
+                  }
+                } else {
+                  new chCh in {
+                    commCharter!(s.get("publicationUri"), *chCh) |
+                    for (@ch <- chCh) {
+                      match ch {
+                        (true, charter) => {
+                          new cCh in {
+                            proposalCoverGo!(coverUri, *cCh) |
+                            for (@c <- cCh) {
+                              match c {
+                                (true, info) => {
+                                  proposalCoverBind!(s, callerId, opId, coverUri,
+                                                     info, charter, *ret2)
+                                }
+                                _ => { proposalState!(s) | ret2!(c) }
+                              }
+                            }
+                          }
+                        }
+                        _ => { proposalState!(s) | ret2!((false, "publication")) }
                       }
-                      _ => { proposalState!(s) | ret2!(c) }
                     }
                   }
                 }

@@ -70,7 +70,7 @@ edges:
     kind: call
     arms: [CommissionProposal.attachCover, RsureAdapter.policy]
     source: contracts/src/deploy/20_commission.rho
-    status: surface
+    status: implemented
 
   - id: funds-slip
     verb: funds

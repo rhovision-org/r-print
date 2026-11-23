@@ -103,8 +103,9 @@ rules:
   - id: C-cover
     arm: 'CommissionProposal@"attachCover"'
     source: contracts/src/deploy/20_commission.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean: RPrint.cover_attach_requires_insured
+    lean_status: proved-model
   - id: E-submit
     arm: 'CommissionEscrow@"submit"'
     source: contracts/src/deploy/21_commission_escrow.rho

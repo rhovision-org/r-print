@@ -91,4 +91,5 @@ def create_publication(label: str = "suite", publisher: str = "deployer",
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"create publication {pub_id}: {reply!r}")
     return {"publication_id": pub_id, "uri": reply[1], "members": members,
-            "admins": admins, "threshold": threshold}
+            "admins": admins, "threshold": threshold,
+            "treasury": treasury or actors.address("business"), "asset_id": "REV"}
