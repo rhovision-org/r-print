@@ -1,15 +1,15 @@
 {
-  "deploy_terms": 5,
-  "bytes_total": 30733,
-  "bytes_max": 8444,
-  "depth_max": 23,
-  "contracts_max": 10,
-  "components": 8,
-  "state_cell_types": 3,
-  "arm_declarations": 39,
+  "deploy_terms": 7,
+  "bytes_total": 52386,
+  "bytes_max": 16131,
+  "depth_max": 29,
+  "contracts_max": 20,
+  "components": 10,
+  "state_cell_types": 5,
+  "arm_declarations": 59,
   "root_resolve_sites": 2,
-  "registry_lookup_sites": 10,
-  "registry_insert_sites": 8,
+  "registry_lookup_sites": 12,
+  "registry_insert_sites": 11,
   "terms_detail": {
     "00_root.rho": {
       "bytes": 8437,
@@ -30,6 +30,16 @@
       "bytes": 8444,
       "depth": 19,
       "contracts": 10
+    },
+    "10_publication.rho": {
+      "bytes": 5522,
+      "depth": 25,
+      "contracts": 11
+    },
+    "11_publication_cell.rho": {
+      "bytes": 16131,
+      "depth": 29,
+      "contracts": 20
     },
     "40_payments.rho": {
       "bytes": 6447,

@@ -26,6 +26,16 @@
       "depth": 19,
       "contracts": 10
     },
+    "10_publication.rho": {
+      "bytes": 5522,
+      "depth": 25,
+      "contracts": 11
+    },
+    "11_publication_cell.rho": {
+      "bytes": 16131,
+      "depth": 29,
+      "contracts": 20
+    },
     "40_payments.rho": {
       "bytes": 6447,
       "depth": 23,

@@ -8,7 +8,9 @@
   "components": {
     "PrintRoot": {
       "file": "00_root.rho",
-      "state_cells": ["rootState"],
+      "state_cells": [
+        "rootState"
+      ],
       "depends_on": []
     },
     "Clock": {
@@ -29,22 +31,57 @@
     "AdminGuard": {
       "file": "02_admin.rho",
       "state_cells": [],
-      "depends_on": ["Verifier", "Codec"]
+      "depends_on": [
+        "Verifier",
+        "Codec"
+      ]
     },
     "PrintAdmin": {
       "file": "02_admin.rho",
-      "state_cells": ["adminState"],
-      "depends_on": ["AdminGuard"]
+      "state_cells": [
+        "adminState"
+      ],
+      "depends_on": [
+        "AdminGuard"
+      ]
     },
     "Payments": {
       "file": "40_payments.rho",
-      "state_cells": ["paymentsState"],
-      "depends_on": ["PrintAdmin"]
+      "state_cells": [
+        "paymentsState"
+      ],
+      "depends_on": [
+        "PrintAdmin"
+      ]
     },
     "Terms": {
       "file": "03_terms.rho",
       "state_cells": [],
-      "depends_on": ["Codec"]
+      "depends_on": [
+        "Codec"
+      ]
+    },
+    "PublicationFactory": {
+      "file": "10_publication.rho",
+      "state_cells": [
+        "factoryState"
+      ],
+      "depends_on": [
+        "Terms",
+        "PublicationCellFactory"
+      ]
+    },
+    "PublicationCellFactory": {
+      "file": "11_publication_cell.rho",
+      "state_cells": [
+        "publicationState"
+      ],
+      "depends_on": [
+        "Terms",
+        "PrintAdmin",
+        "Codec",
+        "Clock"
+      ]
     }
   }
 }

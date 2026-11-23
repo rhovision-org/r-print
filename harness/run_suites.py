@@ -22,6 +22,10 @@ SUITES: dict[str, str] = {
     "root": "unit_root.py",
     "payments": "unit_payments.py",
     "admin": "unit_admin.py",
+    "schema": "unit_schema.py",
+    "publication": "unit_publication.py",
+    "membership_auth": "unit_membership_auth.py",
+    "admin_keys": "unit_admin_keys.py",
 }
 EXPERIMENTAL: set[str] = set()
 SAFE_ONLY: set[str] = set()
