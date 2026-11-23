@@ -8,7 +8,7 @@ new
   deployId(`rho:rchain:deployId`),
   rootCh, c, ack,
   authOwner, authIsOwner, authPubKey, resolveComponent,
-  commCanonical, commRole, commNowHeight, commActive, pubProposalGo, proposalCoverGo
+  commCanonical, commRole, commNowHeight, commActive, pubProposalGo
 in {
 contract resolveComponent(@key, ret) = {
   new rCh, Root, kCh in {
@@ -190,7 +190,7 @@ contract authPubKey(dId, ret) = {
       for (@n <- nCh) {
         match n {
           (true, now) => {
-            new CommissionProposal, proposalState, uCh in {
+            new CommissionProposal, proposalState, proposalCoverGo, proposalCoverAttach, uCh in {
               proposalState!({
                 "proposalId": proposalId,
                 "publicationId": data.get("publicationId"),
@@ -245,8 +245,8 @@ contract authPubKey(dId, ret) = {
                                   commRole!(s.get("publicationUri"), callerId, *rCh) |
                                   for (@r <- rCh) {
                                     match r {
-                                      (true, "editor") => { proposalCoverGo!(s, callerId, opId2, coverUri, *ret2) }
-                                      (true, "publisher") => { proposalCoverGo!(s, callerId, opId2, coverUri, *ret2) }
+                                      (true, "editor") => { proposalCoverAttach!(s, callerId, opId2, coverUri, *ret2) }
+                                      (true, "publisher") => { proposalCoverAttach!(s, callerId, opId2, coverUri, *ret2) }
                                       _ => { proposalState!(s) | ret2!((false, "role")) }
                                     }
                                   }
@@ -263,7 +263,7 @@ contract authPubKey(dId, ret) = {
                 }
               } |
 
-              contract proposalCoverGo(@s, @callerId, @opId, @coverUri, ret2) = {
+              contract proposalCoverGo(@coverUri, ret2) = {
                 new aCh in {
                   resolveComponent!("component:rsure-adapter", *aCh) |
                   for (@a <- aCh) {
@@ -273,19 +273,30 @@ contract authPubKey(dId, ret) = {
                           @Adapter!("policy", coverUri, *vCh) |
                           for (@v <- vCh) {
                             match v {
-                              (true, info) => {
-                                proposalState!(
-                                  s.set("coverUri", coverUri)
-                                   .set("coverStatus", info.get("status"))
-                                   .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
-                                ret2!((true, Nil))
-                              }
-                              _ => { proposalState!(s) | ret2!(v) }
+                              (true, info) => { ret2!((true, info.get("status"))) }
+                              _ => { ret2!(v) }
                             }
                           }
                         }
                       }
-                      _ => { proposalState!(s) | ret2!((false, "rsure adapter")) }
+                      _ => { ret2!((false, "rsure adapter")) }
+                    }
+                  }
+                }
+              } |
+
+              contract proposalCoverAttach(@s, @callerId, @opId, @coverUri, ret2) = {
+                new cCh in {
+                  proposalCoverGo!(coverUri, *cCh) |
+                  for (@c <- cCh) {
+                    match c {
+                      (true, status) => {
+                        proposalState!(
+                          s.set("coverUri", coverUri).set("coverStatus", status)
+                           .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                        ret2!((true, Nil))
+                      }
+                      _ => { proposalState!(s) | ret2!(c) }
                     }
                   }
                 }

@@ -94,7 +94,7 @@ def resolve(component: str, key: str = "deployer"):
     return reply[1]
 
 
-def ensure_vault(name: str, min_phlo: int = 6_000_000) -> None:
+def ensure_vault(name: str, min_phlo: int = 11_000_000) -> None:
     """Prove the key can precharge a race-sized deploy; drip the faucet if it cannot."""
     if name == "deployer":
         return
