@@ -72,6 +72,12 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
 - **Fixture default.** Tests, CI and the book must work with no node. Live mode is opt-in.
 - **Funding precondition.** The faucet fills the native REV vault for phlo; commission funding
   additionally needs an r-cash-funded account. Say so; do not hide precharge failures.
+- **Browser e2e.** The fixture suite blocks `/api` and `/wasm`; it must pass with no node and
+  no generated WASM. The live suite uses one browser context, hash navigation after the
+  initial load (a document reload locks the WASM wallet), state waits and no
+  `page.waitForTimeout`. Select forms by `data-testid` and controls by accessible role; do not
+  use CSS classes. A live browser claim needs `deployments/browser-e2e-results.json` and the
+  CI artifact.
 
 ## Commands
 
@@ -90,6 +96,7 @@ make client-wasm-pack client-wasm-node client-wasm-smoke
 make client-live     # real WASM signing + HTTP against a healthy devnet
 make cli-live        # CLI read/submit against the same devnet
 make web-install web-test web-build
+make web-e2e-install web-e2e-fixture web-e2e-live
 make check           # spec-check parse-check docs-check client-check
 make check-graph     # named integration vertices and edges
 ```
@@ -112,6 +119,9 @@ make check-graph     # named integration vertices and edges
 - Do not claim a live-client method was exercised against a devnet unless
   `deployments/live-client-results.json` records a pass. Fixture/unit coverage is not a live
   run.
+- Do not claim the live browser journey passed unless
+  `deployments/browser-e2e-results.json` records a pass and the CI job uploaded the
+  Playwright report. The fixture browser suite is not a live run.
 - Capability-valued `Payments` arms (`accountOf`, `depositFacet`, `refundPayment`) and
   installer `PrintRoot`/`PrintAdmin` writes are not standalone browser operations. They are
   print-only or operator surfaces.

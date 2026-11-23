@@ -1,6 +1,6 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
-status: foundation+live-client
+status: foundation+live-client+browser-e2e
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
@@ -53,7 +53,7 @@ milestones:
     title: Rust client and live web client
     evidence:
       ["make client-check", "make client-wasm-smoke", "npm --prefix web run build",
-       "146 web tests"]
+       "147 web tests"]
     status: passing
   M8:
     title: docs, CI and recorded verification
@@ -68,6 +68,14 @@ milestones:
     recorded: 2026-11-23
     node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
     status: passing
+  M10:
+    title: browser end-to-end layer
+    evidence:
+      ["make web-e2e-fixture", "make web-e2e-live",
+       "deployments/browser-e2e-results.json"]
+    recorded: 2026-11-23
+    node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+    status: passing
 suites_total: 18
 suites_passing: 18
 live_client:
@@ -76,7 +84,21 @@ live_client:
   steps: 11
   finalized_deploys: 11
   scope: "wallet, faucet, publication, member, commission proposal, article lifecycle, edition append/seal, admin multisig, read-back"
-  not_covered: "live commission funding (needs an r-cash-funded account), browser e2e, public testnet"
+  not_covered: "live commission funding (needs an r-cash-funded account), public testnet"
+browser_e2e:
+  recorded: 2026-11-23
+  node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+  fixture:
+    projects: 2
+    tests: 27
+    scope: "all 12 routes, all 32 write methods (33 form instances), settings, catalogue, keystore, deploy history, mobile smoke; /api and /wasm blocked"
+  live:
+    steps: 13
+    finalized_deploys: 10
+    refused_deploys: 1
+    scope: "live boot, network status and root resolve, two keystores, faucet, 2-of-2 publication, member, article lifecycle, edition append/seal, admin multisig pause, paused refusal, reload read-back"
+  artifact: "deployments/browser-e2e-results.json"
+  not_covered: "live commission funding, r-sure and r-gen roots, public testnet, multi-validator finality, all 32 writes live-submitted"
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover -> RsureAdapter.policy; disabled by default"
   r_gen_kasset: "Article.attachKnowledge -> RgenAdapter; optional, not a publication gate"

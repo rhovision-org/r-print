@@ -5,9 +5,11 @@
 > **Status:** Devnet-only, unaudited. 18 behavioural suites pass on the local 50403 devnet;
 > a recorded live-client smoke on the same devnet founded a publication, wrote an article and
 > sealed an edition with 11 finalized deploys; the CI dispatch devnet independently recorded
-> 18/18 suites and 11/11 finalized live steps. The baseline escrow is implemented; r-sure
-> cover and r-gen K-Assets are optional surfaces; subscriptions, revenue splits,
-> crowdfunding and the Lean model are design.
+> 18/18 suites and 11/11 finalized live steps. A Chromium fixture suite covers every route
+> and write form with the node and WASM blocked, and a live browser journey records 10
+> finalized writes and 1 refusal. The baseline escrow is implemented; r-sure cover and r-gen
+> K-Assets are optional surfaces; subscriptions, revenue splits, crowdfunding and the Lean
+> model are design.
 
 r-print treats a publication as an organisation rather than a personal brand. A masthead
 owns a charter, a roster and an editorial authority. A commission escrows money against
@@ -48,6 +50,7 @@ when it wants stronger provenance.
 | `spec/graph/` | the named integration graph |
 | `crates/` | Rust core, keystore, SDK, wallet, CLI and WASM facade |
 | `web/` | React/Vite/TS live client with typed forms for every write; fixture default |
+| `web/e2e/` | Playwright fixture and live browser journeys |
 | `docs/` | this book |
 
 ## Read next

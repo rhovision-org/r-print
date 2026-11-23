@@ -15,6 +15,8 @@
 | Graph | `make check-graph` | Every vertex and edge is named and sourced |
 | Parser | `make parse-check` | The target node parses every rendered term |
 | Behaviour | `make unit-all` | The devnet campaign |
+| Browser fixture | `make web-e2e-fixture` | Every route and write form in Chromium with no node or WASM |
+| Browser live | `make web-e2e-live` | The real browser → WASM → node journey on a devnet |
 
 ## Add a suite
 

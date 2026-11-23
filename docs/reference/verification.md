@@ -38,6 +38,27 @@ Eleven deploys, all `finalized`; the machine-readable record is
 `deployments/live-client-results.json`. `make cli-live` separately records a CLI
 create-and-read against the same devnet. These are local results, not a public testnet run.
 
+## Browser end-to-end campaign
+
+The Playwright layer runs the reference app in a real Chromium browser:
+
+| Suite | Result |
+|---|---|
+| Fixture, `fixture-chromium` + `fixture-mobile` | **27 tests**, all 12 routes, all 32 write methods (33 form instances), settings, catalogue, keystore, deploy history and a mobile smoke |
+| Live, `live-chromium` | **13 steps**, **10 finalized** writes and **1 refused** deploy |
+
+The fixture suite runs with no node and no generated WASM: it aborts `**/api/**` and
+`**/wasm/**` and fails if either is requested. The live suite switches the app from fixture
+to live in the browser, creates two keystores, funds the publisher from the devnet faucet,
+founds a 2-of-2 publication, adds a writer, runs an article through create → submit →
+approve → publish, creates and seals an edition, pauses through the admin multisig, then
+submits an article against the paused publication and asserts the `paused` refusal. It
+reloads and reads the publication, article, edition, deploy history and keystores back.
+
+The recorded local run used rholo node build `5b9685e` on the local 40403 devnet. The result
+is `deployments/browser-e2e-results.json`. The fixture suite is a push/PR CI gate; the live
+suite runs in the dispatch/schedule devnet job.
+
 ## CI devnet campaign
 
 The dispatch run
@@ -82,6 +103,10 @@ on dispatch and schedule because it builds the node image and a Docker network.
 - **live client**: the Node script exercises the real WASM term/sign/poll path; the vitest
   suite covers every `RprintApi` write through a fake bridge and transport, including
   refusals, processed-with-error and finality timeouts.
+- **browser fixture**: every route and every write form render in Chromium with a fresh
+  context, no node and no WASM; the request blocker proves the isolation.
+- **browser live**: the real browser, Vite build, WASM wallet, HTTP transport and finality
+  wait execute the publication, article, edition, multisig and refusal journey.
 
 ## What is not verified
 
@@ -91,9 +116,10 @@ on dispatch and schedule because it builds the node image and a Docker network.
 - No r-sure or r-gen root enabled in the recorded campaign; the adapters were disabled and
   the optional surfaces were exercised with mock entity contracts.
 - No multi-validator finality campaign.
-- No browser Playwright suite; the live smoke runs the same TypeScript client under Node.
-- The live smoke does not fund a commission (that needs an r-cash-funded account); the
-  escrow is covered by the 18-suite campaign and the fake-transport client tests.
+- The live browser journey covers a representative path, not all 32 writes; the remaining
+  writes have fake-transport unit coverage and fixture browser rendering.
+- The live browser journey does not fund a commission (that needs an r-cash-funded account);
+  the escrow is covered by the 18-suite campaign and the fake-transport client tests.
 - r-sure and r-gen roots remain disabled; cover and K-Asset links are URI surfaces only.
 
 ## How to reproduce
@@ -108,6 +134,9 @@ make devnet-up rcash-keys rcash-bootstrap keys install
 make unit-all
 make client-live
 make cli-live
+make web-e2e-install
+make web-e2e-fixture
+make web-e2e-live NODE=http://127.0.0.1:40403
 ```
 
 A suite that cannot reach a healthy devnet reports `not_run`, never a pass. Report the actual

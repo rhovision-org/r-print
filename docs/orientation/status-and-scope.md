@@ -9,8 +9,10 @@ article_refusals, interfaces, pause_scope, behavior, corrections and edition. Th
 rholo node `0.1.0` build `8fe0136`. A later live-client smoke on the local 50403 devnet
 (rholo node build `5b9685e`) founded a publication, wrote an article through its lifecycle
 and sealed an edition: 11 steps, 11 finalized deploys. The CI dispatch devnet on the pinned
-node build `e2d073d` independently recorded 18/18 suites and 11/11 finalized live steps. All
-are local or CI Docker results, not a public testnet or mainnet claim.
+node build `e2d073d` independently recorded 18/18 suites and 11/11 finalized live steps. A
+browser fixture suite covers every route and write form with the node and WASM blocked; a
+live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the local
+devnet. All are local or CI Docker results, not a public testnet or mainnet claim.
 
 ## Labels
 
@@ -38,6 +40,7 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Pause scope | `pause_scope` |
 | Named integration graph | `make check-graph` |
 | Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
+| Browser e2e layer | `make web-e2e-fixture`; `make web-e2e-live`; recorded `deployments/browser-e2e-results.json` |
 
 ## What is surface
 
@@ -70,6 +73,9 @@ make client-check
 make unit-all
 make client-live
 make cli-live
+make web-e2e-install
+make web-e2e-fixture
+make web-e2e-live NODE=http://127.0.0.1:40403
 ```
 
 A suite that cannot reach a healthy devnet reports `not_run`, never a pass. A live-client

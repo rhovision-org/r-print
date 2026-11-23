@@ -16,7 +16,9 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > through its lifecycle, sealed a one-article edition and paused through admin multisig on
 > the local 50403 devnet (rholo node build `5b9685e`). The CI dispatch devnet recorded
 > 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
-> Subscriptions, revenue splits, crowdfunding, reader tips, syndication, the
+> A Chromium fixture suite renders every route and every write form with `/api` and `/wasm`
+> blocked; a live browser journey records 10 finalized writes and 1 refusal on the local
+> devnet. Subscriptions, revenue splits, crowdfunding, reader tips, syndication, the
 > coordination-record contract and the Lean model remain design.
 
 ## Why
@@ -63,7 +65,8 @@ hashes, authority records and optional sibling URIs.
 | `spec/` | invariants, acceptance, flows, vectors and design-only surfaces |
 | `crates/` | `rprint-core`, `rprint-keystore`, `rprint-sdk`, `rprint-wallet`, `rprint-cli`, `rprint-wasm` |
 | `web/` | React/Vite/TS live client with typed forms for every write and a fixture default |
-| `docs/` | the 51-chapter mdBook source |
+| `web/e2e/` | Playwright fixture and live browser journeys |
+| `docs/` | the 52-chapter mdBook source |
 
 ## Quickstart
 
@@ -73,6 +76,8 @@ make spec-check        # build, measure, arch, captures, select, placeholders, m
 make parse-check       # needs ../RNodeRust, the rholo node checkout
 make docs-check
 make client-check      # fmt, clippy, tests, wasm32, wasm-pack, wasm smoke, web tests and build
+make web-e2e-install   # one-time Chromium download
+make web-e2e-fixture   # browser fixture suite; no node and no WASM
 ```
 
 Optional devnet campaign:
@@ -82,13 +87,16 @@ make devnet-up rcash-keys rcash-bootstrap keys install
 make unit-all
 make client-live      # real WASM signing + HTTP: publication, commission, article, edition, multisig
 make cli-live         # CLI read/submit against the same devnet
+make web-e2e-live NODE=http://127.0.0.1:40403  # real Chromium browser journey
 ```
 
 The measured contract campaign on 2026-11-23 passed all 18 suites on a local single-validator
 devnet (rholo node 0.1.0 build `8fe0136`). The live client smoke was recorded later on the
 local 50403 devnet (node build `5b9685e`): 11 steps, 11 finalized deploys. The CI dispatch
 devnet on the pinned node build `e2d073d` recorded 18/18 suites and 11/11 finalized live
-steps. There is no claim of a public testnet or audited deployment.
+steps. The browser fixture suite records 27 tests over two projects; the local browser live
+journey records 13 steps, 10 finalized writes and 1 refusal. There is no claim of a public
+testnet or audited deployment.
 
 ## The graph
 
@@ -114,6 +122,8 @@ and the web client maps every `RprintApi` method to a typed form.
   wallet.
 - **Multisig** collects signatures one keystore at a time over the payload fetched from the
   deployed `Codec`; the client never joins admin keys by hand.
+- **Browser e2e** runs every route and form in Chromium in fixture mode with the node and
+  WASM blocked, and runs one real browser journey against a devnet in live mode.
 - **No indexer.** Discovery is a local catalogue of links and share URIs.
 
 Commission funding still assumes an r-cash-funded account; the devnet faucet only fills the

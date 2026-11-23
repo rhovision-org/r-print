@@ -1,7 +1,8 @@
 # Web client spec
 
 > **Status:** Implemented, live in opt-in live mode. Fixture mode remains the default.
-> The local live smoke is recorded; no browser Playwright suite and no public testnet.
+> The local live smoke and the browser fixture/live campaigns are recorded; there is no
+> public testnet run.
 
 The web client is a working client over a running node, and a fixture-backed reference client
 when no node is configured. The source is under `web/`.
@@ -75,16 +76,37 @@ editions and commissions are reached by URI.
 
 ## Tests
 
-- 146 vitest tests: fixture reads, every live write through a fake bridge/transport, every
+- 147 vitest tests: fixture reads, every live write through a fake bridge/transport, every
   read's mapping, refusals vs errors, finality timeouts, keystore storage, settings, deploy
   history, surface and form coverage.
 - `web/tests/wasm-smoke.mjs`: the WASM boundary; no network.
 - `web/tests/live-client.ts`: the real WASM + HTTP stack against a devnet; creates a
   publication, writes and publishes an article, seals an edition and reads everything back.
+- Playwright fixture: 27 tests across Chromium and a Pixel 7 project; every route and every
+  write form; `/api` and `/wasm` are blocked to prove isolation.
+- Playwright live: one Chromium journey, 13 steps, 10 finalized deploys and 1 refusal; two
+  keystores, a 2-of-2 publication, article lifecycle, edition seal, admin multisig pause and
+  a deliberate `paused` refusal, then a reload and read-back.
+
+## Browser end-to-end
+
+```sh
+make web-e2e-install
+make web-e2e-fixture
+make web-e2e-live NODE=http://127.0.0.1:40403
+```
+
+The suite runs against a production Vite build served by `vite preview`, not the dev server,
+so the file-watcher limit cannot make CI flaky. The live test changes the hash to navigate:
+a document load reinitializes the WASM wallet and locks it. It uses fresh browser contexts,
+unique entity ids per run, and state waits rather than sleeps. Fixture mode is the push/PR
+gate; live mode runs in the devnet job and writes
+`deployments/browser-e2e-results.json`.
 
 ## Limits
 
 Live mode is devnet-only. Reads are at the node's tip and are not finality-checked. Writes
 require a funded native REV vault; commission funding assumes an r-cash-funded account. The
-client does not fetch or host content. There is no browser Playwright suite, no public testnet
-run and no audit.
+client does not fetch or host content. The live browser journey is a representative path, not
+all 32 writes; the rest have fake-transport unit coverage and fixture browser rendering. No
+public testnet run and no audit.

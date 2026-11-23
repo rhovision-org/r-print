@@ -90,6 +90,21 @@ rprint wallet sign-payload --keystore key.json --password-env RPRINT_PASSWORD \
 
 `make client-live` and `make cli-live` run the recorded smoke paths against a devnet.
 
+## Browser end-to-end
+
+```sh
+make web-e2e-install                         # one-time Chromium download
+make web-e2e-fixture                         # no node, no WASM
+make web-e2e-live NODE=http://127.0.0.1:40403
+```
+
+The fixture suite is the push/PR gate. The live suite creates two keystores, funds the
+publisher from the faucet, founds a 2-of-2 publication, runs an article and edition through
+their lifecycles, pauses through the admin multisig, and asserts a `paused` refusal. It
+writes `deployments/browser-e2e-results.json`; the CI devnet job uploads it with the
+Playwright report. The suite runs against a production build served by `vite preview`, not
+the dev server.
+
 ## Troubleshooting
 
 - **Live mode says the wasm build is missing.** Run `make client-wasm-pack` and reload.
