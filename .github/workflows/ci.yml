@@ -132,6 +132,7 @@ jobs:
           RCASH_DIR: ${{ github.workspace }}/rholo
           RHOLO_DIR: ${{ github.workspace }}/rnode-rust
         run: |
+          make -C rholo venv
           make devnet-up
           make rcash-keys
           make rcash-bootstrap
