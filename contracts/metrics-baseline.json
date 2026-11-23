@@ -1,0 +1,40 @@
+{
+  "deploy_terms": 5,
+  "bytes_total": 30733,
+  "bytes_max": 8444,
+  "depth_max": 23,
+  "contracts_max": 10,
+  "components": 8,
+  "state_cell_types": 3,
+  "arm_declarations": 39,
+  "root_resolve_sites": 2,
+  "registry_lookup_sites": 10,
+  "registry_insert_sites": 8,
+  "terms_detail": {
+    "00_root.rho": {
+      "bytes": 8437,
+      "depth": 20,
+      "contracts": 8
+    },
+    "01_kernel.rho": {
+      "bytes": 2725,
+      "depth": 13,
+      "contracts": 6
+    },
+    "02_admin.rho": {
+      "bytes": 4680,
+      "depth": 20,
+      "contracts": 5
+    },
+    "03_terms.rho": {
+      "bytes": 8444,
+      "depth": 19,
+      "contracts": 10
+    },
+    "40_payments.rho": {
+      "bytes": 6447,
+      "depth": 23,
+      "contracts": 6
+    }
+  }
+}

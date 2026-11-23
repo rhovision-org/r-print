@@ -20,7 +20,7 @@ done
 
 cat > "$CRATE/Cargo.toml" <<EOF
 [package]
-name = "rshare-parse"
+name = "rprint-parse"
 version = "0.1.0"
 edition = "2021"
 
@@ -45,4 +45,4 @@ EOF
 
 cd "$CRATE"
 RUSTC_BOOTSTRAP=1 CC="${CC:-/usr/bin/gcc}" cargo build --release --quiet
-exec "$CRATE/target/release/rshare-parse" "${ARGS[@]}"
+exec "$CRATE/target/release/rprint-parse" "${ARGS[@]}"

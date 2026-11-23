@@ -1,0 +1,50 @@
+{
+  "limits": {
+    "bytes": 57344,
+    "depth": 96,
+    "contracts": 40,
+    "per_file": {}
+  },
+  "components": {
+    "PrintRoot": {
+      "file": "00_root.rho",
+      "state_cells": ["rootState"],
+      "depends_on": []
+    },
+    "Clock": {
+      "file": "01_kernel.rho",
+      "state_cells": [],
+      "depends_on": []
+    },
+    "Verifier": {
+      "file": "01_kernel.rho",
+      "state_cells": [],
+      "depends_on": []
+    },
+    "Codec": {
+      "file": "01_kernel.rho",
+      "state_cells": [],
+      "depends_on": []
+    },
+    "AdminGuard": {
+      "file": "02_admin.rho",
+      "state_cells": [],
+      "depends_on": ["Verifier", "Codec"]
+    },
+    "PrintAdmin": {
+      "file": "02_admin.rho",
+      "state_cells": ["adminState"],
+      "depends_on": ["AdminGuard"]
+    },
+    "Payments": {
+      "file": "40_payments.rho",
+      "state_cells": ["paymentsState"],
+      "depends_on": ["PrintAdmin"]
+    },
+    "Terms": {
+      "file": "03_terms.rho",
+      "state_cells": [],
+      "depends_on": ["Codec"]
+    }
+  }
+}

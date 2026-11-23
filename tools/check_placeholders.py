@@ -12,7 +12,7 @@ BUILD = ROOT / "contracts" / "build"
 ALLOWED = {
     "__ROOT_URI__",
     "__RCASH_ROOT_URI__",
-    "__PLATFORM_OWNER__",
+    "__PROTOCOL_OWNER__",
     "__ADMINS__",
     "__THRESHOLD__",
     "__INSTALLER__",

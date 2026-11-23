@@ -1,0 +1,35 @@
+{
+  "limits": {
+    "bytes": 57344,
+    "depth": 96,
+    "contracts": 40,
+    "per_file": {}
+  },
+  "terms": {
+    "00_root.rho": {
+      "bytes": 8437,
+      "depth": 20,
+      "contracts": 8
+    },
+    "01_kernel.rho": {
+      "bytes": 2725,
+      "depth": 13,
+      "contracts": 6
+    },
+    "02_admin.rho": {
+      "bytes": 4680,
+      "depth": 20,
+      "contracts": 5
+    },
+    "03_terms.rho": {
+      "bytes": 8444,
+      "depth": 19,
+      "contracts": 10
+    },
+    "40_payments.rho": {
+      "bytes": 6447,
+      "depth": 23,
+      "contracts": 6
+    }
+  }
+}

@@ -1,0 +1,82 @@
+// Small list helpers shared by the term validators and the escrow accounting.
+// Lists are immutable; callers rebuild a list rather than mutating it.
+
+contract listSum(@items, @i, @acc, ret) = {
+  if (i >= items.length()) {
+    ret!(acc)
+  } else {
+    match items.nth(i) {
+      x => { listSum!(items, i + 1, acc + x, *ret) }
+    }
+  }
+} |
+
+contract listSumField(@items, @field, @i, @acc, ret) = {
+  if (i >= items.length()) {
+    ret!(acc)
+  } else {
+    match items.nth(i) {
+      x => { listSumField!(items, field, i + 1, acc + x.get(field), *ret) }
+    }
+  }
+} |
+
+contract listField(@items, @field, @i, @acc, ret) = {
+  if (i >= items.length()) {
+    ret!(acc)
+  } else {
+    match items.nth(i) {
+      x => { listField!(items, field, i + 1, acc ++ [x.get(field)], *ret) }
+    }
+  }
+} |
+
+contract listHas(@items, @value, @i, ret) = {
+  if (i >= items.length()) {
+    ret!(false)
+  } else {
+    match items.nth(i) {
+      x => {
+        if (x == value) { ret!(true) }
+        else { listHas!(items, value, i + 1, *ret) }
+      }
+    }
+  }
+} |
+
+contract listDistinct(@items, @i, @seen, ret) = {
+  if (i >= items.length()) {
+    ret!((true, Nil))
+  } else {
+    match items.nth(i) {
+      x => {
+        new kCh in {
+          kCh!(x.toString()) |
+          for (@k <- kCh) {
+            if (seen.get(k) != Nil) { ret!((false, k)) }
+            else { listDistinct!(items, i + 1, seen.set(k, true), *ret) }
+          }
+        }
+      }
+    }
+  }
+} |
+
+// Set a map field inside one list entry. The list is rebuilt; no entry is mutated.
+contract listSetField(@items, @index, @field, @value, @i, @acc, ret) = {
+  if (i >= items.length()) {
+    ret!(acc)
+  } else {
+    match items.nth(i) {
+      x => {
+        new nextCh in {
+          if (i == index) { nextCh!(acc ++ [x.set(field, value)]) }
+          else { nextCh!(acc ++ [x]) } |
+          for (@next <- nextCh) {
+            listSetField!(items, index, field, value, i + 1, next, *ret)
+          }
+        }
+      }
+    }
+  }
+} |

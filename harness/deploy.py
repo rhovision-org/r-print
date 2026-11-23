@@ -27,12 +27,12 @@ def _devnet_config() -> dict:
 
 
 _CFG = _devnet_config()
-NODE = os.environ.get("RSHARE_NODE", _CFG.get("node", "http://localhost:40403"))
-ADMIN = os.environ.get("RSHARE_ADMIN", _CFG.get("admin_node", "http://localhost:40405"))
-CONTAINER = os.environ.get("RSHARE_CONTAINER", "devnet-bootstrap")
-SHARD = os.environ.get("RSHARE_SHARD", _CFG.get("shard_id", "/root"))
-PHLO_LIMIT = int(os.environ.get("RSHARE_PHLO_LIMIT", _CFG.get("phlo_limit", 4000000)))
-PHLO_PRICE = int(os.environ.get("RSHARE_PHLO_PRICE", _CFG.get("phlo_price", 1)))
+NODE = os.environ.get("RPRINT_NODE", _CFG.get("node", "http://localhost:40403"))
+ADMIN = os.environ.get("RPRINT_ADMIN", _CFG.get("admin_node", "http://localhost:40405"))
+CONTAINER = os.environ.get("RPRINT_CONTAINER", "devnet-bootstrap")
+SHARD = os.environ.get("RPRINT_SHARD", _CFG.get("shard_id", "/root"))
+PHLO_LIMIT = int(os.environ.get("RPRINT_PHLO_LIMIT", _CFG.get("phlo_limit", 4000000)))
+PHLO_PRICE = int(os.environ.get("RPRINT_PHLO_PRICE", _CFG.get("phlo_price", 1)))
 DEPLOY_RE = re.compile(r"DeployId is:\s*([0-9a-fA-F]+)")
 
 
@@ -63,7 +63,7 @@ def docker_exec(args: list[str], input_text: str | None = None,
 
 
 def write_term(term: str) -> str:
-    path = f"/tmp/rshare-{uuid.uuid4().hex}.rho"
+    path = f"/tmp/rprint-{uuid.uuid4().hex}.rho"
     proc = docker_exec(["sh", "-c", f"cat > {path}"], input_text=term)
     if proc.returncode != 0:
         raise DevnetError(f"could not write term: {proc.stderr.strip()}")
@@ -149,7 +149,7 @@ def faucet(address: str) -> dict:
 
 
 def keys_path() -> Path:
-    return Path(os.environ.get("RSHARE_KEYS", _CFG.get("keys", ".devnet/keys.json")))
+    return Path(os.environ.get("RPRINT_KEYS", _CFG.get("keys", ".devnet/keys.json")))
 
 
 def load_keys() -> dict:

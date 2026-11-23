@@ -18,7 +18,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "deployments" / "suite-results.json"
 
-SUITES: dict[str, str] = {}
+SUITES: dict[str, str] = {
+    "root": "unit_root.py",
+    "payments": "unit_payments.py",
+    "admin": "unit_admin.py",
+}
 EXPERIMENTAL: set[str] = set()
 SAFE_ONLY: set[str] = set()
 AUDIT: set[str] = set()

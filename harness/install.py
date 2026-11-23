@@ -1,0 +1,246 @@
+#!/usr/bin/env python3
+"""Render and deploy the r-print terms in order.
+
+The r-cash Root URI and protocol owner are read from configs/rcash.json and the r-cash
+devnet manifest. `--dry-run` renders only, so static checks can parse the rendered terms
+without a node.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "harness"))
+sys.path.insert(0, str(ROOT / "tools"))
+
+import deploy as node  # noqa: E402
+import preflight  # noqa: E402
+from minify_rho import minify  # noqa: E402
+from profiles import DEFAULT_PROFILE, PROFILES  # noqa: E402
+from rcash_paths import configured_manifest  # noqa: E402
+
+
+def load_json(path: Path) -> dict:
+    if not path.is_file():
+        raise SystemExit(f"install: missing {path}")
+    return json.loads(path.read_text())
+
+
+def render(text: str, values: dict[str, str]) -> str:
+    for key, value in values.items():
+        text = text.replace(key, value)
+    return text
+
+
+def decode(value):
+    if isinstance(value, list):
+        return [decode(item) for item in value]
+    if isinstance(value, dict):
+        if "ExprString" in value:
+            return value["ExprString"]["data"]
+        if "ExprUri" in value:
+            return value["ExprUri"]["data"]
+        if "ExprInt" in value:
+            return int(value["ExprInt"]["data"])
+        if "ExprBool" in value:
+            return bool(value["ExprBool"]["data"])
+        if "ExprTuple" in value:
+            return tuple(decode(item) for item in value["ExprTuple"]["data"])
+        if "ExprList" in value:
+            return [decode(item) for item in value["ExprList"]["data"]]
+        if "ExprSet" in value:
+            return [decode(item) for item in value["ExprSet"]["data"]]
+        if "ExprByteArray" in value:
+            return bytes.fromhex(value["ExprByteArray"]["data"])
+        return {key: decode(item) for key, item in value.items()}
+    return value
+
+
+def find_uri(value) -> str | None:
+    if isinstance(value, str):
+        return value if value.startswith("rho:id:") else None
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            found = find_uri(item)
+            if found:
+                return found
+    if isinstance(value, dict):
+        for item in value.values():
+            found = find_uri(item)
+            if found:
+                return found
+    return None
+
+
+def admin_literal(keys: dict, dev_single_key: bool) -> str:
+    names = ["admin1", "admin2", "admin3"]
+    picked = [keys[name]["public"] for name in names if name in keys]
+    distinct = list(dict.fromkeys(picked))
+    if len(distinct) < 3:
+        if not dev_single_key:
+            raise SystemExit(
+                "install: need admin1, admin2 and admin3 with distinct keys; "
+                "pass --dev-single-key only on a throwaway devnet"
+            )
+        distinct = [keys["deployer"]["public"]] * 3
+    return "[" + ", ".join(f'"{key}".hexToBytes()' for key in distinct[:3]) + "]"
+
+
+def verify_rcash(root_uri: str, required: list[str]) -> None:
+    """Fail closed before a partial install when r-cash is missing a component."""
+    sys.path.insert(0, str(ROOT / "harness"))
+    import actors
+    missing = []
+    for key in required:
+        try:
+            reply = actors.invoke(root_uri, "resolve", f'"{key}", 1')
+            if not (isinstance(reply, tuple) and reply[0] is True):
+                missing.append(key)
+        except Exception:
+            missing.append(key)
+    if missing:
+        raise SystemExit(f"install: r-cash not ready: missing {missing}")
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--node", default=None)
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--dev-single-key", action="store_true",
+                    help="allow a 2-of-3 set built from one devnet key (never for production)")
+    ap.add_argument("--profile", choices=sorted(PROFILES), default=DEFAULT_PROFILE)
+    args = ap.parse_args(argv)
+    order = PROFILES[args.profile]
+
+    if args.node:
+        node.NODE = args.node
+
+    if not args.dry_run and not preflight.require_devnet("install"):
+        return 2
+
+    cfg = load_json(ROOT / "configs" / "devnet.json")
+    rcash = load_json(ROOT / "configs" / "rcash.json")
+    if args.dry_run and not node.keys_path().is_file():
+        keys = {
+            "deployer": {"address": "1111dryrun",
+                         "public": "02" + "11" * 32,
+                         "secret": "00" * 32},
+            "admin1": {"public": "02" + "22" * 32},
+            "admin2": {"public": "02" + "33" * 32},
+            "admin3": {"public": "02" + "44" * 32},
+        }
+    else:
+        keys = node.load_keys()
+    if "deployer" not in keys:
+        raise SystemExit("install: keys file has no deployer key")
+
+    rcash_manifest = configured_manifest(
+        cfg.get("rcash_manifest", rcash["root_manifest_path"]))
+    if rcash_manifest.is_file():
+        rcash_root = load_json(rcash_manifest)["root_uri"]
+    elif args.dry_run:
+        rcash_root = "rho:id:dryrun-rcash"
+    else:
+        raise SystemExit(f"install: missing r-cash manifest {rcash_manifest}; "
+                         "run `make rcash-install` first")
+
+    if not args.dry_run:
+        verify_rcash(
+            rcash_root,
+            rcash.get("required_components", [
+                "component:account-factory",
+                "component:asset-resolver",
+                "component:clock",
+            ]),
+        )
+
+    common = {
+        "__ADMINS__": admin_literal(keys, args.dev_single_key),
+        "__THRESHOLD__": "2",
+        "__RCASH_ROOT_URI__": rcash_root,
+        "__PROTOCOL_OWNER__": keys["deployer"]["address"],
+    }
+
+    build = ROOT / "contracts" / "build"
+    rendered_dir = ROOT / ".devnet" / "rendered"
+    rendered_dir.mkdir(parents=True, exist_ok=True)
+    if args.dry_run:
+        for stale in rendered_dir.glob("*.rho"):
+            if stale.name not in order:
+                stale.unlink()
+    state: dict = {}
+    root_uri = "rho:id:dryrun" if args.dry_run else None
+    secret = keys["deployer"]["secret"]
+
+    for name in order:
+        source = build / name
+        if not source.is_file():
+            raise SystemExit(f"install: missing {source}; run `make build`")
+        values = dict(common)
+        values["__ROOT_URI__"] = root_uri or "rho:id:pending"
+        rendered = render(source.read_text(), values)
+        (rendered_dir / name).write_text(rendered)
+        term = minify(rendered)
+        if len(term.encode()) > 65536:
+            raise SystemExit(
+                f"install: {name} is {len(term.encode())} bytes after minification; "
+                "the node parses at most 65536"
+            )
+
+        if args.dry_run:
+            print(f"install: rendered {name} ({len(term.encode())} bytes minified)")
+            continue
+
+        deploy_id, result = node.deploy_and_wait(term, secret)
+        decoded = decode(result)
+        print(f"install: {name} -> {deploy_id}")
+        # This devnet processes a deploy before its block is final; give the registry
+        # insertion time to become visible before the next term resolves the Root.
+        time.sleep(1.5)
+        if name == "00_root.rho":
+            root_uri = find_uri(decoded)
+            if not root_uri:
+                raise SystemExit(f"install: could not find root URI in {decoded}")
+            state["root_uri"] = root_uri
+            print(f"install: root {root_uri}")
+        else:
+            state.setdefault("components", {})[name] = decoded
+            if not find_uri(decoded):
+                raise SystemExit(
+                    f"install: {name} returned no component URI: {decoded!r}"
+                )
+            if name == "40_payments.rho":
+                pay_uri = find_uri(decoded)
+                if not pay_uri:
+                    raise SystemExit(f"install: no payments URI in {decoded}")
+                ensure = (
+                    "new rl(`rho:registry:lookup`), ch, "
+                    "dId(`rho:rchain:deployerId`), ret, "
+                    "deployId(`rho:rchain:deployId`) in {\n"
+                    f"  rl!(`{pay_uri}`, *ch) |\n"
+                    "  for (P <- ch) {\n"
+                    "    P!(\"ensureAccount\", *dId, *ret) |\n"
+                    "    for (@r <- ret) { deployId!(r) }\n"
+                    "  }\n"
+                    "}\n"
+                )
+                node.deploy_and_wait(ensure, secret)
+                print("install: protocol account ensured")
+
+    if not args.dry_run:
+        manifest = ROOT / cfg.get("manifest", "deployments/devnet.json")
+        manifest.parent.mkdir(parents=True, exist_ok=True)
+        state["profile"] = args.profile
+        state["install_order"] = order
+        manifest.write_text(json.dumps({"root_uri": root_uri, **state}, indent=2) + "\n")
+        print(f"install: wrote {manifest}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

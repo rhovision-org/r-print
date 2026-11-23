@@ -44,13 +44,13 @@ def _nonce_reply(reply, label: str) -> int:
 
 
 def admin_nonce_read() -> int:
-    """The current global admin nonce, read from ShareAdmin("nonce")."""
+    """The current global admin nonce, read from PrintAdmin("nonce")."""
     admin = resolve("component:admin")
     return _nonce_reply(invoke(admin, "nonce"), "admin")
 
 
 def root_nonce_read() -> int:
-    """The current governance nonce, read from ShareRoot("nonce")."""
+    """The current governance nonce, read from PrintRoot("nonce")."""
     return _nonce_reply(one(root_call("nonce")), "root")
 
 

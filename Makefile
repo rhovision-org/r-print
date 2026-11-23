@@ -67,7 +67,7 @@ check-flows:
 check-vectors:
 	$(PY) tools/check_vectors.py
 
-spec-check: build-check measure-check check-arch check-captures check-select \
+spec-check: build-check measure-check metrics-compare check-arch check-captures check-select \
             check-placeholders check-money check-suites
 
 parse-check:
