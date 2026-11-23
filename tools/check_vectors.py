@@ -33,6 +33,8 @@ def main() -> int:
     total = 0
     for path in files:
         doc = json.loads(path.read_text())
+        if doc.get("schema") == "rprint.lean-vectors/v1":
+            continue
         for vector in doc.get("vectors", []):
             total += 1
             kind = vector.get("kind")

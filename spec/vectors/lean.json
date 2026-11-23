@@ -1,0 +1,158 @@
+{
+  "generated_by": "spec/lean/RPrint/Emit.lean",
+  "schema": "rprint.lean-vectors/v1",
+  "vectors": {
+    "article.approve.requires_kasset": {
+      "input": "true",
+      "output": "none"
+    },
+    "article.attachKnowledge.published": {
+      "input": "published",
+      "output": "none"
+    },
+    "article.correct.append_only": {
+      "input": "published",
+      "output": "published,9,1"
+    },
+    "article.publish.not_approved": {
+      "input": "true",
+      "output": "none"
+    },
+    "article.publish.ok": {
+      "input": "true",
+      "output": "published,9,0"
+    },
+    "article.retract.appends": {
+      "input": "published",
+      "output": "retracted,9,1"
+    },
+    "article.submit.not_author": {
+      "input": "false,9",
+      "output": "none"
+    },
+    "article.submit.ok": {
+      "input": "true,9",
+      "output": "submitted,9,0"
+    },
+    "commission.accept.ok": {
+      "input": "2",
+      "output": "accepted"
+    },
+    "commission.accept.wrong_status": {
+      "input": "2",
+      "output": "none"
+    },
+    "commission.cancel.ok": {
+      "input": "true",
+      "output": "cancelled"
+    },
+    "commission.fund.not_accepted": {
+      "input": "3",
+      "output": "none"
+    },
+    "commission.fund.ok": {
+      "input": "3",
+      "output": "active,1000,1000"
+    },
+    "edition.append.duplicate": {
+      "input": "published,same,dup",
+      "output": "none"
+    },
+    "edition.append.ok": {
+      "input": "published,same",
+      "output": "draft,1"
+    },
+    "edition.append.other_publication": {
+      "input": "published,other",
+      "output": "none"
+    },
+    "edition.append.unpublished": {
+      "input": "draft,same",
+      "output": "none"
+    },
+    "edition.seal.bad_signature": {
+      "input": "1,7,false",
+      "output": "none"
+    },
+    "edition.seal.empty": {
+      "input": "1,7,true",
+      "output": "none"
+    },
+    "edition.seal.ok": {
+      "input": "1,7,true",
+      "output": "sealed,1"
+    },
+    "edition.sealed.append": {
+      "input": "sealed",
+      "output": "none"
+    },
+    "escrow.arbitrate.bps": {
+      "input": "2,10001,true",
+      "output": "none"
+    },
+    "escrow.arbitrate.conserves": {
+      "input": "2,5000,true",
+      "output": "arbitrated,300,300,0,600"
+    },
+    "escrow.arbitrate.replay": {
+      "input": "1,5000,true",
+      "output": "none"
+    },
+    "escrow.cancel.conserves": {
+      "input": "true",
+      "output": "cancelled,0,1000,0,1000"
+    },
+    "escrow.expire.conserves": {
+      "input": "100",
+      "output": "expired,0,1000,0,1000"
+    },
+    "escrow.release.double": {
+      "input": "released,true,400",
+      "output": "none"
+    },
+    "escrow.release.ok": {
+      "input": "submitted,true,400",
+      "output": "active,400,0,600,1000"
+    },
+    "escrow.release.prior": {
+      "input": "submitted,false,400",
+      "output": "none"
+    },
+    "escrow.submit.too_late": {
+      "input": "pending,100,10",
+      "output": "none"
+    },
+    "publication.addMember.not_publisher": {
+      "input": "2,editor",
+      "output": "none"
+    },
+    "publication.addMember.ok": {
+      "input": "2,editor",
+      "output": "ok"
+    },
+    "publication.admin.replay": {
+      "input": "0,pause",
+      "output": "none"
+    },
+    "publication.arbitration.platform": {
+      "input": "",
+      "output": "platform"
+    },
+    "publication.pause.not_publisher": {
+      "input": "2",
+      "output": "none"
+    },
+    "publication.pause.ok": {
+      "input": "1",
+      "output": "paused"
+    },
+    "publication.removeMember.last_publisher": {
+      "input": "1",
+      "output": "none"
+    },
+    "publication.setRole.last_publisher": {
+      "input": "1,writer",
+      "output": "none"
+    }
+  }
+}

@@ -13,6 +13,7 @@ export RHOLO_DIR := $(abspath $(RHOLO_DIR))
 .PHONY: venv build build-check measure measure-check metrics metrics-compare \
         metrics-baseline check-arch check-captures check-select check-placeholders \
         check-money check-suites check-graph check-flows check-vectors check spec-check parse-check \
+        lean-build lean-check lean-vectors lean-vectors-write check-flows-strict formal-check \
         docs docs-serve docs-check devnet devnet-up devnet-wait down status rcash-install \
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
         client-lint client-test client-wasm client-wasm-pack client-wasm-node \
@@ -68,6 +69,23 @@ check-flows:
 
 check-vectors:
 	$(PY) tools/check_vectors.py
+
+lean-build:
+	cd spec/lean && lake build
+
+lean-check:
+	$(PY) tools/check_lean.py
+
+lean-vectors-write:
+	$(PY) tools/gen_lean_vectors.py --write
+
+lean-vectors:
+	$(PY) tools/check_lean_vectors.py
+
+check-flows-strict:
+	$(PY) tools/check_flows.py --strict
+
+formal-check: lean-check lean-vectors check-flows check-flows-strict
 
 check-graph:
 	$(PY) tools/check_graph.py
@@ -182,7 +200,7 @@ web-test:
 web-build:
 	npm --prefix web run build
 
-check: spec-check parse-check docs-check client-check
+check: spec-check parse-check docs-check formal-check client-check
 
 ci: check unit-all
 

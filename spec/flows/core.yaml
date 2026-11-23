@@ -1,5 +1,10 @@
-# Cornerstone flow manifest. `implemented` means the source arm exists and a behavioural
-# suite exercises it; `surface` is an optional sibling adapter; `design` is not deployed.
+# Cornerstone flow manifest. `status` is the behavioural label:
+# `implemented` (source arm exists and a suite exercises it), `surface` (optional
+# sibling adapter), `design` (not deployed), `owed` (not yet covered).
+# `lean` names the theorem that carries the arm's safety obligation and
+# `lean_status` is `proved-model`, `modeled`, `assumption` or `owed`.
+# `proved-model` means proved about the shallow Lean model, not a refinement of
+# the deployed Rholang.
 schema: rprint.flows/v1
 subsystem: cornerstone
 source_globs:
@@ -12,102 +17,217 @@ source_globs:
   - contracts/src/deploy/05_rgen.rho
   - contracts/src/deploy/06_rsure.rho
 invariants:
-  I1: {statement: "one cell, consume and repost once", status: implemented}
-  I2: {statement: "canonical masthead binding", status: implemented}
-  I5: {statement: "solo publication and platform quorum rules", status: implemented}
-  I8: {statement: "a milestone pays at most once", status: implemented}
-  I9: {statement: "terminal escrow conservation", status: implemented}
-  I12: {statement: "a published content hash is frozen", status: implemented}
-  I13: {statement: "corrections are append-only", status: implemented}
-  I16: {statement: "a sealed edition is immutable", status: implemented}
+  I1: {statement: "one cell, consume and repost once; a commit is all-or-none", lean: RPrint.commit_all_or_none, lean_status: proved-model}
+  I2: {statement: "canonical masthead binding", lean_status: assumption}
+  I3: {statement: "member identity is the derived REV address", lean_status: assumption}
+  I4: {statement: "the last publisher cannot be removed or demoted", lean: RPrint.publication_removeMember_refuses_last_publisher, lean_status: proved-model}
+  I5: {statement: "solo publication and platform quorum rules", lean: RPrint.publication_solo_arbitration_platform, lean_status: proved-model}
+  I6: {statement: "a commission is funded once, upfront, for the full total", lean: RPrint.commission_fund_creates_active_escrow, lean_status: proved-model}
+  I7: {statement: "release requires a prior submit and prior milestones", lean: RPrint.escrow_release_requires_prior, lean_status: proved-model}
+  I8: {statement: "a milestone pays at most once", lean: RPrint.escrow_release_pays_once, lean_status: proved-model}
+  I9: {statement: "terminal escrow conservation", lean: RPrint.escrow_terminal_conserved, lean_status: proved-model}
+  I10: {statement: "cancel, expire and resolve refund at most the remaining balance", lean: RPrint.escrow_cancel_conserves, lean_status: proved-model}
+  I11: {statement: "solo publisher arbitration fallback", lean_status: assumption}
+  I12: {statement: "a published content hash is frozen", lean: RPrint.article_publish_freezes_hash, lean_status: proved-model}
+  I13: {statement: "corrections are append-only", lean: RPrint.article_correct_append_only, lean_status: proved-model}
+  I14: {statement: "a retraction appends a record", lean: RPrint.article_retract_appends_record, lean_status: proved-model}
+  I15: {statement: "an edition append requires a published article from the publication", lean: RPrint.edition_append_guards, lean_status: proved-model}
+  I16: {statement: "a sealed edition is bound and immutable", lean: RPrint.edition_sealed_manifest_immutable, lean_status: proved-model}
 rules:
   - id: P-member
     arm: 'Publication@"addMember"'
     source: contracts/src/deploy/11_publication_cell.rho
     status: implemented
+    lean: RPrint.publication_addMember_requires_publisher
+    lean_status: proved-model
+  - id: P-remove
+    arm: 'Publication@"removeMember"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+    lean: RPrint.publication_removeMember_refuses_last_publisher
+    lean_status: proved-model
   - id: P-role
     arm: 'Publication@"setRole"'
     source: contracts/src/deploy/11_publication_cell.rho
     status: implemented
+    lean: RPrint.publication_setRole_refuses_last_publisher
+    lean_status: proved-model
+  - id: P-attest
+    arm: 'Publication@"attestSelf"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+    lean: RPrint.publication_attestSelf_requires_member
+    lean_status: proved-model
+  - id: P-pause
+    arm: 'Publication@"pause"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+    lean: RPrint.publication_pause_requires_publisher
+    lean_status: proved-model
+  - id: P-admin
+    arm: 'Publication@"admin"'
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+    lean: RPrint.publication_admin_replay_refused
+    lean_status: proved-model
   - id: P-arbitration
     arm: 'Publication@"arbitration"'
     source: contracts/src/deploy/11_publication_cell.rho
     status: implemented
+    lean: RPrint.publication_solo_arbitration_platform
+    lean_status: proved-model
   - id: C-propose
     arm: 'CommissionFactory@"propose"'
     source: contracts/src/deploy/20_commission.rho
     status: implemented
+    lean: RPrint.commission_propose_requires_writer
+    lean_status: proved-model
   - id: C-accept
     arm: 'CommissionProposal@"accept"'
     source: contracts/src/deploy/20_commission.rho
     status: implemented
+    lean: RPrint.commission_accept_requires_editor
+    lean_status: proved-model
+  - id: C-fund
+    arm: 'CommissionProposal@"fund"'
+    source: contracts/src/deploy/20_commission.rho
+    status: implemented
+    lean: RPrint.commission_fund_creates_active_escrow
+    lean_status: proved-model
+  - id: C-cancel
+    arm: 'CommissionProposal@"cancel"'
+    source: contracts/src/deploy/20_commission.rho
+    status: implemented
+    lean: RPrint.commission_cancel_requires_writer_or_editor
+    lean_status: proved-model
   - id: C-cover
     arm: 'CommissionProposal@"attachCover"'
     source: contracts/src/deploy/20_commission.rho
     status: surface
+    lean_status: owed
+  - id: E-submit
+    arm: 'CommissionEscrow@"submit"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+    lean: RPrint.escrow_submit_refuses_too_late
+    lean_status: proved-model
   - id: E-release
     arm: 'CommissionEscrow@"release"'
     source: contracts/src/deploy/21_commission_escrow.rho
     status: implemented
+    lean: RPrint.escrow_release_conserves
+    lean_status: proved-model
   - id: E-cancel
     arm: 'CommissionEscrow@"cancel"'
     source: contracts/src/deploy/21_commission_escrow.rho
     status: implemented
+    lean: RPrint.escrow_cancel_conserves
+    lean_status: proved-model
   - id: E-expire
     arm: 'CommissionEscrow@"expire"'
     source: contracts/src/deploy/21_commission_escrow.rho
     status: implemented
+    lean: RPrint.escrow_expire_conserves
+    lean_status: proved-model
+  - id: E-dispute
+    arm: 'CommissionEscrow@"dispute"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+    lean: RPrint.escrow_dispute_requires_writer_or_funder
+    lean_status: proved-model
   - id: E-arbitrate
     arm: 'CommissionEscrow@"arbitrate"'
     source: contracts/src/deploy/21_commission_escrow.rho
     status: implemented
+    lean: RPrint.escrow_arbitrate_conserves
+    lean_status: proved-model
+  - id: E-resolve
+    arm: 'CommissionEscrow@"resolveDispute"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+    lean: RPrint.escrow_resolveDispute_too_early_refused
+    lean_status: proved-model
+  - id: A-submit
+    arm: 'Article@"submit"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+    lean: RPrint.article_submit_rewrites_hash
+    lean_status: proved-model
   - id: A-knowledge
     arm: 'Article@"attachKnowledge"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
+    lean: RPrint.article_attachKnowledge_refused_after_publish
+    lean_status: proved-model
   - id: A-approve
     arm: 'Article@"approve"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
+    lean: RPrint.article_approve_requires_kasset
+    lean_status: proved-model
   - id: A-publish
     arm: 'Article@"publish"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
+    lean: RPrint.article_publish_freezes_hash
+    lean_status: proved-model
   - id: A-correct
     arm: 'Article@"correct"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
+    lean: RPrint.article_correct_append_only
+    lean_status: proved-model
   - id: A-retract
     arm: 'Article@"retract"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
+    lean: RPrint.article_retract_appends_record
+    lean_status: proved-model
   - id: D-append
     arm: 'Edition@"append"'
     source: contracts/src/deploy/31_edition.rho
     status: implemented
+    lean: RPrint.edition_append_guards
+    lean_status: proved-model
   - id: D-seal
     arm: 'Edition@"seal"'
     source: contracts/src/deploy/31_edition.rho
     status: implemented
+    lean: RPrint.edition_seal_binds_manifest
+    lean_status: proved-model
   - id: G-claim
     arm: 'RgenAdapter@"claim"'
     source: contracts/src/deploy/05_rgen.rho
     status: surface
+    lean_status: owed
   - id: G-provenance
     arm: 'RgenAdapter@"provenance"'
     source: contracts/src/deploy/05_rgen.rho
     status: surface
+    lean_status: owed
   - id: S-policy
     arm: 'RsureAdapter@"policy"'
     source: contracts/src/deploy/06_rsure.rho
     status: surface
+    lean_status: owed
   - id: Q-record
     arm: 'CoordinationRecord@"record"'
     source: spec/spec-only.md
     status: design
+    lean_status: owed
 core_arms:
   - 'Publication@"addMember"'
+  - 'Publication@"removeMember"'
+  - 'Publication@"pause"'
   - 'CommissionFactory@"propose"'
+  - 'CommissionProposal@"accept"'
+  - 'CommissionProposal@"fund"'
   - 'CommissionEscrow@"release"'
+  - 'CommissionEscrow@"cancel"'
+  - 'CommissionEscrow@"expire"'
+  - 'CommissionEscrow@"arbitrate"'
+  - 'Article@"submit"'
   - 'Article@"publish"'
+  - 'Article@"correct"'
+  - 'Edition@"append"'
   - 'Edition@"seal"'

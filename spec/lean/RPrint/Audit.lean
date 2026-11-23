@@ -1,0 +1,121 @@
+import RPrint
+
+/-!
+# Axiom audit
+
+`tools/check_lean.py` runs this file and accepts only `propext`,
+`Classical.choice` and `Quot.sound`. `sorryAx` is never accepted.
+-/
+
+namespace RPrint
+
+#print axioms RPrint.article_approve_requires_editor
+#print axioms RPrint.article_approve_requires_kasset
+#print axioms RPrint.article_approve_requires_submitted
+#print axioms RPrint.article_attachKnowledge_preserves_hash
+#print axioms RPrint.article_attachKnowledge_refused_after_publish
+#print axioms RPrint.article_correct_append_only
+#print axioms RPrint.article_correct_cap
+#print axioms RPrint.article_correct_only_published_or_retracted
+#print axioms RPrint.article_correct_preserves_hash
+#print axioms RPrint.article_correct_requires_editor
+#print axioms RPrint.article_publish_freezes_hash
+#print axioms RPrint.article_publish_requires_approved
+#print axioms RPrint.article_publish_requires_editor
+#print axioms RPrint.article_retract_appends_record
+#print axioms RPrint.article_retract_only_published
+#print axioms RPrint.article_retract_preserves_hash
+#print axioms RPrint.article_submit_requires_author
+#print axioms RPrint.article_submit_requires_draft
+#print axioms RPrint.article_submit_rewrites_hash
+#print axioms RPrint.commission_accept_requires_editor
+#print axioms RPrint.commission_accept_requires_proposed
+#print axioms RPrint.commission_accept_sets_editor
+#print axioms RPrint.commission_cancel_requires_writer_or_editor
+#print axioms RPrint.commission_fund_creates_active_escrow
+#print axioms RPrint.commission_fund_requires_accepted
+#print axioms RPrint.commission_fund_requires_editor
+#print axioms RPrint.commission_propose_initial
+#print axioms RPrint.commission_propose_requires_writer
+#print axioms RPrint.commit_all_or_none
+#print axioms RPrint.commit_counts
+#print axioms RPrint.commit_keeps_held
+#print axioms RPrint.commit_requires_single
+#print axioms RPrint.commit_success
+#print axioms RPrint.edition_append_cap
+#print axioms RPrint.edition_append_guards
+#print axioms RPrint.edition_append_refuses_duplicate
+#print axioms RPrint.edition_append_requires_draft
+#print axioms RPrint.edition_append_requires_editor
+#print axioms RPrint.edition_append_requires_published_article
+#print axioms RPrint.edition_append_same_publication
+#print axioms RPrint.edition_seal_binds_manifest
+#print axioms RPrint.edition_sealed_manifest_immutable
+#print axioms RPrint.edition_seal_requires_draft
+#print axioms RPrint.edition_seal_requires_editor
+#print axioms RPrint.edition_seal_requires_nonempty
+#print axioms RPrint.edition_seal_requires_signature
+#print axioms RPrint.escrow_arbitrate_bps_bounded
+#print axioms RPrint.escrow_arbitrate_conserves
+#print axioms RPrint.escrow_arbitrate_only_disputed
+#print axioms RPrint.escrow_arbitrate_replay_refused
+#print axioms RPrint.escrow_arbitrate_shares_sum
+#print axioms RPrint.escrow_cancel_conserves
+#print axioms RPrint.escrow_cancel_refunds_remaining
+#print axioms RPrint.escrow_cancel_requires_role_or_funder
+#print axioms RPrint.escrow_dispute_only_active
+#print axioms RPrint.escrow_dispute_requires_writer_or_funder
+#print axioms RPrint.escrow_expire_conserves
+#print axioms RPrint.escrow_expire_too_early_refused
+#print axioms RPrint.escrow_release_bounded_by_purse
+#print axioms RPrint.escrow_release_conserves
+#print axioms RPrint.escrow_release_pays_once
+#print axioms RPrint.escrow_release_requires_active
+#print axioms RPrint.escrow_release_requires_editor
+#print axioms RPrint.escrow_release_requires_prior
+#print axioms RPrint.escrow_release_requires_submitted
+#print axioms RPrint.escrow_remaining_eq_purse
+#print axioms RPrint.escrow_resolveDispute_conserves
+#print axioms RPrint.escrow_resolveDispute_too_early_refused
+#print axioms RPrint.escrow_submit_refuses_too_late
+#print axioms RPrint.escrow_submit_requires_active
+#print axioms RPrint.escrow_submit_requires_pending
+#print axioms RPrint.escrow_submit_requires_writer
+#print axioms RPrint.escrow_terminal_conserved
+#print axioms RPrint.findMember_setMember_same
+#print axioms RPrint.h1_pure
+#print axioms RPrint.h2a_caller_token
+#print axioms RPrint.h2b_delegated
+#print axioms RPrint.nested_call_rejected
+#print axioms RPrint.p2_await_then_commit
+#print axioms RPrint.peek_then_put_rejected
+#print axioms RPrint.publication_addMember_refuses_duplicate
+#print axioms RPrint.publication_addMember_requires_publisher
+#print axioms RPrint.publication_addMember_respects_cap
+#print axioms RPrint.publication_addMember_safe
+#print axioms RPrint.publication_admin_replay_refused
+#print axioms RPrint.publication_admin_requires_authorization
+#print axioms RPrint.publication_admin_setAdmins_requires_valid
+#print axioms RPrint.publication_arbitration_admin_fallback
+#print axioms RPrint.publication_arbitration_prefers_arbitrators
+#print axioms RPrint.publication_attestSelf_requires_member
+#print axioms RPrint.publication_attestSelf_safe
+#print axioms RPrint.publication_pause_requires_publisher
+#print axioms RPrint.publication_pause_resumes
+#print axioms RPrint.publication_pause_safe
+#print axioms RPrint.publication_pause_sets_paused
+#print axioms RPrint.publication_removeMember_refuses_last_publisher
+#print axioms RPrint.publication_removeMember_requires_publisher
+#print axioms RPrint.publication_setRole_refuses_last_publisher
+#print axioms RPrint.publication_setRole_requires_publisher
+#print axioms RPrint.publication_solo_arbitration_platform
+#print axioms RPrint.put_without_take_rejected
+#print axioms RPrint.Store.set_same
+#print axioms RPrint.Store.set_other
+#print axioms RPrint.shareOf_add_remainder
+#print axioms RPrint.shareOf_le
+#print axioms RPrint.take_put_commit
+#print axioms RPrint.take_without_put_not_wf
+#print axioms RPrint.wf_quiescent
+
+end RPrint
