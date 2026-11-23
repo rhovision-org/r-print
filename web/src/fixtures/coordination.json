@@ -1,0 +1,23 @@
+{
+  "coordinationId": "coord:kindling:water-room",
+  "subjectRef": {
+    "kind": "publication",
+    "id": "pub:kindling",
+    "uri": "rho:id:fixture-publication-kindling"
+  },
+  "roomIdHash": "room:water-investigation",
+  "pollIdHash": "poll:who-owns-the-water",
+  "outcomeHash": "outcome:commission-approved",
+  "signers": [
+    "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau",
+    "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP"
+  ],
+  "signatures": [
+    {
+      "by": "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau",
+      "sig": "3044fixture-publisher",
+      "atHeight": 1390
+    }
+  ],
+  "status": "recorded"
+}

@@ -1,0 +1,35 @@
+{
+  "proposalId": "proposal:kindling:water",
+  "publicationId": "pub:kindling",
+  "publicationUri": "rho:id:fixture-publication-kindling",
+  "writerId": "11112NR498PW4CfttBoH5ztcyWcV5NXtarbpRRX4tGjtSXxx3XhbB1",
+  "writerDid": "did:byoid:writer",
+  "editorId": "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP",
+  "titleHash": "title:who-owns-the-water",
+  "briefHash": "brief:water-investigation",
+  "total": 1000,
+  "milestones": [
+    {
+      "id": "m1",
+      "kind": "stipend",
+      "amount": 400,
+      "deadlineHeight": 1800,
+      "status": "released"
+    },
+    {
+      "id": "m2",
+      "kind": "final",
+      "amount": 600,
+      "deadlineHeight": 2000,
+      "status": "submitted"
+    }
+  ],
+  "graceBlocks": 10,
+  "disputeWindowBlocks": 20,
+  "requireFactCheck": true,
+  "coverUri": "rho:id:fixture-policy-wordings-cover",
+  "coverStatus": "active",
+  "status": "accepted",
+  "escrowUri": "rho:id:fixture-escrow-water",
+  "createdAtHeight": 1400
+}

@@ -138,7 +138,7 @@ client-wasm:
 client-wasm-smoke:
 	node web/tests/wasm-smoke.mjs
 
-client-check: client-lint client-test client-wasm
+client-check: client-lint client-test client-wasm client-wasm-smoke web-test web-build
 
 web-install:
 	npm --prefix web ci --no-audit --no-fund

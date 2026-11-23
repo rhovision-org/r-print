@@ -1,0 +1,45 @@
+{
+  "escrowId": "proposal:kindling:water",
+  "proposalId": "proposal:kindling:water",
+  "publicationId": "pub:kindling",
+  "publicationUri": "rho:id:fixture-publication-kindling",
+  "writerId": "11112NR498PW4CfttBoH5ztcyWcV5NXtarbpRRX4tGjtSXxx3XhbB1",
+  "writerDid": "did:byoid:writer",
+  "editorId": "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP",
+  "funderId": "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau",
+  "assetId": "REV",
+  "purseUri": "rho:id:fixture-purse-water",
+  "coverUri": "rho:id:fixture-policy-wordings-cover",
+  "total": 1000,
+  "milestones": [
+    {
+      "id": "m1",
+      "kind": "stipend",
+      "amount": 400,
+      "deadlineHeight": 1800,
+      "status": "released",
+      "evidenceHash": "evidence:interviews-1",
+      "submittedAtHeight": 1500,
+      "releasedAtHeight": 1510
+    },
+    {
+      "id": "m2",
+      "kind": "final",
+      "amount": 600,
+      "deadlineHeight": 2000,
+      "status": "submitted",
+      "evidenceHash": "evidence:draft-1",
+      "submittedAtHeight": 1900,
+      "releasedAtHeight": 0
+    }
+  ],
+  "graceBlocks": 10,
+  "disputeWindowBlocks": 20,
+  "hardDeadlineHeight": 2010,
+  "paidWriter": 400,
+  "refundedFunder": 0,
+  "fee": 0,
+  "status": "active",
+  "dispute": { "by": "", "reasonHash": "", "atHeight": 0 },
+  "nonce": 0
+}

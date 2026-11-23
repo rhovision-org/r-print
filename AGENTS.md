@@ -41,11 +41,21 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
   unless the first had no effect.
 - **No indexer.** Discovery is a curated catalogue plus links. Factory issuance maps are for
   idempotency and lookup by a known ID, not enumeration.
+- **Reuse the sibling primitives.** Escrow is the baseline, not a second insurance engine.
+  r-sure owns Slip/Distribution/Policy/Line; r-gen owns Claim/KAsset/Provenance/Identity/
+  Credential. r-print reads them by `rho:id:` URI through `05_rgen.rho`/`06_rsure.rho`; the
+  siblings never call back into r-print.
+- **Name the graph.** Every new mutating or cross-repo arm must add or update a vertex and
+  an edge in `spec/graph/`; `make check-graph` fails otherwise.
+- **K-Assets are optional.** `Article("attachKnowledge")` links the r-gen chain when the
+  publication wants it. `requireKAsset` is an explicit opt-in, never a default gate.
+- **Cover is optional.** `CommissionProposal("attachCover")` verifies an r-sure Policy via
+  `RsureAdapter("policy")`; the escrow rail remains the default.
 
 ## Commands
 
 ```
-make spec-check      # build, measure, arch, captures, no-select, money, suites, flows, vectors
+make spec-check      # build, measure, arch, captures, no-select, money, suites, graph, flows, vectors
 make measure         # size ledger
 make parse-check     # render and parse with the target node's parser
 make docs-check      # docs links, orphans, coverage, then mdBook build
@@ -53,10 +63,11 @@ make devnet-up       # r-cash devnet via RCASH_DIR/RHOLO_DIR
 make rcash-keys      # generate and faucet r-cash keys
 make rcash-bootstrap # install the r-cash components r-print needs
 make keys install    # copy keys and install r-print
-make unit-all        # all behavioural suites
+make unit-all        # all 18 behavioural suites
 make client-lint client-test client-wasm client-check
 make web-install web-test web-build
 make check           # spec-check parse-check docs-check client-check
+make check-graph     # named integration vertices and edges
 ```
 
 ## Rules for changes
@@ -72,6 +83,8 @@ make check           # spec-check parse-check docs-check client-check
 - Do not claim a suite passes unless `deployments/suite-results.json` records a pass from a
   healthy devnet.
 - Mark design-only features `Design intent`; never describe them as implemented.
+- The r-sure and r-gen adapters are disabled unless `configs/*.json` sets `enabled: true`
+  and a root manifest is present. Do not claim live cover or K-Asset verification otherwise.
 
 ## Documentation
 

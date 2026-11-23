@@ -1,0 +1,24 @@
+{
+  "editionId": "edition:kindling:1",
+  "publicationId": "pub:kindling",
+  "publicationUri": "rho:id:fixture-publication-kindling",
+  "number": 1,
+  "titleHash": "issue:the-water-issue",
+  "coverHash": "cover:water-issue",
+  "articles": [
+    {
+      "articleId": "article:kindling:1",
+      "articleUri": "rho:id:fixture-article-water",
+      "contentHash": "content:who-owns-the-water:v1",
+      "kassetUri": "rho:id:fixture-kasset-water"
+    }
+  ],
+  "status": "sealed",
+  "seal": {
+    "manifestHash": "b1946ac92492d2347c6235b4d2611184",
+    "editorId": "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP",
+    "editorSig": "30440220fixture",
+    "sealedAtHeight": 2050
+  },
+  "createdAtHeight": 2000
+}

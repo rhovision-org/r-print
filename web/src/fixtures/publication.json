@@ -1,0 +1,63 @@
+{
+  "publicationId": "pub:kindling",
+  "charterHash": "9f0c5d5be2a14b7ce4f2a6e2b1dbb8c3d4f6a7b8c9d0e1f2a3b4c5d6e7f80911",
+  "status": "active",
+  "admins": ["02aa11bb22cc33dd44ee55ff6600778899aabbccddeeff00112233445566778899"],
+  "threshold": 1,
+  "nonce": 0,
+  "coverUri": "rho:id:fixture-policy-wordings-cover",
+  "coverStatus": "active",
+  "charter": {
+    "nameHash": "name:the-kindling",
+    "mastheadHash": "masthead:kindling-v1",
+    "taglineHash": "tagline:slow-news",
+    "foundedAtHeight": 1200,
+    "treasuryAccountId": "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau",
+    "assetId": "REV",
+    "revenueSplit": [
+      { "memberId": "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau", "bps": 6000 },
+      { "memberId": "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP", "bps": 4000 }
+    ],
+    "admins": ["02aa11bb22cc33dd44ee55ff6600778899aabbccddeeff00112233445566778899"],
+    "threshold": 1,
+    "governance": {
+      "maxMembers": 32,
+      "requireFactCheck": true,
+      "requireKAsset": false,
+      "disputeWindowBlocks": 20,
+      "commissionGraceBlocks": 10,
+      "arbitrators": [],
+      "arbitrationThreshold": 0
+    }
+  },
+  "members": {
+    "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau": {
+      "role": "publisher",
+      "did": "did:byoid:publisher",
+      "attestationHash": "att:publisher",
+      "status": "active",
+      "sinceHeight": 1200
+    },
+    "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP": {
+      "role": "editor",
+      "did": "did:byoid:editor",
+      "attestationHash": "att:editor",
+      "status": "active",
+      "sinceHeight": 1200
+    },
+    "11112NR498PW4CfttBoH5ztcyWcV5NXtarbpRRX4tGjtSXxx3XhbB1": {
+      "role": "writer",
+      "did": "did:byoid:writer",
+      "attestationHash": "att:writer",
+      "status": "active",
+      "sinceHeight": 1210
+    },
+    "1111CLScsUWtwpkr9BPJ5uYQ6b1n4dm2Qp8hYx4cE7sWk3Rf9TaZ": {
+      "role": "factchecker",
+      "did": "did:byoid:factchecker",
+      "attestationHash": "att:factchecker",
+      "status": "active",
+      "sinceHeight": 1210
+    }
+  }
+}

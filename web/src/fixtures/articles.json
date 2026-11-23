@@ -1,0 +1,78 @@
+[
+  {
+    "articleId": "article:kindling:1",
+    "publicationId": "pub:kindling",
+    "publicationUri": "rho:id:fixture-publication-kindling",
+    "authors": [
+      {
+        "memberId": "11112NR498PW4CfttBoH5ztcyWcV5NXtarbpRRX4tGjtSXxx3XhbB1",
+        "did": "did:byoid:writer",
+        "bylineHash": "byline:writer"
+      }
+    ],
+    "contentHash": "content:who-owns-the-water:v1",
+    "license": "cc-by-4.0",
+    "customLicenseHash": "",
+    "access": "open",
+    "sectionHash": "section:investigations",
+    "requireFactCheck": true,
+    "requireKAsset": true,
+    "kassetUri": "rho:id:fixture-kasset-water",
+    "claimUri": "rho:id:fixture-claim-water",
+    "provenanceUri": "rho:id:fixture-provenance-water",
+    "credentialUri": "rho:id:fixture-credential-factchecker",
+    "knowledgeAtHeight": 1850,
+    "status": "published",
+    "publishHeight": 1860,
+    "retractHeight": 0,
+    "attestations": [
+      {
+        "id": "fact-1",
+        "kind": "factcheck",
+        "by": "1111CLScsUWtwpkr9BPJ5uYQ6b1n4dm2Qp8hYx4cE7sWk3Rf9TaZ",
+        "evidenceHash": "evidence:factcheck-1"
+      }
+    ],
+    "corrections": [
+      {
+        "id": "corr-1",
+        "kind": "correction",
+        "bodyHash": "correction:body-1",
+        "reasonHash": "reason:clarify",
+        "articleHash": "content:who-owns-the-water:v1",
+        "by": "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP"
+      }
+    ],
+    "createdAtHeight": 1700
+  },
+  {
+    "articleId": "article:kindling:2",
+    "publicationId": "pub:kindling",
+    "publicationUri": "rho:id:fixture-publication-kindling",
+    "authors": [
+      {
+        "memberId": "11112NR498PW4CfttBoH5ztcyWcV5NXtarbpRRX4tGjtSXxx3XhbB1",
+        "did": "did:byoid:writer",
+        "bylineHash": "byline:writer"
+      }
+    ],
+    "contentHash": "content:the-quiet-budget:v1",
+    "license": "cc-by-sa-4.0",
+    "customLicenseHash": "",
+    "access": "members",
+    "sectionHash": "section:local",
+    "requireFactCheck": true,
+    "requireKAsset": false,
+    "kassetUri": "",
+    "claimUri": "",
+    "provenanceUri": "",
+    "credentialUri": "",
+    "knowledgeAtHeight": 0,
+    "status": "submitted",
+    "publishHeight": 0,
+    "retractHeight": 0,
+    "attestations": [],
+    "corrections": [],
+    "createdAtHeight": 1900
+  }
+]

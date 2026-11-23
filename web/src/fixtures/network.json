@@ -1,0 +1,8 @@
+{
+  "node": "http://localhost:50403",
+  "networkId": "testnet",
+  "shardId": "/root",
+  "latestBlockNumber": 2050,
+  "acceptsDeploys": true,
+  "degraded": "normal"
+}

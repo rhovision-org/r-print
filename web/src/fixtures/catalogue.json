@@ -1,0 +1,26 @@
+[
+  {
+    "id": "pub:kindling",
+    "title": "The Kindling",
+    "uri": "rho:id:fixture-publication-kindling",
+    "kind": "publication"
+  },
+  {
+    "id": "article:kindling:1",
+    "title": "Who owns the water?",
+    "uri": "rho:id:fixture-article-water",
+    "kind": "article"
+  },
+  {
+    "id": "edition:kindling:1",
+    "title": "The Kindling, Issue 1",
+    "uri": "rho:id:fixture-edition-1",
+    "kind": "edition"
+  },
+  {
+    "id": "proposal:kindling:water",
+    "title": "Commission: water investigation",
+    "uri": "rho:id:fixture-proposal-water",
+    "kind": "commission"
+  }
+]

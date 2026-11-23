@@ -36,8 +36,8 @@ milestones:
     status: passing
   M7:
     title: Rust client and web sketch
-    evidence: ["make client-check", "npm --prefix web run build"]
-    status: in_progress
+    evidence: ["make client-check", "npm --prefix web run build", "53 web tests"]
+    status: passing
   M8:
     title: docs, CI and recorded verification
     evidence: ["make docs-check", ".github/workflows/ci.yml"]
