@@ -16,6 +16,27 @@ The node reported `rholo node 0.1.0` build `8fe0136`. The r-cash components were
 from the pinned commit `49b441dea4f5561992387ed670ab263fcd5dd164`. The suite results are
 written to `deployments/suite-results.json` and are gitignored.
 
+## Recorded live client smoke
+
+On 2026-11-23 the live client smoke ran against the local 50403 devnet with rholo node build
+`5b9685eca38250a9f0d81fb3da2f410328721aec`. It used the real WASM wallet and term builders,
+the real HTTP transport and the real finality wait:
+
+| Step | Result |
+|---|---|
+| create wallet and faucet | pass |
+| create a publication with a 2-of-2 admin set | finalized |
+| add a writer | finalized |
+| propose a commission | finalized |
+| create, submit, approve, publish an article | finalized |
+| create an edition, append the article, sign and seal | finalized |
+| read publication, article and edition back | pass |
+| fetch the Codec payload, sign with two keystores, pause via admin multisig | finalized |
+
+Eleven deploys, all `finalized`; the machine-readable record is
+`deployments/live-client-results.json`. `make cli-live` separately records a CLI
+create-and-read against the same devnet. These are local results, not a public testnet run.
+
 ## Static and parser gates
 
 | Gate | Result |
@@ -23,7 +44,7 @@ written to `deployments/suite-results.json` and are gitignored.
 | `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph |
 | `make parse-check` | every built and rendered term parses with the target node parser |
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build |
-| `make client-check` | Rust fmt/clippy/tests, wasm32 check, web typecheck/test/build |
+| `make client-check` | Rust fmt/clippy/tests, wasm32 check, wasm-pack web build, WASM smoke, web typecheck/test/build |
 | `make check-graph` | 25 vertices, 36 edges (14 implemented, 14 surface, 8 design) |
 
 ## What the suites actually assert
@@ -41,6 +62,9 @@ written to `deployments/suite-results.json` and are gitignored.
   post-seal refusal, and the small-newsroom golden transcript.
 - **interfaces / pause_scope**: adapters disabled by default, mock Claim/KAsset/Provenance
   reads, publication pause blocking new work while existing escrow releases continue.
+- **live client**: the Node script exercises the real WASM term/sign/poll path; the vitest
+  suite covers every `RprintApi` write through a fake bridge and transport, including
+  refusals, processed-with-error and finality timeouts.
 
 ## What is not verified
 
@@ -49,7 +73,10 @@ written to `deployments/suite-results.json` and are gitignored.
 - No r-sure or r-gen root enabled in the recorded campaign; the adapters were disabled and
   the optional surfaces were exercised with mock entity contracts.
 - No multi-validator finality campaign.
-- The web client is a sketch; the Rust client is a term builder.
+- No browser Playwright suite; the live smoke runs the same TypeScript client under Node.
+- The live smoke does not fund a commission (that needs an r-cash-funded account); the
+  escrow is covered by the 18-suite campaign and the fake-transport client tests.
+- r-sure and r-gen roots remain disabled; cover and K-Asset links are URI surfaces only.
 
 ## How to reproduce
 
@@ -61,7 +88,9 @@ make docs-check
 make client-check
 make devnet-up rcash-keys rcash-bootstrap keys install
 make unit-all
+make client-live
+make cli-live
 ```
 
 A suite that cannot reach a healthy devnet reports `not_run`, never a pass. Report the actual
-node build if it differs from `8fe0136`.
+node build if it differs from `8fe0136`; the live smoke recorded `5b9685e`.

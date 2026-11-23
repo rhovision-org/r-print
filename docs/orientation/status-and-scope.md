@@ -6,8 +6,10 @@ r-print v0.1 is devnet-only and unaudited. The full behavioural campaign on the 
 devnet passed **18/18** suites: root, payments, admin, schema, publication, membership_auth,
 admin_keys, commission, commission_refusals, commission_dispute, conservation, article,
 article_refusals, interfaces, pause_scope, behavior, corrections and edition. The node was
-rholo node `0.1.0` build `8fe0136`. The campaign is a measured local result, not a public
-testnet or mainnet claim.
+rholo node `0.1.0` build `8fe0136`. A later live-client smoke on the local 50403 devnet
+(rholo node build `5b9685e`) founded a publication, wrote an article through its lifecycle
+and sealed an edition: 11 steps, 11 finalized deploys. Both are measured local results, not a
+public testnet or mainnet claim.
 
 ## Labels
 
@@ -34,6 +36,7 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Optional r-gen Claim/KAsset/Provenance surface | `Article.attachKnowledge`, `interfaces`, `article` |
 | Pause scope | `pause_scope` |
 | Named integration graph | `make check-graph` |
+| Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
 
 ## What is surface
 
@@ -64,6 +67,10 @@ make parse-check
 make docs-check
 make client-check
 make unit-all
+make client-live
+make cli-live
 ```
 
-A suite that cannot reach a healthy devnet reports `not_run`, never a pass.
+A suite that cannot reach a healthy devnet reports `not_run`, never a pass. A live-client
+claim needs `deployments/live-client-results.json` with `pass: true`; a fixture or unit test
+is not a live run.

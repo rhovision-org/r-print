@@ -10,8 +10,13 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > **Status:** Devnet-only, unaudited. 18 behavioural suites pass on a fresh local devnet;
 > `make spec-check`, `make parse-check`, `make docs-check` and the Rust client gates pass.
 > Escrow is the baseline settlement rail. r-sure cover and r-gen K-Assets are optional
-> surfaces, disabled by default. Subscriptions, revenue splits, crowdfunding, reader tips,
-> syndication, the coordination-record contract and the Lean model are design.
+> surfaces, disabled by default. The client layer is live in opt-in live mode: every
+> `RprintApi` method is implemented, the key stays in WASM, and writes require finality.
+> The recorded live smoke founded a publication with a 2-of-2 admin set, wrote an article
+> through its lifecycle, sealed a one-article edition and paused through admin multisig on
+> the local 50403 devnet
+> (rholo node build `5b9685e`). Subscriptions, revenue splits, crowdfunding, reader tips,
+> syndication, the coordination-record contract and the Lean model remain design.
 
 ## Why
 
@@ -36,6 +41,7 @@ r-print supplies that missing business logic as small, auditable primitives.
 | r-sure surface | Optional Policy cover attached to a commission; escrow at scale becomes dead money |
 | r-gen surface | Optional Claim → KAsset → Provenance link on an article; not a gate |
 | Integration graph | Named vertices and edges across r-print, r-sure, r-gen, r-cash, BYOID and quantum-os |
+| Live client | Opt-in browser and CLI operation over a node, with WASM-held keys, finality and multisig |
 
 Escrow is the smallest thing that works and stays the default. A publication can attach an
 r-sure Policy when it wants proper insurance that scales. K-Assets are optional because
@@ -54,9 +60,9 @@ hashes, authority records and optional sibling URIs.
 | `harness/` | installer, fixtures, 18 behavioural suites |
 | `spec/graph/` | the named integration graph (`make check-graph`) |
 | `spec/` | invariants, acceptance, flows, vectors and design-only surfaces |
-| `crates/` | `rprint-core`, `rprint-keystore`, `rprint-sdk`, `rprint-cli`, `rprint-wasm` |
-| `web/` | React/Vite/TS full-surface sketch with typed stubs |
-| `docs/` | the 50-chapter mdBook source |
+| `crates/` | `rprint-core`, `rprint-keystore`, `rprint-sdk`, `rprint-wallet`, `rprint-cli`, `rprint-wasm` |
+| `web/` | React/Vite/TS live client with typed forms for every write and a fixture default |
+| `docs/` | the 51-chapter mdBook source |
 
 ## Quickstart
 
@@ -65,7 +71,7 @@ make venv
 make spec-check        # build, measure, arch, captures, select, placeholders, money, suites, graph, flows, vectors
 make parse-check       # needs ../RNodeRust, the rholo node checkout
 make docs-check
-make client-check      # fmt, clippy, tests, wasm32
+make client-check      # fmt, clippy, tests, wasm32, wasm-pack, wasm smoke, web tests and build
 ```
 
 Optional devnet campaign:
@@ -73,10 +79,14 @@ Optional devnet campaign:
 ```sh
 make devnet-up rcash-keys rcash-bootstrap keys install
 make unit-all
+make client-live      # real WASM signing + HTTP: publication, commission, article, edition, multisig
+make cli-live         # CLI read/submit against the same devnet
 ```
 
-The measured campaign on 2026-11-23 passed all 18 suites on a local single-validator devnet
-(rholo node 0.1.0 build `8fe0136`). There is no claim of a testnet or audited deployment.
+The measured contract campaign on 2026-11-23 passed all 18 suites on a local single-validator
+devnet (rholo node 0.1.0 build `8fe0136`). The live client smoke was recorded later on the
+local 50403 devnet (node build `5b9685e`): 11 steps, 11 finalized deploys. There is no claim
+of a testnet or audited deployment.
 
 ## The graph
 
@@ -86,10 +96,32 @@ The measured campaign on 2026-11-23 passed all 18 suites on a local single-valid
 `Member --identifiedBy--> Identity`. The r-sure and r-gen adapters read entities by `rho:id:`
 URI; neither sibling ever calls back into r-print.
 
+## Live client
+
+The client stack is horizontal over every existing primitive. `rprint-wallet` holds the
+key, signs deploys, signs canonical admin/edition payloads and decodes replies.
+`rprint-sdk::build_term` is the single Rholang entry point. `rprint-wasm` exposes the same
+surface to the browser, where the key never leaves WASM. The CLI adds live `read`/`submit`,
+and the web client maps every `RprintApi` method to a typed form.
+
+- **Reads** use explore-deploy and reply on the term's first private name.
+- **Writes** are signed deploys and succeed only after processed-with-success **and**
+  finality **and** a `(true, …)` reply. A `(false, reason)` reply is a refusal, not an error.
+- **Fixture mode is the default** for tests, CI and the book. Live mode is opt-in in Network
+  settings (`VITE_RPRINT_MODE=live`) and needs a running node, a root URI, and a funded
+  wallet.
+- **Multisig** collects signatures one keystore at a time over the payload fetched from the
+  deployed `Codec`; the client never joins admin keys by hand.
+- **No indexer.** Discovery is a local catalogue of links and share URIs.
+
+Commission funding still assumes an r-cash-funded account; the devnet faucet only fills the
+native REV vault used for phlo.
+
 ## Documentation
 
 `docs/` is the mdBook source; `docs/book/` is generated. Use `make docs`, `make docs-serve`
-and `make docs-check` (mdBook 0.5.4+).
+and `make docs-check` (mdBook 0.5.4+). The live client guide is
+[Run the live client](docs/guides/run-live-client.md).
 
 ## License
 

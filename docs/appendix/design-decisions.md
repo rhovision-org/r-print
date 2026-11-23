@@ -58,7 +58,10 @@ BYOID and quantum-os are POC-stage; they are anchors and documented edges, not h
 dependencies. r-gen and r-sure roots are pinned in configs but disabled until enabled. A fork
 can turn them on without changing the baseline.
 
-## No web wallet in v0.1
+## No web wallet in v0.1 — superseded by the live client layer
 
-The browser is a typed sketch. The working client is the Rust SDK/CLI/WASM term builder plus
-the r-cash signer. Shipping a half-wallet would be worse than specifying one.
+v0.1 shipped a typed sketch rather than a half-wallet. The next slice replaced it with an
+opt-in live client: the key is generated, unlocked and used only inside WASM; writes are
+signed deploys; finality is required; and fixture mode remains the default for tests and the
+book. The limitation that remains is deliberate: devnet-only, unaudited, no hosted backend and
+no real value.

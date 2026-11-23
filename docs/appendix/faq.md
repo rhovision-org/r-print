@@ -35,7 +35,9 @@ retraction is recorded on the article.
 **Is this audited?** No. It is devnet-only and unaudited. The 18/18 suite campaign is a local
 test result, not an audit.
 
-**Where is the web client?** It is a typed sketch with fixture reads and documented stubs.
+**Where is the web client?** It is a live client in opt-in live mode: fixture mode is the
+default for tests and the book, and live mode signs real deploys against a devnet with the
+key held in WASM. See [Run the live client](../guides/run-live-client.md).
 The Rust SDK/CLI/WASM are the working client surface.
 
 **Why are there two adapters?** r-gen supplies knowledge assets and credentials; r-sure

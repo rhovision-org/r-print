@@ -59,7 +59,7 @@ A fork that wants the primitives keeps:
 - `tools/` (build, measure, checks, parser)
 - `spec/` (invariants, graph, vectors)
 - `crates/` (core, SDK, keystore, CLI, WASM)
-- `web/` (reference sketch)
+- `web/` (opt-in live client; fixture default)
 
 Change the publication product name, the charter policy and your archive. Do not change the
 cell doctrine or the canonical publication binding.

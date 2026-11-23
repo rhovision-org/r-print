@@ -43,6 +43,26 @@ Use `Codec("adminPayload", domain, nonce, action, args)` on-chain or the client'
 builder. Do not join the public keys with a comma in TypeScript and hope it matches; the
 deployed codec is the source of truth.
 
+## Client flow
+
+The web client's `MultisigPanel` and `LiveExtras` fetch the payload from the deployed
+`Codec`. Each signer then unlocks one saved keystore in a temporary WASM wallet, signs the
+exact payload text (`sign_text_payload`: BLAKE2b-256 over UTF-8, DER secp256k1), and the
+temporary wallet is dropped. The form shows the collected count against the effective
+threshold and submits the signatures with the nonce. The contract counts distinct keys; a
+below-threshold submit is a refusal.
+
+The CLI equivalent is:
+
+```sh
+rprint --node "$NODE" read --uri "$CODEC" --arm adminPayload \
+  --args "\"publication:$PUB\", 4, \"pause\", []"
+rprint wallet sign-payload --keystore signer.json --password-env PW --payload "$PAYLOAD"
+```
+
+Publication admin uses the publication admin set. Arbitration uses the effective authority
+from `Publication("arbitration")`, including the platform fallback.
+
 ## Rules
 
 - Admin sets require distinct keys; a duplicate is `duplicate key`.

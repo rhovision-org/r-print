@@ -52,6 +52,27 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
 - **Cover is optional.** `CommissionProposal("attachCover")` verifies an r-sure Policy via
   `RsureAdapter("policy")`; the escrow rail remains the default.
 
+## Live client
+
+- **Two term shapes.** Reads use `explore_call_term` (reply on the first private name,
+  `return`); writes use `call_term` (reply on `deployId`). Explore-deploy does not expose a
+  `deployId` reply. Never use the write shape for a live read.
+- **Finality.** A write is a success only after processedWithSuccess + finalized + a
+  `(true, …)` reply. A `(false, reason)` reply is a refusal, not an error. A processed deploy
+  that never finalizes is an error, never a success.
+- **Key only in WASM.** `rprint-wallet` is the only place a key is held. The wasm facade
+  returns the encrypted keystore and wallet metadata, never a plaintext secret.
+- **`build_term` is the only term source.** TypeScript forms send a `TermRequest`; do not
+  hand-write Rholang in the browser. Rust tests pin every op's arm.
+- **Retry rule.** An ambiguous submit keeps the same op id and preferably polls the deploy id
+  or re-POSTs the same signed body; never use a fresh op id. A new op id requires confirming
+  the first had no effect.
+- **Multisig.** Fetch the payload from the deployed `Codec`; sign it with one temporary wallet
+  per signer; never hold two secrets at once. The contract counts distinct keys.
+- **Fixture default.** Tests, CI and the book must work with no node. Live mode is opt-in.
+- **Funding precondition.** The faucet fills the native REV vault for phlo; commission funding
+  additionally needs an r-cash-funded account. Say so; do not hide precharge failures.
+
 ## Commands
 
 ```
@@ -65,6 +86,9 @@ make rcash-bootstrap # install the r-cash components r-print needs
 make keys install    # copy keys and install r-print
 make unit-all        # all 18 behavioural suites
 make client-lint client-test client-wasm client-check
+make client-wasm-pack client-wasm-node client-wasm-smoke
+make client-live     # real WASM signing + HTTP against a healthy devnet
+make cli-live        # CLI read/submit against the same devnet
 make web-install web-test web-build
 make check           # spec-check parse-check docs-check client-check
 make check-graph     # named integration vertices and edges
@@ -85,6 +109,12 @@ make check-graph     # named integration vertices and edges
 - Mark design-only features `Design intent`; never describe them as implemented.
 - The r-sure and r-gen adapters are disabled unless `configs/*.json` sets `enabled: true`
   and a root manifest is present. Do not claim live cover or K-Asset verification otherwise.
+- Do not claim a live-client method was exercised against a devnet unless
+  `deployments/live-client-results.json` records a pass. Fixture/unit coverage is not a live
+  run.
+- Capability-valued `Payments` arms (`accountOf`, `depositFacet`, `refundPayment`) and
+  installer `PrintRoot`/`PrintAdmin` writes are not standalone browser operations. They are
+  print-only or operator surfaces.
 
 ## Documentation
 

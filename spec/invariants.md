@@ -30,7 +30,8 @@
 
 ## Articles and editions
 
-- **I12.** A published article's content hash is frozen. `rehash` is refused after approval.
+- **I12.** A published article's content hash is frozen. No arm rewrites it; corrections
+  append.
 - **I13.** Corrections are append-only. No arm removes, rewrites or reorders them.
 - **I14.** A retraction appends a retraction record; it does not erase the article.
 - **I15.** An edition append requires a published article from the same canonical publication
@@ -46,3 +47,14 @@
 - **I19.** Money is integer minor units. Block heights, not wall clocks, carry deadlines.
 - **I20.** Spec-only features (subscriptions, revenue splits, crowdfunding, tips, syndication)
   do not change v0.1 cell semantics.
+
+## Client
+
+- **I21.** A client write is a success only after the deploy is processed with success, its
+  block is final, and the reply is `(true, …)`. A `(false, reason)` reply is a refusal, not an
+  error. A processed deploy that never finalizes is never reported as success.
+- **I22.** Reads use explore-deploy and a term that replies on its first private name; writes
+  use the signed-deploy shape and a reply on `deployId`.
+- **I23.** An ambiguous submit is retried with the same operation id (preferably by polling
+  the deploy id or re-POSTing the same signed body), never with a fresh operation id. The key
+  is held only in WASM; no client export returns a plaintext secret.

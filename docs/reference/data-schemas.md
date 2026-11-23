@@ -83,3 +83,12 @@ cell per entity.
 | Article corrections | 32 |
 | Edition articles | 64 |
 | Ops per cell | 128 (convention; the state map is bounded by use) |
+
+## Client encoding
+
+The client does not invent a second schema. `rprint-sdk::build_term` takes one JSON
+`TermRequest`; `{"$bytes": hex}` becomes `"hex".hexToBytes()`, which is how admin,
+arbitrator and signature lists cross into Rholang. Reads are explore-deploys whose term
+replies on its first private name; writes are signed deploys whose reply is read from
+`deployResult`. The node omits `Nil` map fields, so readers default missing fields rather
+than treating them as errors.

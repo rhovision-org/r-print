@@ -55,6 +55,17 @@ Factory: `create`, `issued`. Article reads: `info`, `status`, `attestations`, `c
 Factory: `create`, `issued`. Edition reads: `info`, `status`, `manifest`. Edition writes:
 `append`, `seal`.
 
+## Client coverage
+
+| Class | Meaning |
+|---|---|
+| SDK builder + web method | Every data-argument arm of publication, commission/escrow, article and edition, plus the keystore and network reads. `RprintApi` has 43 methods. |
+| SDK/CLI only | Operator and read helpers that the browser does not expose (for example `terms`, raw root `get`/`keys`, adapter health). |
+| Print-only | Capability-valued arms: `Payments("accountOf"|"depositFacet"|"refundPayment")` and installer `PrintRoot("register")`. A capability cannot cross a JSON boundary as a standalone client call. |
+
+Reads use `explore_call_term`; writes use the signed-deploy `call_term`. The web client's
+forms cover every write method, and `make client-wasm-smoke` pins the WASM boundary.
+
 ## Reply shapes
 
 Success is `(true, ...)`; a refusal is `(false, "reason")`; a resolver failure is

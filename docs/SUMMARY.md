@@ -42,6 +42,7 @@
 - [Write and publish](guides/write-and-publish.md)
 - [Write a client](guides/write-a-client.md)
 - [Web client spec](guides/web-client-spec.md)
+- [Run the live client](guides/run-live-client.md)
 - [Test your fork](guides/test-your-fork.md)
 - [Operate safely](guides/operate-safely.md)
 

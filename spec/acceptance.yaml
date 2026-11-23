@@ -35,15 +35,31 @@ milestones:
     golden: harness/scenarios/golden/newsroom.json
     status: passing
   M7:
-    title: Rust client and web sketch
-    evidence: ["make client-check", "npm --prefix web run build", "53 web tests"]
+    title: Rust client and live web client
+    evidence:
+      ["make client-check", "make client-wasm-smoke", "npm --prefix web run build",
+       "146 web tests"]
     status: passing
   M8:
     title: docs, CI and recorded verification
     evidence: ["make docs-check", ".github/workflows/ci.yml"]
     status: in_progress
+  M9:
+    title: horizontal live client layer
+    evidence:
+      ["make client-live", "make cli-live", "deployments/live-client-results.json"]
+    recorded: 2026-11-23
+    node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+    status: passing
 suites_total: 18
 suites_passing: 18
+live_client:
+  recorded: 2026-11-23
+  node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+  steps: 11
+  finalized_deploys: 11
+  scope: "wallet, faucet, publication, member, commission proposal, article lifecycle, edition append/seal, admin multisig, read-back"
+  not_covered: "live commission funding (needs an r-cash-funded account), browser e2e, public testnet"
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover -> RsureAdapter.policy; disabled by default"
   r_gen_kasset: "Article.attachKnowledge -> RgenAdapter; optional, not a publication gate"

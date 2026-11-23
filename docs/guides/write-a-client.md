@@ -1,7 +1,8 @@
 # Write a client
 
-> **Status:** Implemented term builders and keystore; signing and submission stay with
-> r-cash's signed-deploy client. The web client is a sketch, not a hosted product.
+> **Status:** Implemented. `rprint-wallet` owns keys and signing; `rprint-sdk::build_term`
+> owns term construction; the CLI and WASM are live clients. The browser is a live client in
+> opt-in live mode.
 
 ## The stack
 
@@ -9,39 +10,67 @@
 |---|---|
 | `rprint-core` | Pure types, role/status enums, charter/milestone validation, canonical payloads |
 | `rprint-keystore` | Web3 Secret Storage v3 encryption/decryption |
-| `rprint-sdk` | JSON → Rholang literals and call-term builders for the public arms |
-| `rprint-cli` | `rprint` binary; prints canonical terms |
-| `rprint-wasm` | Browser facade for the same builders and the keystore |
+| `rprint-sdk` | JSON → Rholang literals, call terms, explore terms, every write builder and `build_term` |
+| `rprint-wallet` | Key generation/unlock, deploy signing, admin/edition payload signing, reply decode |
+| `rprint-cli` | `rprint` binary: dry-run terms, live `read`/`submit`, wallet helpers |
+| `rprint-wasm` | Browser facade: the same wallet and `build_term`, plus `decode_reply` |
 
-The client does not sign by hand and does not invent a second signer. Use the r-cash
-signed-deploy client for key handling, deploy signing, finality and replay. The r-print
-crates give you the canonical term and the typed shapes.
+The client does not sign by hand and does not invent a second signer. It reuses r-cash's
+`KeyPair`, `DeployOptions`, `SignedDeploy`, `RhoValue` and `Reply`. The deployed `Codec` is
+the source of truth for admin payload text.
 
-## Read path
+## Two term shapes
 
-Resolve a component through `PrintRoot("resolve", key, 1)`; call the contract; wait for
-finalized + processedWithSuccess + `(true, …)`. Never treat a processed deploy as success
-before finality.
+Reads must use explore-deploy:
 
 ```text
-Root("resolve", "component:publication-factory", 1)
-  -> (true, uri, version)
-rl!(uri) -> for (Factory <- ch) { Factory!("issued", publicationId, ret) }
+new return, rl(`rho:registry:lookup`), capCh, resCh in {
+  rl!(`uri`, *capCh) |
+  for (cap <- capCh) { cap!("info", *resCh) | for (@r <- resCh) { return!(r) } }
+}
 ```
 
-## Write path
+The node returns the value sent on the term's **first private name**. A term built with the
+write shape sends on `deployId`; explore-deploy does not capture that, so it returns nothing.
 
-1. Build the term with `rprint-sdk` (or the CLI `rprint …` command).
-2. Sign and submit it with r-cash.
-3. Require finalized + processedWithSuccess + `(true, …)`.
-4. On a replay, return the stored reply; never retry a value-moving deploy with a new op id
-   unless you proved the first had no effect.
+Writes use the signed-deploy shape and send the reply to `deployId`.
+
+## Read and write path
+
+1. Build the term with `rprint-sdk` (`build_term` from JSON, or the typed builder).
+2. Reads: `POST /api/v1/explore-deploy`, then decode the first `expr` value.
+3. Writes: sign with `rprint-wallet`, `POST /api/v1/deploy`, poll the deploy status, wait for
+   `/api/is-finalized/{blockHash}`, then decode `deployResult[0]`.
+4. Success is finalized + processedWithSuccess + `(true, …)`. A `(false, reason)` reply is a
+   refusal, not an error.
+5. A processed deploy that never finalizes is an error. Never retry it with a new op id.
 
 ## Keystore
 
 `rprint-keystore` encrypts a 32-byte secret into a Web3 v3 document (scrypt, AES-128-CTR,
-Keccak MAC). `rprint-wasm` exposes `keystore_encrypt`/`keystore_decrypt`; the browser stores
-only the encrypted document. No plaintext key crosses into JavaScript.
+Keccak MAC). `rprint-wallet::Wallet::create` generates and encrypts; `unlock` decrypts into
+the wallet; `export` re-encrypts. The wasm facade returns the encrypted document and wallet
+metadata, never the plaintext secret. `keystore_decrypt` no longer exists.
+
+## CLI examples
+
+```sh
+# dry-run term
+rprint publication add-member --uri "$PUB" --op add-1 --member "$ADDR" \
+  --role writer --did "byoid:rev:$ADDR" --attestation att
+
+# live read and signed submit
+rprint --node http://localhost:50403 read --uri "$PUB" --arm info
+rprint --node http://localhost:50403 submit --term - --keystore key.json \
+  --password-env RPRINT_PASSWORD < term.rho
+
+# wallet helpers
+rprint wallet create --out key.json --password-env RPRINT_PASSWORD
+rprint wallet sign-payload --keystore key.json --password-env RPRINT_PASSWORD \
+  --payload 'rprint:admin:v1|publication:p|3|pause|'
+rprint wallet sign-edition --keystore key.json --password-env RPRINT_PASSWORD \
+  --manifest @manifest.json
+```
 
 ## Discovery
 
@@ -51,6 +80,9 @@ enumeration API. Do not build a fake search.
 
 ## Honest limits
 
-The v0.1 client surface is a term builder plus keystore. It does not submit directly, run a
-wallet UI, or provide a hosted signer. The React reference under `web/` is a typed sketch
-with fixture reads and documented stubs; see [the web surface](../reference/web-surface.md).
+The client is devnet-only and unaudited. Reads are at the node's tip and are not
+finality-checked. Writes need a funded native REV vault; commission funding additionally
+assumes an r-cash-funded account. Capability-valued `Payments` arms and installer
+`PrintRoot`/`PrintAdmin` writes are print-only or operator surfaces, not browser operations.
+See [the web surface](../reference/web-surface.md) and
+[run the live client](run-live-client.md).
