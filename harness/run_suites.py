@@ -32,8 +32,11 @@ SUITES: dict[str, str] = {
     "conservation": "unit_conservation.py",
     "article": "unit_article.py",
     "interfaces": "unit_interfaces.py",
+    "pause_scope": "unit_pause_scope.py",
+    "behavior": "unit_behavior.py",
     "article_refusals": "unit_article_refusals.py",
     "edition": "unit_edition.py",
+    "corrections": "unit_corrections.py",
 }
 EXPERIMENTAL: set[str] = set()
 SAFE_ONLY: set[str] = set()

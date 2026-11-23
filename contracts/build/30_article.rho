@@ -9,7 +9,7 @@ new
   deployId(`rho:rchain:deployId`),
   rootCh, c, ack,
   authOwner, authIsOwner, authPubKey, resolveComponent,
-  artCanonical, artNowHeight, artMember, artAuthorOk, artCreateGo
+  artCanonical, artNowHeight, artActive, artMember, artAuthorOk, artCreateGo
 in {
 contract resolveComponent(@key, ret) = {
   new rCh, Root, kCh in {
@@ -85,6 +85,13 @@ contract authPubKey(dId, ret) = {
           _ => { ret!((false, "publication")) }
         }
       }
+    }
+  } |
+
+  contract artActive(@publicationUri, ret) = {
+    new cCh in {
+      rl!(publicationUri, *cCh) |
+      for (Publication <- cCh) { Publication!("status", *ret) }
     }
   } |
 
@@ -169,7 +176,17 @@ contract authPubKey(dId, ret) = {
                                                              data.get("authors"), 0, *aCh) |
                                                 for (@a <- aCh) {
                                                   match a {
-                                                    (true, Nil) => { artCreateGo!(fs, creatorId, opId, articleId, data, *ret) }
+                                                    (true, Nil) => {
+                                                      new acCh in {
+                                                        artActive!(data.get("publicationUri"), *acCh) |
+                                                        for (@ac <- acCh) {
+                                                          match ac {
+                                                            (true, "active") => { artCreateGo!(fs, creatorId, opId, articleId, data, *ret) }
+                                                            _ => { articleFactoryState!(fs) | ret!((false, "paused")) }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
                                                     _ => { articleFactoryState!(fs) | ret!(a) }
                                                   }
                                                 }

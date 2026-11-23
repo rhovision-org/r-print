@@ -8,7 +8,7 @@ new
   deployId(`rho:rchain:deployId`),
   rootCh, c, ack,
   authOwner, authIsOwner, authPubKey, resolveComponent,
-  commCanonical, commRole, commNowHeight, pubProposalGo, proposalCoverGo
+  commCanonical, commRole, commNowHeight, commActive, pubProposalGo, proposalCoverGo
 in {
   // @@INLINE:lib/Resolve.rho@@
   // @@INLINE:lib/Auth.rho@@
@@ -44,6 +44,13 @@ in {
       for (Publication <- cCh) {
         Publication!("roleOf", callerId, *ret)
       }
+    }
+  } |
+
+  contract commActive(@publicationUri, ret) = {
+    new cCh in {
+      rl!(publicationUri, *cCh) |
+      for (Publication <- cCh) { Publication!("status", *ret) }
     }
   } |
 
@@ -89,7 +96,15 @@ in {
                                           for (@p <- pCh) {
                                             match p {
                                               (true, Nil) => {
-                                                pubProposalGo!(fs, writerId, opId, proposalId, data, *ret)
+                                                new acCh in {
+                                                  commActive!(data.get("publicationUri"), *acCh) |
+                                                  for (@ac <- acCh) {
+                                                    match ac {
+                                                      (true, "active") => { pubProposalGo!(fs, writerId, opId, proposalId, data, *ret) }
+                                                      _ => { commissionFactoryState!(fs) | ret!((false, "paused")) }
+                                                    }
+                                                  }
+                                                }
                                               }
                                               _ => { commissionFactoryState!(fs) | ret!(p) }
                                             }
