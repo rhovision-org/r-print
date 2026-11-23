@@ -44,6 +44,22 @@ Attestation: `factcheck`, `legal`, `editor`.
 `access`, `article`, `edition`, `edition full`, `attestations`, `corrections`, `unknown`,
 `kasset`, `rgen adapter`, `claim`, `provenance`, `rsure adapter`, `not owner`.
 
+## Formal-model status
+
+These labels describe the Lean model, not the deployed contract:
+
+| Label | Meaning |
+|---|---|
+| `proved-model` | Machine-checked about the Lean model; no node tie. |
+| `proved-model-bounded` | Machine-checked over a stated finite bound. |
+| `modeled` | A transition exists; no safety theorem. |
+| `assumption` | An explicit boundary assumption; not proved. |
+| `owed` | An arm outside the current model. |
+| `open` | Not yet analysed. |
+
+`proved-model` never means a Rholang refinement, an audit or a deployed-contract proof. The
+flow manifest in `spec/flows/core.yaml` carries the per-arm label.
+
 ## Rule
 
 A refusal reason is part of the interface. Do not rename one without updating the suites,

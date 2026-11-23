@@ -13,6 +13,7 @@
 | Money | `make check-money` | Integer money only |
 | Suites | `make check-suites` | Every harness suite is mapped |
 | Graph | `make check-graph` | Every vertex and edge is named and sourced |
+| Formal model | `make formal-check` | Lean build, axiom audit, vectors and strict flow traceability |
 | Parser | `make parse-check` | The target node parses every rendered term |
 | Behaviour | `make unit-all` | The devnet campaign |
 | Browser fixture | `make web-e2e-fixture` | Every route and write form in Chromium with no node or WASM |
@@ -29,6 +30,19 @@
 4. Add refusal and idempotency cases. A success-only suite is not enough.
 5. If the suite moves value, add it to the conservation set.
 6. Update the acceptance map in `spec/acceptance.yaml` and the verification chapter.
+
+## Add a formal obligation
+
+1. Add the theorem to the relevant `spec/lean/RPrint/Model/*.lean` module. The model is
+   shallow; keep it a pure state machine over `Nat`, `List` and `Bool`.
+2. Name the theorem in `RPrint/Audit.lean` with `#print axioms`; `make lean-check` fails on an
+   unaudited theorem or a proof escape.
+3. Point the arm or invariant at the theorem in `spec/flows/core.yaml` with `lean_status:
+   proved-model`; a core arm must be `proved-model`.
+4. If the change adds or alters a transition, add a vector in `RPrint/Emit.lean` and run
+   `make lean-vectors-write`; commit the regenerated `spec/vectors/lean.json`.
+5. Run `make formal-check` and `make check-flows-strict`; a `def` or constructor is not a
+   `proved-model` target.
 
 ## Golden transcripts
 

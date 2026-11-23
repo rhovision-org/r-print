@@ -14,7 +14,10 @@ browser fixture suite covers every route and write form with the node and WASM b
 live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the local
 devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 suites,
 11/11 live-client steps and the same 13-step browser journey on the pinned node build
-`e2d073d`. All are local or CI Docker results, not a public testnet or mainnet claim.
+`e2d073d`. A Lean 4.12 model builds 108 theorems with 108 axiom audits, 38 vectors and 15
+`proved-model` core arms, with no proof escapes; the model covers publication authority,
+commission escrow, article lifecycle and edition seal. All are local or CI Docker results,
+not a public testnet or mainnet claim.
 
 ## Labels
 
@@ -24,9 +27,11 @@ devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 s
 | **Implemented, not exercised** | Source and static gates pass; no healthy-devnet suite run is recorded. |
 | **Surface** | An optional adapter or arm exists; sibling roots are disabled by default and must be configured. |
 | **Design** | A named edge or feature with no deployed contract. |
+| **Proved-model** | Machine-checked about the shallow Lean model, not a Rholang refinement. |
 | **Out of scope** | Deliberately not in this repository. |
 
 Never read "implemented" as "audited", "production-ready" or "safe for real value".
+`proved-model` is not an audit and does not prove the deployed contract.
 
 ## What is implemented
 
@@ -43,6 +48,7 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Named integration graph | `make check-graph` |
 | Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
 | Browser e2e layer | `make web-e2e-fixture`; `make web-e2e-live`; recorded `deployments/browser-e2e-results.json` |
+| Lean 4 formal model | `make formal-check`; 108 theorems, 38 vectors, 15 core arms `proved-model`; `spec/lean/RPrint/Audit.lean` |
 
 ## What is surface
 
@@ -71,6 +77,7 @@ make venv
 make spec-check
 make parse-check
 make docs-check
+make formal-check
 make client-check
 make unit-all
 make client-live

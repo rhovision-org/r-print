@@ -9,8 +9,9 @@
 > and write form with the node and WASM blocked, and a live browser journey records 10
 > finalized writes and 1 refusal; CI dispatch 45270193372 recorded 27 fixture tests and the
 > browser journey on the pinned node. The baseline escrow is implemented; r-sure cover and r-gen
-> K-Assets are optional surfaces; subscriptions, revenue splits, crowdfunding and the Lean
-> model are design.
+> K-Assets are optional surfaces. A Lean 4.12 model covers publication authority, commission
+> escrow, article lifecycle and edition seal as `proved-model`; it is not a Rholang
+> refinement. Subscriptions, revenue splits and crowdfunding remain design.
 
 r-print treats a publication as an organisation rather than a personal brand. A masthead
 owns a charter, a roster and an editorial authority. A commission escrows money against
@@ -49,6 +50,7 @@ when it wants stronger provenance.
 | `contracts/src/deploy/` | 13 numbered deploy terms |
 | `harness/` | installer, fixtures, 18 behavioural suites |
 | `spec/graph/` | the named integration graph |
+| `spec/lean/` | Lean 4.12 model, axiom audit, vectors and flow traceability |
 | `crates/` | Rust core, keystore, SDK, wallet, CLI and WASM facade |
 | `web/` | React/Vite/TS live client with typed forms for every write; fixture default |
 | `web/e2e/` | Playwright fixture and live browser journeys |

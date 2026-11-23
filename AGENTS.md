@@ -2,6 +2,19 @@
 
 Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this file.
 
+## Repository map
+
+| Path | Contents |
+|---|---|
+| `contracts/src/deploy/` | 13 numbered Rholang deploy terms and the shared library fragments |
+| `harness/` | installer, fixtures and 18 behavioural suites |
+| `spec/lean/` | Lean 4.12 model, axiom audit, vectors and `Model/System.lean` boundary |
+| `spec/graph/` | the named integration vertices and edges |
+| `spec/flows/` | the arm and invariant manifest, including `lean`/`lean_status` |
+| `crates/` | Rust core, keystore, SDK, wallet, CLI and WASM facade |
+| `web/` | React/Vite/TS live client; `web/e2e/` is the Playwright layer |
+| `docs/` | the 53-chapter mdBook source |
+
 ## Platform pitfalls
 
 - **One consumable cell per entity.** A factory creates one contract with one state cell. A
@@ -79,6 +92,28 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
   use CSS classes. A live browser claim needs `deployments/browser-e2e-results.json` and the
   CI artifact.
 
+## Formal model
+
+- **`proved-model` is the ceiling.** `spec/lean/` is a self-contained Lean 4.12 project with
+  no Mathlib and an empty package manifest. Its theorems are about the shallow state machines,
+  not a refinement of the deployed Rholang.
+- **No escapes.** No `sorry`, `admit`, `axiom` or `native_decide`; only `propext`,
+  `Classical.choice` and `Quot.sound` are accepted. `make lean-check` builds and audits every
+  theorem named in `RPrint/Audit.lean`.
+- **Every core arm names a theorem.** Add `lean`/`lean_status` to `spec/flows/core.yaml`; a
+  core arm must be `proved-model`. An arm without a theorem is `owed`, never proved.
+  `make check-flows-strict` rejects a `proved-model` target that is a `def` or constructor.
+- **Aliases are for docs.** `RPrint/Invariants.lean` holds stable `I`-names; the flow manifest
+  must point at the carrying theorem, not an alias.
+- **Vectors are generated.** `spec/vectors/lean.json` comes from `RPrint/Emit.lean`; run
+  `make lean-vectors-write` after an intentional transition change and commit the result.
+  Never hand-edit it. Canonical payload vectors stay in `core.json` and `client.json`.
+- **Boundary assumptions are explicit.** ERTP purse atomicity, phlo, cryptography, node
+  scheduling, deploy atomicity and the cross-contract ties live in
+  `RPrint/Model/System.lean`; they are not theorems.
+- **No inflated claim.** Never write "verified", "audited", "proved about the deployed
+  Rholang" or "proved-tied" for this model.
+
 ## Commands
 
 ```
@@ -86,6 +121,12 @@ make spec-check      # build, measure, arch, captures, no-select, money, suites,
 make measure         # size ledger
 make parse-check     # render and parse with the target node's parser
 make docs-check      # docs links, orphans, coverage, then mdBook build
+make lean-build      # lake build
+make lean-check      # build, proof-escape scan and axiom audit
+make lean-vectors    # compare spec/vectors/lean.json with a fresh emission
+make lean-vectors-write # regenerate the Lean vector corpus
+make check-flows-strict # every core arm names a proved-model theorem
+make formal-check    # lean-check, lean-vectors, check-flows and strict
 make devnet-up       # r-cash devnet via RCASH_DIR/RHOLO_DIR
 make rcash-keys      # generate and faucet r-cash keys
 make rcash-bootstrap # install the r-cash components r-print needs
@@ -97,7 +138,7 @@ make client-live     # real WASM signing + HTTP against a healthy devnet
 make cli-live        # CLI read/submit against the same devnet
 make web-install web-test web-build
 make web-e2e-install web-e2e-fixture web-e2e-live
-make check           # spec-check parse-check docs-check client-check
+make check           # spec-check parse-check docs-check formal-check client-check
 make check-graph     # named integration vertices and edges
 ```
 
@@ -111,6 +152,9 @@ make check-graph     # named integration vertices and edges
 - `release` requires a prior `submit`; a milestone pays at most once.
 - `cancel`, `expire` and `resolveDispute` refund at most the remaining balance.
 - A child contract must be bound to the canonical publication URI.
+- A new mutating arm either names a Lean theorem in `spec/flows/core.yaml` or is marked
+  `lean_status: owed`. A behaviour change that touches a modelled transition updates the
+  Lean module, its audit line, the flow rule and the vector corpus together.
 - Do not claim a suite passes unless `deployments/suite-results.json` records a pass from a
   healthy devnet.
 - Mark design-only features `Design intent`; never describe them as implemented.
@@ -132,4 +176,16 @@ make check-graph     # named integration vertices and edges
 - Stock mdBook only: no mermaid, KaTeX, toc or other preprocessors. Use ASCII diagrams.
 - Every `docs/**/*.md` chapter except `SUMMARY.md` must be listed exactly once.
 - `reference/` is canonical for arms, schemas, constraints and install order.
+- `reference/formal-model.md` is canonical for the Lean model, its status labels and its
+  boundary; `reference/status-vocabulary.md` carries the formal labels.
 - Use relative `.md` links. Never link to generated `docs/book/` paths.
+
+## Definition of done
+
+- The contract, flow, Lean, docs and client gates for the change have run, or the report says
+  explicitly which could not run. Do not report an unrun check as passing.
+- A behaviour change updates the contract, `spec/flows/core.yaml`, the Lean model when the
+  obligation changes, and the docs in that order.
+- The final report states the measured counts and the exact node/build or CI run; it does not
+  invent them.
+- `proved-model` is reported as `proved-model`, never as an audit or a refinement.

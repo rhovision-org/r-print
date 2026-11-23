@@ -17,6 +17,7 @@
 | M8 | Docs, CI and recorded verification | Passing (dispatch run 45250733118) |
 | M9 | Horizontal live client layer | Passing on the recorded local and CI devnets |
 | M10 | Browser end-to-end layer | Passing: 27 fixture tests and a 13-step live browser journey (CI dispatch 45270193372) |
+| M11 | Lean 4 formal model | Passing: 108 theorems, 38 vectors, 15 core arms `proved-model`, zero proof escapes |
 
 The acceptance map is `spec/acceptance.yaml`; the recorded contract campaign is 18/18 suites
 on the local 50403 devnet with rholo node build `8fe0136`. The live client smoke recorded 11
@@ -33,14 +34,15 @@ steps in the same job).
 2. Enable an r-gen root and exercise `attachKnowledge` against a validated Claim/KAsset and
    a bound Provenance record.
 3. Implement the coordination record (design edge) and a golden quantum-os outcome.
-4. Add a Lean model for the escrow milestone/release/refund obligations; mark it
-   `proved-model`, not a Rholang refinement.
+4. Extend the Lean model beyond the four cores: commission funding across an r-cash
+   account, the r-sure cover tie and the r-gen K-Asset tie.
 5. Audit the escrow and the publication authority paths.
 
 ## Explicitly deferred
 
 Subscriptions, revenue splits, investigation crowdfunding, tips, syndication, a public
-testnet deployment, a Tron/EVM rail, a production relayer, and an indexer. See
+testnet deployment, a Tron/EVM rail, a production relayer, an indexer, and a Rholang
+refinement theorem for the Lean model. See
 [spec-only milestones](../reference/spec-only-milestones.md).
 
 ## What would make this a product

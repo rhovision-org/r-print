@@ -8,6 +8,8 @@
 - Python 3.12 for the harness
 - Docker for the devnet
 - `mdbook` for the book
+- Lean 4.12 via `elan` for the formal model (`elan toolchain install
+  leanprover/lean4:v4.12.0`)
 - sibling checkouts of r-cash (`../Rholphin` by default) and the rholo node
   (`../RNodeRust` by default)
 
@@ -22,6 +24,7 @@ make venv
 make spec-check
 make parse-check
 make docs-check
+make formal-check
 make client-lint client-test client-wasm
 ```
 

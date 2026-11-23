@@ -38,7 +38,8 @@ counters; a replay returns the stored reply and moves nothing.
 
 The asset is REV in v0.1. There is no fee-on-transfer token, no rebasing asset and no
 multi-asset purse. The platform fee is zero in the baseline; the state has a `fee` field for
-a later version. A conservation proof is a test result, not a formal refinement.
+a later version. Conservation is a suite result and a `proved-model` Lean theorem about the
+shallow escrow model; it is not a formal refinement of the deployed Rholang.
 
 ## The r-sure view
 

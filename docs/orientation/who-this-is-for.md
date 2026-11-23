@@ -14,7 +14,7 @@ brand. That includes:
 - **A patron or funder** who wants money held against milestones rather than handed over on
   trust, and a defined refund if the work does not arrive.
 - **A fork maintainer** who wants the r-* house conventions: Rholang cells, a Python devnet
-  harness, a Rust client stack, an mdBook and a formal-spec slot.
+  harness, a Rust client stack, an mdBook and a Lean 4 formal model with an axiom audit.
 
 It is not for:
 

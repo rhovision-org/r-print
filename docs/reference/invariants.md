@@ -1,7 +1,7 @@
 # Invariants
 
-> **Status:** Implemented obligations. The suites are the evidence; this is not a formal
-> refinement.
+> **Status:** Implemented obligations. The suites and the Lean model are the evidence; the
+> model is `proved-model`, not a formal refinement of the deployed Rholang.
 
 ## Cells and authority
 
@@ -50,14 +50,19 @@
 
 ## Evidence map
 
-| Invariant | Suites |
-|---|---|
-| I1 | root, publication, commission, article, edition |
-| I2 | schema, publication, commission, article, edition |
-| I3 | membership_auth, publication |
-| I4 | publication, membership_auth |
-| I5 | admin, admin_keys, publication |
-| I6–I11 | commission, commission_refusals, commission_dispute, conservation |
-| I12–I16 | article, article_refusals, corrections, edition, behavior |
-| I17–I19 | interfaces, behavior, money checks |
-| I20 | spec review |
+| Invariant | Suites | Lean |
+|---|---|---|
+| I1 | root, publication, commission, article, edition | `RPrint.commit_all_or_none` |
+| I2 | schema, publication, commission, article, edition | assumption: canonical URI binding |
+| I3 | membership_auth, publication | assumption: key derivation |
+| I4 | publication, membership_auth | `RPrint.publication_removeMember_refuses_last_publisher` |
+| I5 | admin, admin_keys, publication | `RPrint.publication_solo_arbitration_platform` |
+| I6–I10 | commission, commission_refusals, commission_dispute, conservation | `RPrint.escrow_release_pays_once`, `RPrint.escrow_release_conserves`, `RPrint.escrow_terminal_conserved` |
+| I11 | commission, commission_dispute | assumption: solo arbitration quorum tie |
+| I12–I16 | article, article_refusals, corrections, edition, behavior | `RPrint.article_publish_freezes_hash`, `RPrint.article_correct_append_only`, `RPrint.article_retract_appends_record`, `RPrint.edition_append_guards`, `RPrint.edition_sealed_manifest_immutable` |
+| I17–I19 | interfaces, behavior, money checks | outside the model |
+| I20 | spec review | outside the model |
+
+The model evidence is `spec/lean/`; `spec/flows/core.yaml` names the carrying theorem for
+each rule. The model is shallow and does not formalise ERTP, phlo, cryptography, the node
+scheduler or deploy atomicity. See [Formal model](formal-model.md).

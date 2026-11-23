@@ -1,7 +1,8 @@
 # Invariants
 
 > **Status:** Foundation. The numbered invariants below are the v0.1 obligations; the suite
-> map records which ones are exercised.
+> map records which ones are exercised. `spec/lean/` carries the `proved-model` obligations
+> named in `spec/flows/core.yaml`; it is not a Rholang refinement.
 
 ## Cells and authority
 

@@ -57,6 +57,7 @@
 - [Admin multisig](reference/admin-multisig.md)
 - [Platform constraints](reference/platform-constraints.md)
 - [Invariants](reference/invariants.md)
+- [Formal model](reference/formal-model.md)
 - [Verification](reference/verification.md)
 - [BYOID and quantum-os adapters](reference/byoid-quantum-os-adapter.md)
 - [Integration graph](reference/integration-graph.md)

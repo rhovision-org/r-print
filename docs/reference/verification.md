@@ -67,6 +67,26 @@ recorded **18/18** suites, **11/11** live-client steps and a **13-step** browser
 **10 finalized** writes and **1 refusal**. The artifacts are `playwright-fixture`,
 `browser-e2e` and `suite-results`.
 
+## Formal model
+
+`make formal-check` builds the Lean 4.12 project, runs the axiom audit, compares the emitted
+vectors with `spec/vectors/lean.json`, and checks the flow manifest in strict mode. The
+measured result is:
+
+| Check | Result |
+|---|---|
+| Lean build and axiom audit | **108 source theorems**, 108 axiom audits |
+| Proof escapes | 0 `sorry`/`admit`/`axiom`/`native_decide`; only `propext`, `Classical.choice`, `Quot.sound` |
+| Vectors | **38** deterministic vectors in `spec/vectors/lean.json` |
+| Flow manifest | **31 rules**, **15 core arms** `proved-model`, **26** `proved-model` rules, 0 proof-quality warnings |
+
+The model covers publication authority and membership, commission proposal and escrow,
+article lifecycle, and edition seal, plus the shared linear-cell and protocol layer. It is
+`proved-model`: theorems about the shallow Lean state machines, not a refinement of the
+deployed Rholang. ERTP purse atomicity, phlo, cryptography, node scheduling, deploy atomicity
+and the cross-contract ties are explicit boundary assumptions in
+`spec/lean/RPrint/Model/System.lean`.
+
 ## CI devnet campaign
 
 The dispatch run
@@ -93,6 +113,7 @@ counts.
 | `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph |
 | `make parse-check` | every built and rendered term parses with the target node parser |
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build |
+| `make formal-check` | Lean build, axiom audit, vector corpus, strict flow traceability |
 | `make client-check` | Rust fmt/clippy/tests, wasm32 check, wasm-pack web build, WASM smoke, web typecheck/test/build |
 | `make check-graph` | 25 vertices, 36 edges (14 implemented, 14 surface, 8 design) |
 
@@ -123,7 +144,8 @@ counts.
 
 - No public testnet or mainnet run; the CI devnet is a local single-validator Docker
   network, not a public network.
-- No audit, no penetration test, no formal refinement.
+- No audit and no penetration test. The Lean model is `proved-model`; there is no refinement
+  theorem tying it to the deployed Rholang.
 - No r-sure or r-gen root enabled in the recorded campaign; the adapters were disabled and
   the optional surfaces were exercised with mock entity contracts.
 - No multi-validator finality campaign.
@@ -140,6 +162,7 @@ make venv
 make spec-check
 make parse-check
 make docs-check
+make formal-check
 make client-check
 make devnet-up rcash-keys rcash-bootstrap keys install
 make unit-all

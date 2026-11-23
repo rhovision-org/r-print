@@ -1,6 +1,6 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
-status: foundation+live-client+browser-e2e
+status: foundation+live-client+browser-e2e+formal-model
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
@@ -77,6 +77,18 @@ milestones:
     recorded: 2026-11-23
     node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
     status: passing
+  M11:
+    title: Lean 4 formal model
+    evidence:
+      ["make formal-check", "spec/lean/RPrint/Audit.lean",
+       "spec/vectors/lean.json", "spec/flows/core.yaml"]
+    recorded: 2026-11-23
+    lean: "leanprover/lean4:v4.12.0"
+    theorems: 108
+    vectors: 38
+    flow_rules: 31
+    core_arms_proved: 15
+    status: passing
 suites_total: 18
 suites_passing: 18
 live_client:
@@ -109,6 +121,21 @@ browser_e2e:
     refused_deploys: 1
     suites_passing: 18
   not_covered: "live commission funding, r-sure and r-gen roots, public testnet, multi-validator finality, all 32 writes live-submitted"
+formal_model:
+  toolchain: "leanprover/lean4:v4.12.0"
+  project: "spec/lean"
+  modules: 12
+  theorems: 108
+  axiom_audits: 108
+  vectors: 38
+  flow_rules: 31
+  core_arms_proved: 15
+  proved_model_rules: 26
+  proof_quality_warnings: 0
+  escapes: 0
+  allowed_axioms: ["propext", "Classical.choice", "Quot.sound"]
+  scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, linear cell and protocol layer"
+  not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions"
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover -> RsureAdapter.policy; disabled by default"
   r_gen_kasset: "Article.attachKnowledge -> RgenAdapter; optional, not a publication gate"
@@ -117,5 +144,4 @@ design:
   - revenue split claims
   - investigation crowdfunding
   - reader tips and syndication
-  - Lean formal model
   - coordination record contract (graph edge only)
