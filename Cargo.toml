@@ -1,0 +1,57 @@
+[workspace]
+resolver = "2"
+exclude = [".devnet/parse-check"]
+members = [
+  "crates/rprint-core",
+  "crates/rprint-keystore",
+  "crates/rprint-sdk",
+  "crates/rprint-cli",
+  "crates/rprint-wasm",
+]
+# rprint-wasm is a wasm32-only artifact. Keep it out of the default members so a host
+# `cargo build`/`cargo test` does not try to link it; `-p rprint-wasm --target
+# wasm32-unknown-unknown` still works.
+default-members = [
+  "crates/rprint-core",
+  "crates/rprint-keystore",
+  "crates/rprint-sdk",
+  "crates/rprint-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0-or-later"
+rust-version = "1.95"
+repository = "https://github.com/rhovision-org/r-print"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+unreachable = "deny"
+todo = "deny"
+unimplemented = "deny"
+
+[workspace.dependencies]
+rprint-core = { path = "crates/rprint-core" }
+rprint-keystore = { path = "crates/rprint-keystore" }
+rprint-sdk = { path = "crates/rprint-sdk", default-features = false }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+zeroize = "1"
+sha3 = "0.12"
+aes = "0.9"
+ctr = "0.10"
+scrypt = "0.12"
+getrandom = { version = "0.4", features = ["wasm_js"] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+clap = { version = "4", features = ["derive", "env"] }
+tokio = { version = "1", features = ["macros", "time", "rt", "rt-multi-thread", "sync"] }

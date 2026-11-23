@@ -1,0 +1,24 @@
+schema: rprint.versions/v1
+protocol: 0.1.0
+state_schema_version: 1
+component_versions:
+  PrintRoot: 1
+  Clock: 1
+  Verifier: 1
+  Codec: 1
+  AdminGuard: 1
+  PrintAdmin: 1
+  Payments: 1
+  Terms: 1
+  PublicationFactory: 1
+  Publication: 1
+  CommissionFactory: 1
+  CommissionProposal: 1
+  CommissionEscrowFactory: 1
+  CommissionEscrow: 1
+  ArticleFactory: 1
+  Article: 1
+  EditionFactory: 1
+  Edition: 1
+  CoordinationFactory: 1
+  CoordinationRecord: 1

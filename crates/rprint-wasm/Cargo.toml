@@ -1,0 +1,19 @@
+[package]
+name = "rprint-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "WASM facade for the r-print client."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[lints]
+workspace = true
+
+[dependencies]
+rprint-core.workspace = true
+rprint-keystore.workspace = true
+rprint-sdk.workspace = true

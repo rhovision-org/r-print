@@ -1,0 +1,19 @@
+[package]
+name = "rprint-sdk"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Typed r-print protocol operations over the r-cash signed-deploy client."
+
+[features]
+default = ["native"]
+native = []
+wasm = []
+
+[lints]
+workspace = true
+
+[dependencies]
+rprint-core.workspace = true

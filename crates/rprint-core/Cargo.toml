@@ -1,0 +1,13 @@
+[package]
+name = "rprint-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Pure r-print types, validation and canonical payloads."
+
+[lints]
+workspace = true
+
+[dependencies]

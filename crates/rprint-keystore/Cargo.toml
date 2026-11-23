@@ -1,0 +1,13 @@
+[package]
+name = "rprint-keystore"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Web3 Secret Storage v3 keystore for r-print."
+
+[lints]
+workspace = true
+
+[dependencies]

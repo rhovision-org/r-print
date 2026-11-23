@@ -1,0 +1,24 @@
+# Cornerstone flow manifest. Each rule names a source arm and its v0.1 obligation.
+# `implemented` means the source exists and a behavioural suite is intended; it is not a
+# formal proof. `owed` marks an arm outside the cornerstone model. There is no Lean model in
+# v0.1.
+schema: rprint.flows/v1
+subsystem: cornerstone
+source_globs:
+  - contracts/src/deploy/10_publication.rho
+  - contracts/src/deploy/20_commission.rho
+  - contracts/src/deploy/21_commission_escrow.rho
+  - contracts/src/deploy/30_article.rho
+  - contracts/src/deploy/31_edition.rho
+  - contracts/src/deploy/50_coordination.rho
+invariants:
+  I1: {statement: "one cell, consume and repost once", status: implemented}
+  I2: {statement: "canonical masthead binding", status: implemented}
+  I5: {statement: "solo publication and platform quorum rules", status: implemented}
+  I8: {statement: "a milestone pays at most once", status: implemented}
+  I9: {statement: "terminal escrow conservation", status: implemented}
+  I12: {statement: "a published content hash is frozen", status: implemented}
+  I13: {statement: "corrections are append-only", status: implemented}
+  I16: {statement: "a sealed edition is immutable", status: implemented}
+rules: []
+core_arms: []

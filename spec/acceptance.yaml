@@ -1,0 +1,30 @@
+schema: rprint.acceptance/v1
+protocol: 0.1.0
+milestones:
+  M0:
+    title: scaffold and static gates
+    suites: []
+  M1:
+    title: root, admin and payments plumbing
+    suites: [root, payments, admin]
+  M2:
+    title: publication and membership
+    suites: [publication, membership_auth, schema, admin_keys]
+  M3:
+    title: commission proposal and escrow
+    suites: [commission, commission_refusals, commission_dispute, conservation]
+  M4:
+    title: articles, corrections, editions and interfaces
+    suites: [article, article_refusals, corrections, edition, interfaces]
+  M5:
+    title: lifecycle, pause and refusal matrix
+    suites: [pause_scope, cell_liveness]
+  M6:
+    title: golden small-newsroom transcript
+    suites: [behavior]
+  M7:
+    title: Rust client and web sketch
+    suites: []
+  M8:
+    title: docs, CI and recorded verification
+    suites: []

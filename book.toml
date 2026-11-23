@@ -1,0 +1,20 @@
+[book]
+title = "r-print"
+authors = ["r-print contributors"]
+description = "On-chain newspaper and magazine primitives for rholo: publications, commissioned work, provenance and editions."
+language = "en"
+src = "docs"
+
+[build]
+build-dir = "docs/book"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/rhovision-org/r-print"
+edit-url-template = "https://github.com/rhovision-org/r-print/edit/main/docs/{path}"
+
+[output.html.fold]
+enable = true
+level = 1

@@ -1,0 +1,19 @@
+[package]
+name = "rprint-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+description = "Command-line client for r-print."
+
+[[bin]]
+name = "rprint"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+rprint-core.workspace = true
+rprint-sdk.workspace = true
