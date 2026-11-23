@@ -3,6 +3,7 @@ MDBOOK ?= mdbook
 RCASH_DIR ?= ../Rholphin
 RHOLO_DIR ?= ../RNodeRust
 NODE ?= http://localhost:40403
+WASM_PACK ?= wasm-pack
 
 # Make every recipe and its Python children use the same absolute checkout. CI sets
 # RCASH_DIR to its `rholo` checkout, so no sibling named Rholphin exists there.
@@ -14,7 +15,8 @@ export RHOLO_DIR := $(abspath $(RHOLO_DIR))
         check-money check-suites check-graph check-flows check-vectors check spec-check parse-check \
         docs docs-serve docs-check devnet devnet-up devnet-wait down status rcash-install \
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
-        client-lint client-test client-wasm client-wasm-smoke client-check \
+        client-lint client-test client-wasm client-wasm-pack client-wasm-node \
+        client-wasm-smoke client-live cli-live wasm-build client-check \
         web-install web-test web-build
 
 venv:
@@ -135,10 +137,30 @@ client-test:
 client-wasm:
 	cargo check -p rprint-wasm --target wasm32-unknown-unknown
 
-client-wasm-smoke:
+client-wasm-pack:
+	$(WASM_PACK) build crates/rprint-wasm --target web --release \
+		--out-dir $(abspath web/public/wasm)
+
+client-wasm-node:
+	$(WASM_PACK) build crates/rprint-wasm --target nodejs --release \
+		--out-dir $(abspath web/tests/wasm-node)
+
+client-wasm-smoke: client-wasm-node
 	node web/tests/wasm-smoke.mjs
 
-client-check: client-lint client-test client-wasm client-wasm-smoke web-test web-build
+# Live smoke: real WASM signing + real HTTP against a healthy devnet.
+client-live: client-wasm-node
+	RPRINT_NODE=$(NODE) npm --prefix web exec -- tsx web/tests/live-client.ts
+
+# CLI live read/submit smoke, same devnet.
+cli-live:
+	RPRINT_NODE=$(NODE) cargo test -p rprint-cli --test devnet_live -- \
+		--ignored --test-threads=1
+
+wasm-build: client-wasm-pack
+
+client-check: client-lint client-test client-wasm client-wasm-pack client-wasm-smoke \
+	web-test web-build
 
 web-install:
 	npm --prefix web ci --no-audit --no-fund

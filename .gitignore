@@ -21,6 +21,8 @@ deployments/*.json
 /web/node_modules/
 /web/dist/
 /web/src/wasm/pkg/
+/web/public/wasm/
+/web/tests/wasm-node/
 /web/public/*.json
 /web/test-results/
 /web/playwright-report/
