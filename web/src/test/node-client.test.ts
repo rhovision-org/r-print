@@ -125,6 +125,25 @@ describe("HttpTransport", () => {
     expect(calls).toHaveLength(2);
   }, 5_000);
 
+  it("calls the ambient fetch with the global receiver", async () => {
+    const original = globalThis.fetch;
+    const receivers: unknown[] = [];
+    globalThis.fetch = function (this: unknown) {
+      receivers.push(this);
+      return Promise.resolve(
+        response(200, JSON.stringify({ latestBlockNumber: 9 })),
+      );
+    } as typeof fetch;
+    try {
+      const transport = new HttpTransport("http://node");
+      expect(await transport.height()).toBe(9);
+      expect(receivers).toHaveLength(1);
+      expect(receivers[0]).toBe(globalThis);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
   it("rejects an empty node URL", () => {
     expect(() => new HttpTransport("  ")).toThrow(ConfigError);
   });

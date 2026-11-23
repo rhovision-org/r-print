@@ -112,7 +112,10 @@ export class HttpTransport implements NodeTransport {
 
   constructor(
     baseUrl: string,
-    private readonly fetchImpl: FetchImpl = fetch,
+    // Call fetch through globalThis: a bare stored `fetch` loses the Window receiver
+    // and browsers reject it with "Illegal invocation".
+    private readonly fetchImpl: FetchImpl = (input, init) =>
+      globalThis.fetch(input, init),
   ) {
     if (!baseUrl.trim()) {
       throw new ConfigError("node URL is empty");
