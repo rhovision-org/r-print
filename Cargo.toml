@@ -5,6 +5,7 @@ members = [
   "crates/rprint-core",
   "crates/rprint-keystore",
   "crates/rprint-sdk",
+  "crates/rprint-wallet",
   "crates/rprint-cli",
   "crates/rprint-wasm",
 ]
@@ -15,6 +16,7 @@ default-members = [
   "crates/rprint-core",
   "crates/rprint-keystore",
   "crates/rprint-sdk",
+  "crates/rprint-wallet",
   "crates/rprint-cli",
 ]
 
@@ -40,6 +42,7 @@ unimplemented = "deny"
 rprint-core = { path = "crates/rprint-core" }
 rprint-keystore = { path = "crates/rprint-keystore" }
 rprint-sdk = { path = "crates/rprint-sdk", default-features = false }
+rprint-wallet = { path = "crates/rprint-wallet" }
 
 rcash-core = { git = "https://github.com/rhovision-org/r-cash", rev = "49b441dea4f5561992387ed670ab263fcd5dd164" }
 rcash-chain = { git = "https://github.com/rhovision-org/r-cash", rev = "49b441dea4f5561992387ed670ab263fcd5dd164", default-features = false }
