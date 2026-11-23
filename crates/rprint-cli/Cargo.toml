@@ -17,5 +17,8 @@ workspace = true
 [dependencies]
 rprint-core.workspace = true
 rprint-sdk.workspace = true
+rprint-wallet.workspace = true
+rcash-chain = { workspace = true, features = ["native"] }
 serde_json.workspace = true
 clap.workspace = true
+tokio.workspace = true
