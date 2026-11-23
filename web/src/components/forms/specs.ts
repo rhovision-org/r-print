@@ -367,6 +367,7 @@ export const SIMPLE_FORMS: Partial<Record<WriteMethod, FormSpec>> = {
     method: "createEdition",
     title: "Create edition",
     description: "Creates the ordered manifest container; append published articles next.",
+    submitLabel: "Create edition",
     fields: [
       { kind: "text", name: "editionId", label: "Edition id" },
       { kind: "text", name: "publicationId", label: "Publication id" },

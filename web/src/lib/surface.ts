@@ -48,7 +48,7 @@ export const SURFACE: SurfaceEntry[] = [
   { method: "correctArticle", screen: "Article", route: "/article/:uri", note: "Append a correction or clarification." },
   { method: "retractArticle", screen: "Article", route: "/article/:uri", note: "Retract a published article." },
   { method: "articleInfo", screen: "Article", route: "/article/:uri", note: "Provenance, reviews and corrections." },
-  { method: "createEdition", screen: "Edition", route: "/edition/:uri", note: "Create an issue container." },
+  { method: "createEdition", screen: "Publication / edition", route: "/publication/:uri", note: "Create an issue container from the publication or an existing edition." },
   { method: "appendEditionArticle", screen: "Edition", route: "/edition/:uri", note: "Append a published article." },
   { method: "sealEdition", screen: "Edition", route: "/edition/:uri", note: "Seal the ordered manifest with an editor signature." },
   { method: "editionInfo", screen: "Edition", route: "/edition/:uri", note: "Manifest, manifest hash and seal height." },

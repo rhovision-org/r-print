@@ -38,7 +38,14 @@ export function Publication() {
               <div>
                 <h1>{publication.publicationId}</h1>
                 <p className="muted">
-                  <span className="tag">{statusLabel(publication.status)}</span> charter{" "}
+                  <span
+                    className="tag"
+                    data-testid="publication-status"
+                    data-status={publication.status}
+                  >
+                    {statusLabel(publication.status)}
+                  </span>{" "}
+                  charter{" "}
                   <Hash value={publication.charterHash} /> · founded{" "}
                   {formatHeight(publication.charter.foundedAtHeight)}
                 </p>
@@ -124,6 +131,14 @@ export function Publication() {
             <section className="grid">
               <FormFor method="pausePublication" uri={uri} onDone={reloadAll} />
               <FormFor method="publicationAdmin" uri={uri} onDone={reloadAll} />
+              <FormFor
+                method="createEdition"
+                defaults={{
+                  publicationId: publication.publicationId,
+                  publicationUri: uri,
+                  number: 1,
+                }}
+              />
             </section>
 
             <SurfaceChecklist
@@ -135,6 +150,7 @@ export function Publication() {
                 "publicationArbitration",
                 "pausePublication",
                 "publicationAdmin",
+                "createEdition",
               ]}
             />
           </>
