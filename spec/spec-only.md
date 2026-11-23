@@ -1,0 +1,22 @@
+# Spec-only surfaces
+
+These features are named in the integration graph but are not deployed in v0.1.
+
+| Edge | Status | Attachment point |
+|---|---|---|
+| `entitles: subscription -> article` | design | A future subscription cell reads `article.access` and the publication treasury. |
+| `licenses: syndication -> kasset` | design | A future licence cell references a KAsset URI and a revenue split. |
+| `coordinates: publication -> room` | design | A future coordination record anchors a quantum-os room id and poll hash. |
+| `records-outcome: coordination_record -> room` | design | The record stores `roomIdHash`, `pollIdHash`, `outcomeHash` and a signer set. |
+| `claims-loss: policy -> sure_claim` | design | Drive `Policy("openClaim")` from an escrow breach; requires the policy token holder. |
+| `settles-cover: line -> account` | design | Drive `Line("pay")`/`Policy("settleClaim")` from an agreed cover claim. |
+| `anchors-did: member -> did` | design | Store a BYOID anchor string; verification stays off-chain. |
+
+The escrow baseline in `21_commission_escrow.rho` remains the default. The r-sure
+Slip/Distribution/Policy/Line edges are the scaling surface for proper insurance; escrow
+becomes dead money at scale, so a publication can attach an r-sure policy through
+`CommissionProposal("attachCover")` without changing the baseline escrow semantics.
+
+K-Assets are optional on articles. `Article("attachKnowledge")` links an r-gen Claim,
+KAsset and Provenance record; `requireKAsset` is a publication/commission opt-in, never a
+default gate.

@@ -1,0 +1,138 @@
+schema: rprint.graph.vertices/v1
+vertices:
+  publication:
+    owner: r-print
+    kind: cell
+    component: component:publication-cell-factory
+    state: publicationState
+    description: Masthead, charter, roster, roles and arbitration authority.
+  member:
+    owner: r-print
+    kind: record
+    state: publicationState.members
+    description: A roster row keyed by the member's REV address.
+  commission:
+    owner: r-print
+    kind: cell
+    component: component:commission-factory
+    state: commissionProposalState
+    description: A pitch accepted by an editor and funded against milestones.
+  escrow:
+    owner: r-print
+    kind: cell
+    component: component:commission-escrow-factory
+    state: commissionEscrowState
+    description: Baseline escrow; one purse, milestone release, refund, dispute.
+  article:
+    owner: r-print
+    kind: cell
+    component: component:article-factory
+    state: articleState
+    description: Editorial wrapper over a content hash and optional knowledge links.
+  edition:
+    owner: r-print
+    kind: cell
+    component: component:edition-factory
+    state: editionState
+    description: Ordered article manifest sealed by an editor signature.
+  correction:
+    owner: r-print
+    kind: record
+    state: articleState.corrections
+    description: Append-only correction, clarification or retraction record.
+  review:
+    owner: r-print
+    kind: record
+    state: articleState.attestations
+    description: Editorial, fact-check or legal attestation over an article.
+  coordination_record:
+    owner: r-print
+    kind: cell
+    component: component:coordination-factory
+    state: coordinationState
+    description: Anchored quantum-os room/poll outcome and signer set.
+  slip:
+    owner: r-sure
+    kind: cell
+    component: component:slip-factory
+    state: slipState
+    description: Funded premium held in a contract-owned purse until bind or expire.
+  distribution:
+    owner: r-sure
+    kind: cell
+    component: component:distribution-factory
+    state: distState
+    description: One-shot staged payout plan over a caller-owned purse.
+  policy:
+    owner: r-sure
+    kind: cell
+    component: component:policy-factory
+    state: policyState
+    description: Bound cover with limits, lines and claim settlement.
+  line:
+    owner: r-sure
+    kind: cell
+    component: component:line-factory
+    state: lineState
+    description: A risk tranche with credit, pay and release capabilities.
+  sure_claim:
+    owner: r-sure
+    kind: cell
+    component: component:claim-factory
+    state: claimState
+    description: r-sure loss/adjudication lifecycle, separate from r-gen claims.
+  rgen_claim:
+    owner: r-gen
+    kind: cell
+    component: component:claim-factory
+    state: claimState
+    description: A knowledge claim that mints a KAsset when validated.
+  kasset:
+    owner: r-gen
+    kind: cell
+    description: K-Asset minted only by Claim.validate; carries verdict and provenance ref.
+  provenance:
+    owner: r-gen
+    kind: cell
+    component: component:provenance-factory
+    state: pState
+    description: Hash-linked anchors bound to a KAsset by createBound.
+  identity:
+    owner: r-gen
+    kind: record
+    component: component:identity-directory
+    state: identityState
+    description: An r-gen identity keyed by its REV address.
+  credential:
+    owner: r-gen
+    kind: cell
+    component: component:credential-factory
+    state: credentialState
+    description: A scoped, revocable qualification with a one-shot proof path.
+  account:
+    owner: r-cash
+    kind: record
+    component: component:account-factory
+    state: accountState
+    description: An r-cash owner account; the settlement endpoint.
+  purse:
+    owner: r-cash
+    kind: capability
+    component: component:asset-resolver
+    description: An ERTP purse; escrow and distribution custody.
+  did:
+    owner: byoid
+    kind: anchor
+    description: Interface-only BYOID DID/anchor string; verification is off-chain.
+  room:
+    owner: quantum-os
+    kind: offchain
+    description: A quantum-os room/poll; only hashes and signer sets are anchored.
+  subscription:
+    owner: r-print
+    kind: design
+    description: Reader entitlement; spec-only in v0.1.
+  syndication:
+    owner: r-print
+    kind: design
+    description: A licence to re-publish a KAsset; spec-only in v0.1.

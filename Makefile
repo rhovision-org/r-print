@@ -11,7 +11,7 @@ export RHOLO_DIR := $(abspath $(RHOLO_DIR))
 
 .PHONY: venv build build-check measure measure-check metrics metrics-compare \
         metrics-baseline check-arch check-captures check-select check-placeholders \
-        check-money check-suites check-flows check-vectors check spec-check parse-check \
+        check-money check-suites check-graph check-flows check-vectors check spec-check parse-check \
         docs docs-serve docs-check devnet devnet-up devnet-wait down status rcash-install \
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
         client-lint client-test client-wasm client-wasm-smoke client-check \
@@ -67,8 +67,11 @@ check-flows:
 check-vectors:
 	$(PY) tools/check_vectors.py
 
+check-graph:
+	$(PY) tools/check_graph.py
+
 spec-check: build-check measure-check metrics-compare check-arch check-captures check-select \
-            check-placeholders check-money check-suites
+            check-placeholders check-money check-suites check-graph
 
 parse-check:
 	$(PY) harness/install.py --dry-run --profile safe

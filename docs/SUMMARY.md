@@ -57,6 +57,7 @@
 - [Invariants](reference/invariants.md)
 - [Verification](reference/verification.md)
 - [BYOID and quantum-os adapters](reference/byoid-quantum-os-adapter.md)
+- [Integration graph](reference/integration-graph.md)
 - [Web surface](reference/web-surface.md)
 - [Spec-only milestones](reference/spec-only-milestones.md)
 - [Glossary](reference/glossary.md)

@@ -1,0 +1,325 @@
+schema: rprint.graph.edges/v1
+edges:
+  - id: binds-role
+    verb: bindsRole
+    from: publication
+    to: member
+    kind: call
+    arms: [Publication.addMember, Publication.setRole, Publication.roleOf]
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: implemented
+
+  - id: commissions
+    verb: commissions
+    from: publication
+    to: commission
+    kind: call
+    arms: [CommissionFactory.propose, CommissionProposal.accept]
+    source: contracts/src/deploy/20_commission.rho
+    status: implemented
+
+  - id: obligates-writer
+    verb: obligates
+    from: commission
+    to: member
+    kind: reference
+    arms: [CommissionProposal.info.writerId]
+    source: contracts/src/deploy/20_commission.rho
+    status: implemented
+
+  - id: funds-escrow
+    verb: funds
+    from: account
+    to: escrow
+    kind: call
+    arms: [CommissionEscrowFactory.createFunded, Payments.ensureAccount, Payments.withdrawPayment]
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+
+  - id: escrows-purse
+    verb: escrows
+    from: escrow
+    to: purse
+    kind: capability
+    arms: [CommissionEscrow.balance, CommissionEscrow.release]
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+
+  - id: releases-milestone
+    verb: releasesMilestone
+    from: escrow
+    to: account
+    kind: call
+    arms: [CommissionEscrow.release, CommissionEscrow.balance]
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+
+  - id: refunds-escrow
+    verb: refunds
+    from: escrow
+    to: account
+    kind: call
+    arms: [CommissionEscrow.cancel, CommissionEscrow.expire, CommissionEscrow.resolveDispute]
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+
+  - id: covers-commission
+    verb: covers
+    from: policy
+    to: commission
+    kind: call
+    arms: [CommissionProposal.attachCover, RsureAdapter.policy]
+    source: contracts/src/deploy/20_commission.rho
+    status: surface
+
+  - id: funds-slip
+    verb: funds
+    from: account
+    to: slip
+    kind: call
+    arms: [Slip.fundPremium]
+    source: configs/rsure.json
+    status: surface
+
+  - id: escrows-slip
+    verb: escrows
+    from: slip
+    to: purse
+    kind: capability
+    arms: [Slip.premium]
+    source: configs/rsure.json
+    status: surface
+
+  - id: refunds-slip
+    verb: refunds
+    from: slip
+    to: account
+    kind: call
+    arms: [Slip.expire]
+    source: configs/rsure.json
+    status: surface
+
+  - id: binds-slip
+    verb: binds
+    from: slip
+    to: policy
+    kind: call
+    arms: [Slip.bind]
+    source: configs/rsure.json
+    status: surface
+
+  - id: distributes
+    verb: distributes
+    from: distribution
+    to: account
+    kind: call
+    arms: [Distribution.run]
+    source: configs/rsure.json
+    status: surface
+
+  - id: pays-milestone-distribution
+    verb: paysMilestone
+    from: distribution
+    to: member
+    kind: plan
+    arms: [Distribution.run.account]
+    source: configs/rsure.json
+    status: surface
+
+  - id: claims-loss
+    verb: claimsLoss
+    from: policy
+    to: sure_claim
+    kind: call
+    arms: [Policy.openClaim, ClaimFactory.create]
+    source: configs/rsure.json
+    status: design
+
+  - id: settles-cover
+    verb: settles
+    from: line
+    to: account
+    kind: call
+    arms: [Line.pay, Policy.settleClaim]
+    source: configs/rsure.json
+    status: design
+
+  - id: identified-by
+    verb: identifiedBy
+    from: member
+    to: identity
+    kind: call
+    arms: [RgenAdapter.identity, IdentityDirectory.lookup]
+    source: contracts/src/deploy/05_rgen.rho
+    status: surface
+
+  - id: credentialed-by
+    verb: credentialedBy
+    from: member
+    to: credential
+    kind: call
+    arms: [RgenAdapter.credential, CredentialFactory.verify]
+    source: contracts/src/deploy/05_rgen.rho
+    status: surface
+
+  - id: anchors-did
+    verb: anchorsDID
+    from: member
+    to: did
+    kind: reference
+    arms: [Publication.member.did]
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: design
+
+  - id: validates-claim
+    verb: validatesClaim
+    from: credential
+    to: rgen_claim
+    kind: call
+    arms: [Claim.validate, Credential.prove]
+    source: configs/rgen.json
+    status: surface
+
+  - id: mints-kasset
+    verb: mintsKAsset
+    from: rgen_claim
+    to: kasset
+    kind: call
+    arms: [Claim.validate]
+    source: configs/rgen.json
+    status: surface
+
+  - id: asserts
+    verb: asserts
+    from: kasset
+    to: rgen_claim
+    kind: reference
+    arms: [KAsset.get.claimRef, RgenAdapter.kasset]
+    source: contracts/src/deploy/05_rgen.rho
+    status: surface
+
+  - id: provenance-of
+    verb: provenanceOf
+    from: provenance
+    to: kasset
+    kind: call
+    arms: [ProvenanceFactory.createBound]
+    source: configs/rgen.json
+    status: surface
+
+  - id: anchors-hash
+    verb: anchorsHash
+    from: provenance
+    to: article
+    kind: hash
+    arms: [Provenance.anchor, RgenAdapter.provenance]
+    source: contracts/src/deploy/05_rgen.rho
+    status: surface
+
+  - id: article-wraps-knowledge
+    verb: wraps
+    from: article
+    to: kasset
+    kind: call
+    arms: [Article.attachKnowledge, RgenAdapter.kasset]
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+
+  - id: article-wraps-claim
+    verb: wrapsClaim
+    from: article
+    to: rgen_claim
+    kind: call
+    arms: [Article.attachKnowledge, RgenAdapter.claim]
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+
+  - id: article-wraps-provenance
+    verb: wrapsProvenance
+    from: article
+    to: provenance
+    kind: call
+    arms: [Article.attachKnowledge, RgenAdapter.provenance]
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+
+  - id: byline
+    verb: byline
+    from: article
+    to: member
+    kind: reference
+    arms: [Article.info.authors, Publication.member]
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+
+  - id: published-in
+    verb: publishedIn
+    from: article
+    to: edition
+    kind: call
+    arms: [Edition.append, Article.info]
+    source: contracts/src/deploy/31_edition.rho
+    status: implemented
+
+  - id: annotates
+    verb: annotates
+    from: correction
+    to: article
+    kind: hash
+    arms: [Article.correct, Article.retract]
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+
+  - id: attests
+    verb: attests
+    from: review
+    to: article
+    kind: reference
+    arms: [Article.attest, Article.attestations]
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+
+  - id: coordinates
+    verb: coordinates
+    from: publication
+    to: room
+    kind: reference
+    arms: [CoordinationRecord.record]
+    source: spec/spec-only.md
+    status: design
+
+  - id: records-outcome
+    verb: recordsOutcome
+    from: coordination_record
+    to: room
+    kind: hash
+    arms: [CoordinationRecord.record]
+    source: spec/spec-only.md
+    status: design
+
+  - id: splits-revenue
+    verb: splitsRevenue
+    from: publication
+    to: member
+    kind: design
+    arms: [Publication.info.charter.revenueSplit]
+    source: contracts/src/deploy/11_publication_cell.rho
+    status: design
+
+  - id: entitles
+    verb: entitles
+    from: subscription
+    to: article
+    kind: design
+    arms: []
+    source: spec/spec-only.md
+    status: design
+
+  - id: licenses
+    verb: licenses
+    from: syndication
+    to: kasset
+    kind: design
+    arms: []
+    source: spec/spec-only.md
+    status: design
