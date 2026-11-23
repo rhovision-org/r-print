@@ -1,0 +1,17 @@
+{
+  "schema": "rprint.client-vectors/v1",
+  "vectors": [
+    {
+      "id": "admin.payload",
+      "kind": "blake2b",
+      "text": "rprint:admin:v1|publication:p|3|setTreasury|1111x",
+      "digest": "337047f86094a566153e9f3b4beaaebab072d04f68899d0ecb4187fb0d886830"
+    },
+    {
+      "id": "edition.manifest",
+      "kind": "blake2b",
+      "text": "rprint:edition:v1|edition:1|pub:1|1|title|cover|content:a|content:b",
+      "digest": "a8094f0b7b20ca1e2a868bb125bd58e729930865c52620e390ae4b892b778627"
+    }
+  ]
+}
