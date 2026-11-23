@@ -124,7 +124,7 @@ jobs:
           node-version: "22"
       - name: Build the node image and the r-cash CLI
         run: |
-          docker build -t rnode:local ./rnode-rust
+          (cd rnode-rust && tools/devnet.sh build)
           cargo build --manifest-path rholo/Cargo.toml -p rcash-cli
       - run: make venv
       - name: Start the r-cash devnet
