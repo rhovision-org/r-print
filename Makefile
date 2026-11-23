@@ -4,11 +4,17 @@ RCASH_DIR ?= ../Rholphin
 RHOLO_DIR ?= ../RNodeRust
 NODE ?= http://localhost:40403
 WASM_PACK ?= wasm-pack
+SIBLINGS_DIR ?= ..
+RGEN_DIR ?= $(abspath $(SIBLINGS_DIR)/RGen)
+RSURE_DIR ?= $(abspath $(SIBLINGS_DIR)/RSure)
+KEYFILE ?= $(abspath .devnet/keys.json)
+SIBLING_SUITES = cover,knowledge
 
 # Make every recipe and its Python children use the same absolute checkout. CI sets
 # RCASH_DIR to its `rholo` checkout, so no sibling named Rholphin exists there.
 export RCASH_DIR := $(abspath $(RCASH_DIR))
 export RHOLO_DIR := $(abspath $(RHOLO_DIR))
+export RPRINT_SIBLINGS_DIR := $(abspath $(SIBLINGS_DIR))
 
 .PHONY: venv build build-check measure measure-check metrics metrics-compare \
         metrics-baseline check-arch check-captures check-select check-placeholders \
@@ -18,7 +24,9 @@ export RHOLO_DIR := $(abspath $(RHOLO_DIR))
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
         client-lint client-test client-wasm client-wasm-pack client-wasm-node \
         client-wasm-smoke client-live cli-live wasm-build client-check \
-        web-install web-test web-build web-e2e-install web-e2e-fixture web-e2e-live
+        web-install web-test web-build web-e2e-install web-e2e-fixture web-e2e-live \
+        siblings-venv siblings-install install-with-siblings sibling-fixture \
+        sibling-suites sibling-suites-strict siblings-campaign
 
 venv:
 	python3 -m venv .venv
@@ -141,6 +149,40 @@ install:
 	$(PY) harness/install.py --node $(NODE) --profile safe
 
 setup: devnet-up rcash-keys rcash-bootstrap keys install
+
+# Optional sibling surfaces. The defaults resolve the checkouts next to r-print; CI
+# sets SIBLINGS_DIR to $GITHUB_WORKSPACE/siblings.
+siblings-venv:
+	$(PY) -m pip -q install -r $(RSURE_DIR)/harness/requirements.txt \
+		-r $(RGEN_DIR)/harness/requirements.txt
+
+siblings-install:
+	cd $(RSURE_DIR) && \
+		RSHARE_KEYS=$(KEYFILE) RSURE_KEYS=$(KEYFILE) RSHARE_NODE=$(NODE) \
+		RSURE_NODE=$(NODE) $(abspath $(PY)) harness/install.py --node $(NODE)
+	cd $(RGEN_DIR) && \
+		RGEN_KEYS=$(KEYFILE) RGEN_NODE=$(NODE) \
+		RGEN_MANIFEST=$(RGEN_DIR)/deployments/devnet.json \
+		$(abspath $(PY)) harness/install.py --node $(NODE) --fresh
+
+install-with-siblings:
+	RPRINT_SIBLINGS=1 $(PY) harness/install.py --node $(NODE) --profile safe --siblings
+
+sibling-fixture:
+	$(PY) harness/sibling_fixture.py --write
+
+sibling-suites: sibling-fixture
+	RPRINT_SIBLING_FIXTURE=deployments/sibling-fixture.json \
+		$(PY) harness/run_suites.py --suites $(SIBLING_SUITES) \
+		--results deployments/sibling-suite-results.json --optional
+
+sibling-suites-strict: sibling-fixture
+	RPRINT_SIBLING_FIXTURE=deployments/sibling-fixture.json \
+		$(PY) harness/run_suites.py --suites $(SIBLING_SUITES) \
+		--results deployments/sibling-suite-results.json --require-run
+
+siblings-campaign: devnet-up rcash-keys rcash-bootstrap keys siblings-venv \
+		siblings-install install-with-siblings sibling-suites-strict
 
 unit-all:
 	$(PY) harness/run_suites.py

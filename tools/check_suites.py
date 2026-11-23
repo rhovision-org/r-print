@@ -38,6 +38,7 @@ def check_files() -> list[str]:
         "SAFE_ONLY": set(run_suites.SAFE_ONLY),
         "EXPERIMENTAL": set(run_suites.EXPERIMENTAL),
         "AUDIT": set(run_suites.AUDIT),
+        "SIBLING": set(run_suites.SIBLING),
     }
     seen: dict[str, str] = {}
     for name, group in groups.items():
@@ -61,6 +62,8 @@ def check_files() -> list[str]:
             errors.append(f"DEFAULT contains non-safe suites: {extra}")
     if groups["EXPERIMENTAL"] & set(run_suites.DEFAULT):
         errors.append("experimental suites must not be in run_suites.DEFAULT")
+    if groups["SIBLING"] & set(run_suites.DEFAULT):
+        errors.append("sibling suites must not be in run_suites.DEFAULT")
     return errors
 
 
