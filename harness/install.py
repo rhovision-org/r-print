@@ -91,6 +91,32 @@ def admin_literal(keys: dict, dev_single_key: bool) -> str:
     return "[" + ", ".join(f'"{key}".hexToBytes()' for key in distinct[:3]) + "]"
 
 
+def optional_root(config_name: str, manifest_key: str = "root_manifest_path") -> str:
+    """Read a sibling root URI from its manifest, or return an empty string.
+
+    The adapters are optional surfaces: an empty root renders their `health` arm as
+    disabled and keeps the baseline escrow / optional K-Asset links available.
+    """
+    path = ROOT / "configs" / config_name
+    if not path.is_file():
+        return ""
+    cfg = json.loads(path.read_text())
+    if not cfg.get("enabled", False):
+        return ""
+    manifest = cfg.get(manifest_key)
+    if not manifest:
+        return ""
+    candidate = Path(manifest)
+    if not candidate.is_absolute():
+        candidate = (ROOT / candidate).resolve()
+    if not candidate.is_file():
+        return ""
+    try:
+        return json.loads(candidate.read_text()).get("root_uri", "")
+    except (OSError, ValueError):
+        return ""
+
+
 def verify_rcash(root_uri: str, required: list[str]) -> None:
     """Fail closed before a partial install when r-cash is missing a component."""
     sys.path.insert(0, str(ROOT / "harness"))
@@ -164,6 +190,8 @@ def main(argv: list[str] | None = None) -> int:
         "__THRESHOLD__": "2",
         "__RCASH_ROOT_URI__": rcash_root,
         "__PROTOCOL_OWNER__": keys["deployer"]["address"],
+        "__RGEN_ROOT_URI__": optional_root("rgen.json"),
+        "__RSURE_ROOT_URI__": optional_root("rsure.json"),
     }
 
     build = ROOT / "contracts" / "build"

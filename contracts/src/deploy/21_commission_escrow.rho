@@ -1,0 +1,795 @@
+// CommissionEscrowFactory + CommissionEscrow: one purse, milestone payouts, refunds.
+// Placeholders: __ROOT_URI__.
+new
+  CommissionEscrowFactory, escrowFactoryState,
+  rl(`rho:registry:lookup`),
+  rs(`rho:registry:insertArbitrary`),
+  deployerId(`rho:rchain:deployerId`),
+  deployId(`rho:rchain:deployId`),
+  rootCh, c, ack,
+  authOwner, authIsOwner, authPubKey, resolveComponent,
+  pubAdminsValid, pubArgsAppend, pubArgsToString, pubAnySig, pubCount, pubVerifyAdmin,
+  listSum, listSumField, listField, listHas, listDistinct, listSetField,
+  escrowRole, escrowArbitration, escrowNowHeight, escrowPay,
+  escrowFind, escrowAllReleased, escrowMaxDeadline, escrowRemaining,
+  escrowPriorReleased, escrowLastDeadline, escrowInitMilestones, escrowFundGo, escrowSpawn, escrowFactoryGo
+in {
+  // @@INLINE:lib/Resolve.rho@@
+  // @@INLINE:lib/Auth.rho@@
+  // @@INLINE:lib/PubGuard.rho@@
+  // @@INLINE:lib/List.rho@@
+
+  contract escrowRole(@publicationUri, @callerId, ret) = {
+    new cCh in {
+      rl!(publicationUri, *cCh) |
+      for (Publication <- cCh) { Publication!("roleOf", callerId, *ret) }
+    }
+  } |
+
+  contract escrowArbitration(@publicationUri, ret) = {
+    new cCh in {
+      rl!(publicationUri, *cCh) |
+      for (Publication <- cCh) { Publication!("arbitration", *ret) }
+    }
+  } |
+
+  contract escrowNowHeight(ret) = {
+    new cCh in {
+      resolveComponent!("component:clock", *cCh) |
+      for (@c <- cCh) {
+        match c {
+          (true, Clock) => { @Clock!("now", *ret) }
+          _ => { ret!((false, "clock")) }
+        }
+      }
+    }
+  } |
+
+  contract escrowPay(@purseUri, @toId, @amount, ret) = {
+    new cCh in {
+      rl!(purseUri, *cCh) |
+      for (Keeper <- cCh) { Keeper!("pay", toId, amount, *ret) }
+    }
+  } |
+
+  contract escrowFind(@milestones, @milestoneId, @i, ret) = {
+    if (i >= milestones.length()) {
+      ret!((false, "milestone"))
+    } else {
+      match milestones.nth(i) {
+        m => {
+          if (m.get("id") == milestoneId) { ret!((true, i)) }
+          else { escrowFind!(milestones, milestoneId, i + 1, *ret) }
+        }
+      }
+    }
+  } |
+
+  contract escrowAllReleased(@milestones, @i, ret) = {
+    if (i >= milestones.length()) {
+      ret!(true)
+    } else {
+      match milestones.nth(i) {
+        m => {
+          if (m.get("status") == "released") {
+            escrowAllReleased!(milestones, i + 1, *ret)
+          } else { ret!(false) }
+        }
+      }
+    }
+  } |
+
+  contract escrowPriorReleased(@milestones, @index, @i, ret) = {
+    if (i >= index) {
+      ret!(true)
+    } else {
+      match milestones.nth(i) {
+        m => {
+          if (m.get("status") == "released") {
+            escrowPriorReleased!(milestones, index, i + 1, *ret)
+          } else { ret!(false) }
+        }
+      }
+    }
+  } |
+
+  contract escrowMaxDeadline(@milestones, @i, @acc, ret) = {
+    if (i >= milestones.length()) {
+      ret!(acc)
+    } else {
+      match milestones.nth(i) {
+        m => {
+          if (m.get("deadlineHeight") > acc) {
+            escrowMaxDeadline!(milestones, i + 1, m.get("deadlineHeight"), *ret)
+          } else {
+            escrowMaxDeadline!(milestones, i + 1, acc, *ret)
+          }
+        }
+      }
+    }
+  } |
+
+  contract escrowLastDeadline(@milestones, ret) = {
+    if (milestones.length() == 0) {
+      ret!(0)
+    } else {
+      ret!(milestones.nth(milestones.length() - 1).get("deadlineHeight"))
+    }
+  } |
+
+  contract escrowRemaining(@total, @paid, @refunded, ret) = {
+    ret!(total - paid - refunded)
+  } |
+
+  contract escrowInitMilestones(@milestones, @i, @acc, ret) = {
+    if (i >= milestones.length()) {
+      ret!(acc)
+    } else {
+      match milestones.nth(i) {
+        m => {
+          escrowInitMilestones!(milestones, i + 1,
+            acc ++ [m.set("status", "pending").set("evidenceHash", "")
+                      .set("submittedAtHeight", 0).set("releasedAtHeight", 0)],
+            *ret)
+        }
+      }
+    }
+  } |
+
+  contract escrowFactoryGo(@fs, dId, @opId, @proposalId, @proposal, ret) = {
+    new oCh in {
+      authOwner!(*dId, *oCh) |
+      for (@o <- oCh) {
+        match o {
+          (true, funderId) => {
+            if (proposal.get("status") != "accepted") {
+              escrowFactoryState!(fs) | ret!((false, "status"))
+            } else {
+              new rCh in {
+                escrowRole!(proposal.get("publicationUri"),
+                            proposal.get("editorId"), *rCh) |
+                for (@r <- rCh) {
+                  match r {
+                    (true, "editor") => { escrowFundGo!(fs, *dId, opId, proposalId, proposal, funderId, *ret) }
+                    (true, "publisher") => { escrowFundGo!(fs, *dId, opId, proposalId, proposal, funderId, *ret) }
+                    _ => { escrowFactoryState!(fs) | ret!((false, "editor")) }
+                  }
+                }
+              }
+            }
+          }
+          _ => { escrowFactoryState!(fs) | ret!((false, "not owner")) }
+        }
+      }
+    }
+  } |
+
+  contract escrowFundGo(@fs, dId, @opId, @proposalId, @proposal, @funderId, ret) = {
+    new payCh, iCh, uCh, aCh, wCh, mCh, dCh, xCh in {
+      resolveComponent!("component:payments", *payCh) |
+      for (@p0 <- payCh) {
+        match p0 {
+          (true, Payments) => {
+            @Payments!("issuer", "REV", *iCh) |
+            for (@i0 <- iCh) {
+              match i0 {
+                (true, brand, issuer) => {
+                  @issuer!("makeEmptyPurse", *uCh) |
+                  for (@u0 <- uCh) {
+                    match u0 {
+                      (true, purse) => {
+                        @Payments!("ensureAccount", *dId, *aCh) |
+                        for (@a0 <- aCh) {
+                          match a0 {
+                            (true, account, ownerId) => {
+                              @account!("withdraw", *dId, "REV",
+                                        proposal.get("total"), *wCh) |
+                              for (@w0 <- wCh) {
+                                match w0 {
+                                  (true, payment) => {
+                                    @issuer!("getAmountOf", payment, *mCh) |
+                                    for (@m0 <- mCh) {
+                                      match m0 {
+                                        (true, measured) => {
+                                          if (measured != proposal.get("total")) { 1/0 }
+                                          else {
+                                            @purse!("deposit", payment, *dCh) |
+                                            for (@_ <- dCh) {
+                                              new PurseKeeper, kUriCh in {
+                                                contract PurseKeeper(@"balance", ret3) = {
+                                                  @purse!("getCurrentAmount", *ret3)
+                                                } |
+                                                contract PurseKeeper(@"pay", @toId, @amount, ret3) = {
+                                                  new w2, p2, d2 in {
+                                                    @purse!("withdraw", (brand, amount), *w2) |
+                                                    for (@w2r <- w2) {
+                                                      match w2r {
+                                                        (true, payment2) => {
+                                                          resolveComponent!("component:payments", *p2) |
+                                                          for (@p2r <- p2) {
+                                                            match p2r {
+                                                              (true, Payments2) => {
+                                                                @Payments2!("refundPayment", toId, "REV", payment2, *d2) |
+                                                                for (@d2r <- d2) { ret3!(d2r) }
+                                                              }
+                                                              _ => { 1/0 }
+                                                            }
+                                                          }
+                                                        }
+                                                        _ => { 1/0 }
+                                                      }
+                                                    }
+                                                  }
+                                                } |
+                                                rs!(bundle+{*PurseKeeper}, *kUriCh) |
+                                                for (@purseUri <- kUriCh) {
+                                                  escrowSpawn!(fs, proposal, funderId, opId,
+                                                               purseUri, brand, 0, *ret)
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                        _ => { 1/0 }
+                                      }
+                                    }
+                                  }
+                                  _ => { 1/0 }
+                                }
+                              }
+                            }
+                            _ => { escrowFactoryState!(fs) | ret!(a0) }
+                          }
+                        }
+                      }
+                      _ => { 1/0 }
+                    }
+                  }
+                }
+                _ => { escrowFactoryState!(fs) | ret!(i0) }
+              }
+            }
+          }
+          _ => { escrowFactoryState!(fs) | ret!((false, "payments")) }
+        }
+      }
+    }
+  } |
+
+  contract escrowSpawn(@fs, @proposal, @funderId, @opId, @purseUri, @brand,
+                       @maxDeadline, ret) = {
+    new initCh in {
+      escrowInitMilestones!(proposal.get("milestones"), 0, [], *initCh) |
+      for (@milestones <- initCh) {
+        new CommissionEscrow, escrowState, escrowReleaseGo, escrowCancelGo,
+            escrowExpireGo, escrowArbitrateGo, uCh in {
+          escrowState!({
+            "escrowId": proposal.get("proposalId"),
+            "proposalId": proposal.get("proposalId"),
+            "publicationId": proposal.get("publicationId"),
+            "publicationUri": proposal.get("publicationUri"),
+            "writerId": proposal.get("writerId"),
+            "writerDid": proposal.get("writerDid"),
+            "editorId": proposal.get("editorId"),
+            "funderId": funderId,
+            "assetId": "REV",
+            "purseUri": purseUri,
+            "total": proposal.get("total"),
+            "milestones": milestones,
+            "graceBlocks": proposal.get("graceBlocks"),
+            "disputeWindowBlocks": proposal.get("disputeWindowBlocks"),
+            "coverUri": proposal.get("coverUri"),
+            "hardDeadlineHeight": proposal.get("milestones").nth(proposal.get("milestones").length() - 1).get("deadlineHeight") + proposal.get("graceBlocks"),
+            "paidWriter": 0,
+            "refundedFunder": 0,
+            "fee": 0,
+            "status": "active",
+            "dispute": {"by": "", "reasonHash": "", "atHeight": 0},
+            "nonce": 0,
+            "ops": {},
+            "schemaVersion": 1
+          }) |
+
+          contract CommissionEscrow(@"info", ret2) = {
+            for (@s <<- escrowState) { ret2!((true, s.delete("ops"))) }
+          } |
+          contract CommissionEscrow(@"status", ret2) = {
+            for (@s <<- escrowState) { ret2!((true, s.get("status"))) }
+          } |
+          contract CommissionEscrow(@"balance", ret2) = {
+            for (@s <<- escrowState) {
+              new cCh in {
+                rl!(s.get("purseUri"), *cCh) |
+                for (Keeper <- cCh) { Keeper!("balance", *ret2) }
+              }
+            }
+          } |
+          contract CommissionEscrow(@"milestones", ret2) = {
+            for (@s <<- escrowState) { ret2!((true, s.get("milestones"))) }
+          } |
+          contract CommissionEscrow(@"cover", ret2) = {
+            for (@s <<- escrowState) { ret2!((true, s.get("coverUri"))) }
+          } |
+
+          contract CommissionEscrow(@"submit", dId2, @opId2, @milestoneId,
+                                    @evidenceHash, ret2) = {
+            new o2 in {
+              authOwner!(*dId2, *o2) |
+              for (@oc <- o2) {
+                match oc {
+                  (true, callerId) => {
+                    for (@s <- escrowState) {
+                      match s.get("ops").get(callerId ++ ":" ++ opId2) {
+                        Nil => {
+                          if (callerId != s.get("writerId")) {
+                            escrowState!(s) | ret2!((false, "not writer"))
+                          } else {
+                            if (s.get("status") != "active") {
+                              escrowState!(s) | ret2!((false, "status"))
+                            } else {
+                              new fCh in {
+                                escrowFind!(s.get("milestones"), milestoneId, 0, *fCh) |
+                                for (@f <- fCh) {
+                                  match f {
+                                    (true, index) => {
+                                      match s.get("milestones").nth(index) {
+                                        m => {
+                                          if (m.get("status") != "pending") {
+                                            escrowState!(s) | ret2!((false, "milestone"))
+                                          } else {
+                                            new nCh in {
+                                              escrowNowHeight!(*nCh) |
+                                              for (@n <- nCh) {
+                                                match n {
+                                                  (true, now) => {
+                                                    if (now > m.get("deadlineHeight") + s.get("graceBlocks")) {
+                                                      escrowState!(s) | ret2!((false, "too late"))
+                                                    } else {
+                                                      new u2 in {
+                                                        listSetField!(s.get("milestones"), index,
+                                                                      "status", "submitted", 0, [], *u2) |
+                                                        for (@ms <- u2) {
+                                                          new e2 in {
+                                                            listSetField!(ms, index, "evidenceHash",
+                                                                          evidenceHash, 0, [], *e2) |
+                                                            for (@ms2 <- e2) {
+                                                              escrowState!(
+                                                                s.set("milestones", ms2)
+                                                                 .set("ops", s.get("ops").set(callerId ++ ":" ++ opId2, (true, Nil)))) |
+                                                              ret2!((true, Nil))
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                  _ => { escrowState!(s) | ret2!(n) }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                    _ => { escrowState!(s) | ret2!(f) }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        stored => { escrowState!(s) | ret2!(stored) }
+                      }
+                    }
+                  }
+                  _ => { ret2!((false, "not owner")) }
+                }
+              }
+            }
+          } |
+
+          contract CommissionEscrow(@"release", dId2, @opId2, @milestoneId, ret2) = {
+            new o2 in {
+              authOwner!(*dId2, *o2) |
+              for (@oc <- o2) {
+                match oc {
+                  (true, callerId) => {
+                    for (@s <- escrowState) {
+                      match s.get("ops").get(callerId ++ ":" ++ opId2) {
+                        Nil => {
+                          if (s.get("status") != "active") {
+                            escrowState!(s) | ret2!((false, "status"))
+                          } else {
+                            new rCh in {
+                              escrowRole!(s.get("publicationUri"), callerId, *rCh) |
+                              for (@r <- rCh) {
+                                match r {
+                                  (true, "editor") => { escrowReleaseGo!(s, callerId, opId2, milestoneId, *ret2) }
+                                  (true, "publisher") => { escrowReleaseGo!(s, callerId, opId2, milestoneId, *ret2) }
+                                  _ => { escrowState!(s) | ret2!((false, "role")) }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        stored => { escrowState!(s) | ret2!(stored) }
+                      }
+                    }
+                  }
+                  _ => { ret2!((false, "not owner")) }
+                }
+              }
+            }
+          } |
+
+          contract escrowReleaseGo(@s, @callerId, @opId, @milestoneId, ret2) = {
+            new fCh, pCh in {
+              escrowFind!(s.get("milestones"), milestoneId, 0, *fCh) |
+              for (@f <- fCh) {
+                match f {
+                  (true, index) => {
+                    match s.get("milestones").nth(index) {
+                      m => {
+                        if (m.get("status") != "submitted") {
+                          escrowState!(s) | ret2!((false, "not submitted"))
+                        } else {
+                          escrowPriorReleased!(s.get("milestones"), index, 0, *pCh) |
+                          for (@prior <- pCh) {
+                            if (prior == false) {
+                              escrowState!(s) | ret2!((false, "milestone"))
+                            } else {
+                              new payCh in {
+                                escrowPay!(s.get("purseUri"), s.get("writerId"), m.get("amount"), *payCh) |
+                                for (@p <- payCh) {
+                                  match p {
+                                    (true, Nil) => {
+                                      new uCh in {
+                                        listSetField!(s.get("milestones"), index, "status",
+                                                      "released", 0, [], *uCh) |
+                                        for (@ms <- uCh) {
+                                          new aCh in {
+                                            escrowAllReleased!(ms, 0, *aCh) |
+                                            for (@all <- aCh) {
+                                              if (all) {
+                                                escrowState!(
+                                                  s.set("milestones", ms)
+                                                   .set("paidWriter", s.get("paidWriter") + m.get("amount"))
+                                                   .set("status", "completed")
+                                                   .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                                                ret2!((true, Nil))
+                                              } else {
+                                                escrowState!(
+                                                  s.set("milestones", ms)
+                                                   .set("paidWriter", s.get("paidWriter") + m.get("amount"))
+                                                   .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                                                ret2!((true, Nil))
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                    _ => { 1/0 }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                  _ => { escrowState!(s) | ret2!(f) }
+                }
+              }
+            }
+          } |
+
+          contract CommissionEscrow(@"cancel", dId2, @opId2, @reasonHash, ret2) = {
+            new o2 in {
+              authOwner!(*dId2, *o2) |
+              for (@oc <- o2) {
+                match oc {
+                  (true, callerId) => {
+                    for (@s <- escrowState) {
+                      match s.get("ops").get(callerId ++ ":" ++ opId2) {
+                        Nil => {
+                          if (s.get("status") != "active") {
+                            escrowState!(s) | ret2!((false, "status"))
+                          } else {
+                            new rCh in {
+                              escrowRole!(s.get("publicationUri"), callerId, *rCh) |
+                              for (@r <- rCh) {
+                                match r {
+                                  (true, "editor") => { escrowCancelGo!(s, callerId, opId2, *ret2) }
+                                  (true, "publisher") => { escrowCancelGo!(s, callerId, opId2, *ret2) }
+                                  _ => {
+                                    if (callerId == s.get("funderId")) {
+                                      escrowCancelGo!(s, callerId, opId2, *ret2)
+                                    } else {
+                                      escrowState!(s) | ret2!((false, "role"))
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        stored => { escrowState!(s) | ret2!(stored) }
+                      }
+                    }
+                  }
+                  _ => { ret2!((false, "not owner")) }
+                }
+              }
+            }
+          } |
+
+          contract escrowCancelGo(@s, @callerId, @opId, ret2) = {
+            new remCh in {
+              escrowRemaining!(s.get("total"), s.get("paidWriter"),
+                               s.get("refundedFunder"), *remCh) |
+              for (@remaining <- remCh) {
+                if (remaining <= 0) {
+                  escrowState!(s) | ret2!((false, "closed"))
+                } else {
+                  new payCh in {
+                    escrowPay!(s.get("purseUri"), s.get("funderId"), remaining, *payCh) |
+                    for (@p <- payCh) {
+                      match p {
+                        (true, Nil) => {
+                          escrowState!(
+                            s.set("status", "cancelled")
+                             .set("refundedFunder", s.get("refundedFunder") + remaining)
+                             .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                          ret2!((true, Nil))
+                        }
+                        _ => { 1/0 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } |
+
+          contract CommissionEscrow(@"dispute", dId2, @opId2, @reasonHash, ret2) = {
+            new o2 in {
+              authOwner!(*dId2, *o2) |
+              for (@oc <- o2) {
+                match oc {
+                  (true, callerId) => {
+                    for (@s <- escrowState) {
+                      match s.get("ops").get(callerId ++ ":" ++ opId2) {
+                        Nil => {
+                          if (s.get("status") != "active") {
+                            escrowState!(s) | ret2!((false, "status"))
+                          } else {
+                            if (callerId != s.get("writerId") && callerId != s.get("funderId")) {
+                              escrowState!(s) | ret2!((false, "role"))
+                            } else {
+                              new nCh in {
+                                escrowNowHeight!(*nCh) |
+                                for (@n <- nCh) {
+                                  match n {
+                                    (true, now) => {
+                                      escrowState!(
+                                        s.set("status", "disputed")
+                                         .set("dispute", {"by": callerId,
+                                                          "reasonHash": reasonHash,
+                                                          "atHeight": now})
+                                         .set("ops", s.get("ops").set(callerId ++ ":" ++ opId2, (true, Nil)))) |
+                                      ret2!((true, Nil))
+                                    }
+                                    _ => { escrowState!(s) | ret2!(n) }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        stored => { escrowState!(s) | ret2!(stored) }
+                      }
+                    }
+                  }
+                  _ => { ret2!((false, "not owner")) }
+                }
+              }
+            }
+          } |
+
+          contract CommissionEscrow(@"arbitrate", @nonce, @writerBps, @sigs, @opId, ret2) = {
+            for (@s <- escrowState) {
+              if (s.get("status") != "disputed") {
+                escrowState!(s) | ret2!((false, "status"))
+              } else {
+                if (nonce <= s.get("nonce")) {
+                  escrowState!(s) | ret2!((false, "replay"))
+                } else {
+                  if (writerBps < 0 || writerBps > 10000) {
+                    escrowState!(s) | ret2!((false, "bps"))
+                  } else {
+                    new aCh in {
+                      escrowArbitration!(s.get("publicationUri"), *aCh) |
+                      for (@a <- aCh) {
+                        match a {
+                          (true, kind, keys, threshold) => {
+                            new vCh in {
+                              pubVerifyAdmin!("commission:" ++ s.get("escrowId"), nonce,
+                                              "split", [s.get("escrowId"), writerBps],
+                                              sigs, keys, threshold, *vCh) |
+                              for (@v <- vCh) {
+                                match v {
+                                  (true, true) => { escrowArbitrateGo!(s, nonce, writerBps, *ret2) }
+                                  _ => { escrowState!(s) | ret2!((false, "below threshold")) }
+                                }
+                              }
+                            }
+                          }
+                          _ => { escrowState!(s) | ret2!(a) }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } |
+
+          contract escrowArbitrateGo(@s, @nonce, @writerBps, ret2) = {
+            new remCh in {
+              escrowRemaining!(s.get("total"), s.get("paidWriter"),
+                               s.get("refundedFunder"), *remCh) |
+              for (@remaining <- remCh) {
+                match remaining * writerBps / 10000 {
+                  writerShare => {
+                    new p1 in {
+                      escrowPay!(s.get("purseUri"), s.get("writerId"), writerShare, *p1) |
+                      for (@r1 <- p1) {
+                        match r1 {
+                          (true, Nil) => {
+                            new p2 in {
+                              escrowPay!(s.get("purseUri"), s.get("funderId"),
+                                         remaining - writerShare, *p2) |
+                              for (@r2 <- p2) {
+                                match r2 {
+                                  (true, Nil) => {
+                                    escrowState!(
+                                      s.set("status", "arbitrated")
+                                       .set("paidWriter", s.get("paidWriter") + writerShare)
+                                       .set("refundedFunder", s.get("refundedFunder") + remaining - writerShare)
+                                       .set("nonce", nonce)
+                                       .set("ops", s.get("ops").set("arbitrate:" ++ nonce.toString(), (true, Nil)))) |
+                                    ret2!((true, Nil))
+                                  }
+                                  _ => { 1/0 }
+                                }
+                              }
+                            }
+                          }
+                          _ => { 1/0 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } |
+
+          contract CommissionEscrow(@"resolveDispute", @opId, ret2) = {
+            for (@s <- escrowState) {
+              if (s.get("status") != "disputed") {
+                escrowState!(s) | ret2!((false, "status"))
+              } else {
+                new nCh in {
+                  escrowNowHeight!(*nCh) |
+                  for (@n <- nCh) {
+                    match n {
+                      (true, now) => {
+                        if (now < s.get("dispute").get("atHeight") + s.get("disputeWindowBlocks")) {
+                          escrowState!(s) | ret2!((false, "too early"))
+                        } else {
+                          escrowExpireGo!(s, "expired", *ret2)
+                        }
+                      }
+                      _ => { escrowState!(s) | ret2!(n) }
+                    }
+                  }
+                }
+              }
+            }
+          } |
+
+          contract CommissionEscrow(@"expire", @opId, ret2) = {
+            for (@s <- escrowState) {
+              if (s.get("status") != "active") {
+                escrowState!(s) | ret2!((false, "status"))
+              } else {
+                new nCh in {
+                  escrowNowHeight!(*nCh) |
+                  for (@n <- nCh) {
+                    match n {
+                      (true, now) => {
+                        if (now < s.get("hardDeadlineHeight")) {
+                          escrowState!(s) | ret2!((false, "too early"))
+                        } else {
+                          escrowExpireGo!(s, "expired", *ret2)
+                        }
+                      }
+                      _ => { escrowState!(s) | ret2!(n) }
+                    }
+                  }
+                }
+              }
+            }
+          } |
+
+          contract escrowExpireGo(@s, @status, ret2) = {
+            new remCh in {
+              escrowRemaining!(s.get("total"), s.get("paidWriter"),
+                               s.get("refundedFunder"), *remCh) |
+              for (@remaining <- remCh) {
+                new payCh in {
+                  escrowPay!(s.get("purseUri"), s.get("funderId"), remaining, *payCh) |
+                  for (@p <- payCh) {
+                    match p {
+                      (true, Nil) => {
+                        escrowState!(
+                          s.set("status", status)
+                           .set("refundedFunder", s.get("refundedFunder") + remaining)) |
+                        ret2!((true, Nil))
+                      }
+                      _ => { 1/0 }
+                    }
+                  }
+                }
+              }
+            }
+          } |
+
+          rs!(*CommissionEscrow, *uCh) |
+          for (@uri <- uCh) {
+            escrowFactoryState!(fs.set("ids", fs.get("ids").set(
+              proposal.get("proposalId"), uri))) |
+            ret!((true, uri))
+          }
+        }
+      }
+    }
+  } |
+
+  contract CommissionEscrowFactory(@"createFunded", dId, @opId, @proposalId, @proposal, ret) = {
+    for (@fs <- escrowFactoryState) {
+      match fs.get("ids").get(proposalId) {
+        Nil => { escrowFactoryGo!(fs, *dId, opId, proposalId, proposal, *ret) }
+        uri => { escrowFactoryState!(fs) | ret!((true, uri)) }
+      }
+    }
+  } |
+
+  contract CommissionEscrowFactory(@"issued", @proposalId, ret) = {
+    for (@fs <<- escrowFactoryState) {
+      match fs.get("ids").get(proposalId) {
+        Nil => { ret!((false, "unknown")) }
+        uri => { ret!((true, uri)) }
+      }
+    }
+  } |
+
+  escrowFactoryState!({"ids": {}, "schemaVersion": 1}) |
+
+  rl!(`__ROOT_URI__`, *rootCh) |
+  for (Root <- rootCh) {
+    rs!(bundle+{*CommissionEscrowFactory}, *c) |
+    for (@uri <- c) {
+      Root!("register", "component:commission-escrow-factory", uri, 1, "commission", *deployerId, *ack) |
+      for (@r <- ack) {
+        match r {
+          (true, Nil) => { deployId!([uri]) }
+          _ => { 1/0 }
+        }
+      }
+    }
+  }
+}

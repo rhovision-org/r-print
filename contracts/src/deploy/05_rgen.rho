@@ -1,0 +1,133 @@
+// RgenAdapter: optional read/verify surface over r-gen knowledge primitives.
+// The adapter never creates identities, claims or K-Assets; it reads them by URI so an
+// article can link a Claim, KAsset, Provenance record or credential. Placeholders:
+// __ROOT_URI__, __RGEN_ROOT_URI__.
+new
+  RgenAdapter,
+  rl(`rho:registry:lookup`),
+  rs(`rho:registry:insertArbitrary`),
+  deployerId(`rho:rchain:deployerId`),
+  deployId(`rho:rchain:deployId`),
+  rootCh, c, ack
+in {
+  contract RgenAdapter(@"health", ret) = {
+    if ("__RGEN_ROOT_URI__".length() == 0) {
+      ret!((false, "disabled"))
+    } else {
+      new rCh, Root, kCh, iCh, pCh, cfCh in {
+        rl!(`__RGEN_ROOT_URI__`, *rCh) |
+        for (Root <- rCh) {
+          Root!("resolve", "component:claim-factory", 1, *kCh) |
+          Root!("resolve", "component:credential-factory", 1, *cfCh) |
+          Root!("resolve", "component:identity-directory", 1, *iCh) |
+          Root!("resolve", "component:provenance-factory", 1, *pCh) |
+          for (@k <- kCh; @cf <- cfCh; @i <- iCh; @p <- pCh) {
+            match k {
+              (true, _, _) => {
+                match cf {
+                  (true, _, _) => {
+                    match i {
+                      (true, _, _) => {
+                        match p {
+                          (true, _, _) => {
+                            ret!((true, {"claimFactory": true,
+                                         "credentialFactory": true,
+                                         "identityDirectory": true,
+                                         "provenanceFactory": true}))
+                          }
+                          _ => { ret!((false, "provenance-factory")) }
+                        }
+                      }
+                      _ => { ret!((false, "identity-directory")) }
+                    }
+                  }
+                  _ => { ret!((false, "credential-factory")) }
+                }
+              }
+              _ => { ret!((false, "claim-factory")) }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract RgenAdapter(@"claim", @uri, ret) = {
+    new cCh in {
+      rl!(uri, *cCh) |
+      for (Claim <- cCh) { Claim!("get", *ret) }
+    }
+  } |
+
+  contract RgenAdapter(@"kasset", @uri, ret) = {
+    new cCh in {
+      rl!(uri, *cCh) |
+      for (KAsset <- cCh) { KAsset!("get", *ret) }
+    }
+  } |
+
+  contract RgenAdapter(@"provenance", @uri, @hash, ret) = {
+    new cCh in {
+      rl!(uri, *cCh) |
+      for (Provenance <- cCh) { Provenance!("verify", hash, *ret) }
+    }
+  } |
+
+  contract RgenAdapter(@"identity", @address, ret) = {
+    if ("__RGEN_ROOT_URI__".length() == 0) {
+      ret!((false, "disabled"))
+    } else {
+      new rCh, Root, dCh, dc in {
+        rl!(`__RGEN_ROOT_URI__`, *rCh) |
+        for (Root <- rCh) {
+          Root!("resolve", "component:identity-directory", 1, *dCh) |
+          for (@d <- dCh) {
+            match d {
+              (true, uri, _) => {
+                rl!(uri, *dc) |
+                for (Directory <- dc) { Directory!("lookup", address, *ret) }
+              }
+              _ => { ret!((false, "identity-directory")) }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract RgenAdapter(@"credential", @uri, ret) = {
+    if ("__RGEN_ROOT_URI__".length() == 0) {
+      ret!((false, "disabled"))
+    } else {
+      new rCh, Root, fCh, fc in {
+        rl!(`__RGEN_ROOT_URI__`, *rCh) |
+        for (Root <- rCh) {
+          Root!("resolve", "component:credential-factory", 1, *fCh) |
+          for (@f <- fCh) {
+            match f {
+              (true, u, _) => {
+                rl!(u, *fc) |
+                for (Factory <- fc) { Factory!("verify", uri, *ret) }
+              }
+              _ => { ret!((false, "credential-factory")) }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  rl!(`__ROOT_URI__`, *rootCh) |
+  for (Root <- rootCh) {
+    rs!(bundle+{*RgenAdapter}, *c) |
+    for (@uri <- c) {
+      Root!("register", "component:rgen-adapter", uri, 1, "rgen", *deployerId, *ack) |
+      for (@r <- ack) {
+        match r {
+          (true, Nil) => { deployId!([uri]) }
+          _ => { 1/0 }
+        }
+      }
+    }
+  }
+}

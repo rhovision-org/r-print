@@ -11,8 +11,14 @@ SAFE_TERMS = [
     "02_admin.rho",
     "40_payments.rho",
     "03_terms.rho",
+    "05_rgen.rho",
+    "06_rsure.rho",
     "10_publication.rho",
     "11_publication_cell.rho",
+    "20_commission.rho",
+    "21_commission_escrow.rho",
+    "30_article.rho",
+    "31_edition.rho",
 ]
 
 PROFILES = {

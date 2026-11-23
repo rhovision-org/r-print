@@ -1,0 +1,14 @@
+{
+  "pinned_commit": "0da5d0436e5f33eec3de20adb887ece4b1edcad3",
+  "min_version": 1,
+  "root_manifest_path": "../RSure/deployments/devnet.json",
+  "root_state_path": "../RSure/deployments/devnet.json",
+  "required_components": [
+    "component:payments",
+    "component:slip-factory",
+    "component:distribution-factory",
+    "component:policy-factory",
+    "component:line-factory"
+  ],
+  "enabled": false
+}

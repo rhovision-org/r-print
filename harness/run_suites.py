@@ -26,6 +26,14 @@ SUITES: dict[str, str] = {
     "publication": "unit_publication.py",
     "membership_auth": "unit_membership_auth.py",
     "admin_keys": "unit_admin_keys.py",
+    "commission": "unit_commission.py",
+    "commission_refusals": "unit_commission_refusals.py",
+    "commission_dispute": "unit_commission_dispute.py",
+    "conservation": "unit_conservation.py",
+    "article": "unit_article.py",
+    "interfaces": "unit_interfaces.py",
+    "article_refusals": "unit_article_refusals.py",
+    "edition": "unit_edition.py",
 }
 EXPERIMENTAL: set[str] = set()
 SAFE_ONLY: set[str] = set()

@@ -82,6 +82,103 @@
         "Codec",
         "Clock"
       ]
+    },
+    "CommissionFactory": {
+      "file": "20_commission.rho",
+      "state_cells": [
+        "commissionFactoryState"
+      ],
+      "depends_on": [
+        "Terms",
+        "PublicationFactory"
+      ]
+    },
+    "CommissionProposal": {
+      "file": "20_commission.rho",
+      "state_cells": [
+        "commissionProposalState"
+      ],
+      "depends_on": [
+        "CommissionEscrowFactory",
+        "PublicationCellFactory"
+      ]
+    },
+    "CommissionEscrowFactory": {
+      "file": "21_commission_escrow.rho",
+      "state_cells": [
+        "escrowFactoryState"
+      ],
+      "depends_on": [
+        "Payments",
+        "CommissionFactory",
+        "PublicationCellFactory"
+      ]
+    },
+    "CommissionEscrow": {
+      "file": "21_commission_escrow.rho",
+      "state_cells": [
+        "commissionEscrowState"
+      ],
+      "depends_on": [
+        "Payments",
+        "Clock",
+        "PublicationCellFactory"
+      ]
+    },
+    "RgenAdapter": {
+      "file": "05_rgen.rho",
+      "state_cells": [],
+      "depends_on": []
+    },
+    "RsureAdapter": {
+      "file": "06_rsure.rho",
+      "state_cells": [],
+      "depends_on": []
+    },
+    "ArticleFactory": {
+      "file": "30_article.rho",
+      "state_cells": [
+        "articleFactoryState"
+      ],
+      "depends_on": [
+        "Terms",
+        "PublicationFactory",
+        "RgenAdapter"
+      ]
+    },
+    "Article": {
+      "file": "30_article.rho",
+      "state_cells": [
+        "articleState"
+      ],
+      "depends_on": [
+        "RgenAdapter",
+        "Clock",
+        "PublicationCellFactory"
+      ]
+    },
+    "EditionFactory": {
+      "file": "31_edition.rho",
+      "state_cells": [
+        "editionFactoryState"
+      ],
+      "depends_on": [
+        "Terms",
+        "PublicationFactory"
+      ]
+    },
+    "Edition": {
+      "file": "31_edition.rho",
+      "state_cells": [
+        "editionState"
+      ],
+      "depends_on": [
+        "Article",
+        "Codec",
+        "Verifier",
+        "Clock",
+        "PublicationCellFactory"
+      ]
     }
   }
 }

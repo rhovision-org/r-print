@@ -13,6 +13,8 @@ ALLOWED = {
     "__ROOT_URI__",
     "__RCASH_ROOT_URI__",
     "__PROTOCOL_OWNER__",
+    "__RGEN_ROOT_URI__",
+    "__RSURE_ROOT_URI__",
     "__ADMINS__",
     "__THRESHOLD__",
     "__INSTALLER__",

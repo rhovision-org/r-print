@@ -66,3 +66,10 @@ def admin_payload(codec: str, domain: str, nonce: int, action: str,
     if not isinstance(reply, str):
         raise AssertionError(f"admin payload: {reply!r}")
     return reply
+
+
+def sign_digest(keys: dict, name: str, digest: bytes) -> str:
+    from coincurve import PrivateKey
+
+    key = PrivateKey(bytes.fromhex(keys[name]["secret"]))
+    return f'"{key.sign(digest, hasher=None).hex()}".hexToBytes()'
