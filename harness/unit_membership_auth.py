@@ -18,7 +18,7 @@ def main() -> int:
     if not require_devnet("unit-membership-auth"):
         return 2
     keys = node.load_keys()
-    for name in ("reporter1", "reporter2", "reporter3", "key12"):
+    for name in ("reporter1", "reporter2", "reporter3", "sender"):
         actors.ensure_vault(name)
     factory = resolve_component("component:publication-factory")
 
@@ -30,7 +30,7 @@ def main() -> int:
         factory, "create",
         f'*dId, "no-creator", {quoted(pub_id)}, {charter}, {members}',
         ),
-        key="key12")
+        key="sender")
     expect_refusal("creator not a member", no_creator, "member")
 
     pub = create_publication("auth")
@@ -64,7 +64,7 @@ def main() -> int:
         uri, "attestSelf",
         '*dId, "impersonate", "did:byoid:reporter1", "att:forged"',
         ),
-        key="key12")
+        key="sender")
     expect_refusal("non-member self attest", impersonate, "not member")
     expect("reporter1 did unchanged",
            one(call_uri(uri, "member", quoted(actors.address("reporter1"))))[1].get("did"),

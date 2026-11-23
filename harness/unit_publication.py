@@ -78,8 +78,8 @@ def main() -> int:
     expect_ok("pause", paused)
     expect_refusal("paused write",
                    one(call_uri(uri, "addMember",
-                                f'*dId, "add-while-paused", {quoted(actors.address("key12"))}, '
-                                f'"writer", "did:byoid:key12", "att:key12"'),
+                                f'*dId, "add-while-paused", {quoted(actors.address("sender"))}, '
+                                f'"writer", "did:byoid:sender", "att:sender"'),
                                 key=publisher),
                    "paused")
     expect("reads while paused", one(call_uri(uri, "status"))[1], "paused")
