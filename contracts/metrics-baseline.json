@@ -1,14 +1,14 @@
 {
   "deploy_terms": 13,
-  "bytes_total": 114211,
+  "bytes_total": 114412,
   "bytes_max": 22005,
   "depth_max": 35,
   "contracts_max": 37,
   "components": 20,
   "state_cell_types": 13,
-  "arm_declarations": 115,
+  "arm_declarations": 116,
   "root_resolve_sites": 12,
-  "registry_lookup_sites": 39,
+  "registry_lookup_sites": 40,
   "registry_insert_sites": 22,
   "terms_detail": {
     "00_root.rho": {
@@ -32,7 +32,7 @@
       "contracts": 10
     },
     "05_rgen.rho": {
-      "bytes": 2684,
+      "bytes": 2885,
       "depth": 17,
       "contracts": 1
     },

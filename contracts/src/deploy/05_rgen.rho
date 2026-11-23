@@ -73,6 +73,17 @@ in {
     }
   } |
 
+  contract RgenAdapter(@"provenanceInfo", @uri, ret) = {
+    if (uri.length() == 0) {
+      ret!((false, "uri"))
+    } else {
+      new cCh in {
+        rl!(uri, *cCh) |
+        for (Provenance <- cCh) { Provenance!("get", *ret) }
+      }
+    }
+  } |
+
   contract RgenAdapter(@"identity", @address, ret) = {
     if ("__RGEN_ROOT_URI__".length() == 0) {
       ret!((false, "disabled"))
