@@ -82,11 +82,20 @@ theorem article_submit_rewrites_hash (s : ArticleState) (callerIsAuthor : Bool)
 def articleAttachKnowledge (s : ArticleState) (callerAuthorized : Bool)
     (kassetUri : Id) : Option ArticleState :=
   if !callerAuthorized then none
-  else if s.status = ArticleStatus.published ∨ s.status = ArticleStatus.retracted then none
-  else some { s with kassetUri := some kassetUri }
+  else if s.status = ArticleStatus.submitted ∨ s.status = ArticleStatus.approved then
+    some { s with kassetUri := some kassetUri }
+  else none
 
 theorem article_attachKnowledge_refused_after_publish (s : ArticleState)
     (callerAuthorized : Bool) (kassetUri : Id) (h : s.status = ArticleStatus.published) :
+    articleAttachKnowledge s callerAuthorized kassetUri = none := by
+  by_cases ha : callerAuthorized = true
+  · simp [articleAttachKnowledge, ha, h]
+  · have haf : callerAuthorized = false := by simpa using ha
+    simp [articleAttachKnowledge, haf]
+
+theorem article_attachKnowledge_refused_from_draft (s : ArticleState)
+    (callerAuthorized : Bool) (kassetUri : Id) (h : s.status = ArticleStatus.draft) :
     articleAttachKnowledge s callerAuthorized kassetUri = none := by
   by_cases ha : callerAuthorized = true
   · simp [articleAttachKnowledge, ha, h]
@@ -102,9 +111,9 @@ theorem article_attachKnowledge_preserves_hash (s : ArticleState)
   · simp at h
   · split at h
     · simp at h
-    · simp at h
       cases h
       rfl
+    · simp at h
 
 def articleApprove (s : ArticleState) (callerIsEditor : Bool) : Option ArticleState :=
   if !callerIsEditor then none

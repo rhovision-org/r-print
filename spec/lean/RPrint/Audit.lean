@@ -117,5 +117,30 @@ namespace RPrint
 #print axioms RPrint.take_put_commit
 #print axioms RPrint.take_without_put_not_wf
 #print axioms RPrint.wf_quiescent
+#print axioms RPrint.article_attachKnowledge_refused_from_draft
+
+-- Sibling adapter ties
+#print axioms RPrint.cover_attach_requires_active_policy
+#print axioms RPrint.cover_attach_requires_insured
+#print axioms RPrint.cover_attach_requires_asset
+#print axioms RPrint.cover_attach_single_assignment
+#print axioms RPrint.cover_attach_replay
+#print axioms RPrint.cover_attach_preserves_status
+#print axioms RPrint.cover_attachSystem_escrow
+#print axioms RPrint.cover_attach_preserves_conservation
+#print axioms RPrint.knowledge_attach_refuses_published
+#print axioms RPrint.knowledge_attach_refuses_draft
+#print axioms RPrint.knowledge_attach_requires_kasset_claim
+#print axioms RPrint.knowledge_attach_requires_claim_kasset
+#print axioms RPrint.knowledge_attach_requires_claim_status
+#print axioms RPrint.knowledge_attach_requires_provenance_asset
+#print axioms RPrint.knowledge_attach_requires_provenance_claim
+#print axioms RPrint.knowledge_attach_requires_provenance_hash
+#print axioms RPrint.knowledge_attach_requires_author
+#print axioms RPrint.knowledge_attach_requires_credential
+#print axioms RPrint.knowledge_attach_single_assignment
+#print axioms RPrint.knowledge_attach_replay
+#print axioms RPrint.knowledge_attach_preserves_status
+#print axioms RPrint.knowledge_attach_preserves_hash
 
 end RPrint

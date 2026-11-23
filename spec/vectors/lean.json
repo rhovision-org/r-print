@@ -54,6 +54,30 @@
       "input": "3",
       "output": "active,1000,1000"
     },
+    "cover.attach.asset": {
+      "input": "wrong asset",
+      "output": "none"
+    },
+    "cover.attach.inactive": {
+      "input": "inactive",
+      "output": "none"
+    },
+    "cover.attach.insured": {
+      "input": "wrong insured",
+      "output": "none"
+    },
+    "cover.attach.ok": {
+      "input": "active,insured,asset",
+      "output": "21,9,7"
+    },
+    "cover.attach.overwrite": {
+      "input": "different",
+      "output": "none"
+    },
+    "cover.attach.replay": {
+      "input": "same",
+      "output": "21,none,none"
+    },
     "edition.append.duplicate": {
       "input": "published,same,dup",
       "output": "none"
@@ -121,6 +145,54 @@
     "escrow.submit.too_late": {
       "input": "pending,100,10",
       "output": "none"
+    },
+    "knowledge.attach.author": {
+      "input": "not an author",
+      "output": "none"
+    },
+    "knowledge.attach.claim_kasset": {
+      "input": "wrong kasset ref",
+      "output": "none"
+    },
+    "knowledge.attach.claim_status": {
+      "input": "open",
+      "output": "none"
+    },
+    "knowledge.attach.credential": {
+      "input": "revoked",
+      "output": "none"
+    },
+    "knowledge.attach.draft": {
+      "input": "draft",
+      "output": "none"
+    },
+    "knowledge.attach.kasset_claim": {
+      "input": "wrong claim ref",
+      "output": "none"
+    },
+    "knowledge.attach.ok": {
+      "input": "validated chain",
+      "output": "submitted,11,12,13,14,50"
+    },
+    "knowledge.attach.provenance_asset": {
+      "input": "wrong asset",
+      "output": "none"
+    },
+    "knowledge.attach.provenance_claim": {
+      "input": "wrong claim",
+      "output": "none"
+    },
+    "knowledge.attach.provenance_hash": {
+      "input": "hash mismatch",
+      "output": "none"
+    },
+    "knowledge.attach.published": {
+      "input": "published",
+      "output": "none"
+    },
+    "knowledge.attach.replay": {
+      "input": "same",
+      "output": "submitted,11,12,13,14,40"
     },
     "publication.addMember.not_publisher": {
       "input": "2,editor",

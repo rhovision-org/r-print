@@ -2,6 +2,7 @@ import RPrint.Model.Publication
 import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
+import RPrint.Model.Adapter
 
 /-!
 # Deterministic vectors
@@ -64,6 +65,22 @@ def articleLine (o : Option ArticleState) : String :=
   | none => "none"
   | some s => s!"{articleStatusName s.status},{s.contentHash},{s.corrections.length}"
 
+def optId : Option Id → String
+  | none => "none"
+  | some x => toString x
+
+def coverLine (o : Option CoverState) : String :=
+  match o with
+  | none => "none"
+  | some s => s!"{optId s.coverUri},{optId s.coverInsured},{optId s.coverAssetId}"
+
+def knowledgeLine (o : Option KnowledgeState) : String :=
+  match o with
+  | none => "none"
+  | some s =>
+      s!"{articleStatusName s.status},{optId s.kassetUri},{optId s.claimUri},"
+        ++ s!"{optId s.provenanceUri},{optId s.credentialUri},{s.knowledgeAtHeight}"
+
 def editionLine (o : Option EditionState) : String :=
   match o with
   | none => "none"
@@ -107,6 +124,32 @@ def editionDraft : EditionState :=
 
 def entry : ManifestEntry :=
   { articleId := 1, articleUri := 1, contentHash := 9 }
+
+def coverBase : CoverState :=
+  { proposalId := 1, proposalStatus := ProposalStatus.accepted, treasury := 9,
+    assetId := 7, coverUri := none, coverStatus := none, coverAssetId := none,
+    coverPerClaimLimit := none, coverAggregateRemaining := none, coverInsured := none }
+
+def coverPolicy : PolicyFact :=
+  { status := CoverFactStatus.active, insured := 9, assetId := 7,
+    perClaimLimit := 100, aggregateRemaining := 1000 }
+
+def knowledgeBase : KnowledgeState :=
+  { articleId := 1, status := ArticleStatus.submitted, contentHash := 9,
+    authors := [3], kassetUri := none, claimUri := none, provenanceUri := none,
+    credentialUri := none, knowledgeAtHeight := 0 }
+
+def kassetFact : KAssetFact :=
+  { uri := 11, claimUri := 12 }
+
+def claimFact : ClaimFact :=
+  { uri := 12, kassetUri := 11, status := ClaimFactStatus.validated, claimant := 3 }
+
+def provenanceFact : ProvenanceFact :=
+  { uri := 13, assetUri := 11, claimUri := 12, writers := [3], hashOk := true }
+
+def credentialFact : Option CredentialFact :=
+  some { uri := 14, subject := 3, status := CredentialFactStatus.active, expiresAt := 0 }
 
 def emit (name input output : String) : IO Unit :=
   IO.println s!"{name}|{input}|{output}"
@@ -191,6 +234,68 @@ def main : IO Unit := do
   emit "article.attachKnowledge.published" "published"
     (okNone (articleAttachKnowledge { articleApproved with
       status := ArticleStatus.published } true 1))
+
+  emit "cover.attach.ok" "active,insured,asset"
+    (coverLine (coverAttach coverBase 21 coverPolicy))
+  emit "cover.attach.inactive" "inactive"
+    (coverLine (coverAttach coverBase 21
+      { coverPolicy with status := CoverFactStatus.inactive }))
+  emit "cover.attach.insured" "wrong insured"
+    (coverLine (coverAttach coverBase 21 { coverPolicy with insured := 8 }))
+  emit "cover.attach.asset" "wrong asset"
+    (coverLine (coverAttach coverBase 21 { coverPolicy with assetId := 8 }))
+  emit "cover.attach.replay" "same"
+    (coverLine (coverAttach { coverBase with coverUri := some 21 } 21 coverPolicy))
+  emit "cover.attach.overwrite" "different"
+    (coverLine (coverAttach { coverBase with coverUri := some 20 } 21 coverPolicy))
+
+  emit "knowledge.attach.ok" "validated chain"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact claimFact provenanceFact credentialFact 50))
+  emit "knowledge.attach.published" "published"
+    (knowledgeLine (knowledgeAttach { knowledgeBase with
+      status := ArticleStatus.published } 11 12 13 14
+      kassetFact claimFact provenanceFact credentialFact 50))
+  emit "knowledge.attach.draft" "draft"
+    (knowledgeLine (knowledgeAttach { knowledgeBase with
+      status := ArticleStatus.draft } 11 12 13 14
+      kassetFact claimFact provenanceFact credentialFact 50))
+  emit "knowledge.attach.kasset_claim" "wrong claim ref"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      { kassetFact with claimUri := 99 } claimFact provenanceFact credentialFact 50))
+  emit "knowledge.attach.claim_kasset" "wrong kasset ref"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact { claimFact with kassetUri := 99 } provenanceFact credentialFact 50))
+  emit "knowledge.attach.claim_status" "open"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact { claimFact with status := ClaimFactStatus.open }
+      provenanceFact credentialFact 50))
+  emit "knowledge.attach.provenance_asset" "wrong asset"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact claimFact { provenanceFact with assetUri := 99 } credentialFact 50))
+  emit "knowledge.attach.provenance_claim" "wrong claim"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact claimFact { provenanceFact with claimUri := 99 } credentialFact 50))
+  emit "knowledge.attach.provenance_hash" "hash mismatch"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact claimFact { provenanceFact with hashOk := false } credentialFact 50))
+  emit "knowledge.attach.author" "not an author"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact { claimFact with claimant := 4 }
+      { provenanceFact with writers := [4] } credentialFact 50))
+  emit "knowledge.attach.credential" "revoked"
+    (knowledgeLine (knowledgeAttach knowledgeBase 11 12 13 14
+      kassetFact claimFact provenanceFact
+      (some { uri := 14, subject := 3, status := CredentialFactStatus.revoked,
+              expiresAt := 0 }) 50))
+  emit "knowledge.attach.replay" "same"
+    (knowledgeLine (knowledgeAttach { knowledgeBase with
+      kassetUri := some 11,
+      claimUri := some 12,
+      provenanceUri := some 13,
+      credentialUri := some 14,
+      knowledgeAtHeight := 40 } 11 12 13 14
+      kassetFact claimFact provenanceFact credentialFact 50))
 
   emit "edition.append.ok" "published,same"
     (editionLine (editionAppend editionDraft true 1 ArticleStatus.published 1 1 9))

@@ -5,5 +5,6 @@ import RPrint.Model.Publication
 import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
+import RPrint.Model.Adapter
 import RPrint.Model.System
 import RPrint.Invariants

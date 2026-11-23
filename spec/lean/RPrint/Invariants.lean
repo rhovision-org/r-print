@@ -3,6 +3,7 @@ import RPrint.Model.Publication
 import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
+import RPrint.Model.Adapter
 
 /-!
 # Invariant aliases
@@ -65,6 +66,22 @@ def I15_append_no_duplicate := @edition_append_refuses_duplicate
 /-- I16 — a sealed manifest is bound and immutable. -/
 def I16_seal_binds_manifest := @edition_seal_binds_manifest
 def I16_sealed_immutable := @edition_sealed_manifest_immutable
+
+/-- I24 — an r-sure cover is active, insured to the treasury and asset-bound. -/
+def I24_cover_active := @cover_attach_requires_active_policy
+def I24_cover_insured := @cover_attach_requires_insured
+def I24_cover_asset := @cover_attach_requires_asset
+
+/-- I25 — an r-gen knowledge link requires the reciprocal, authored chain. -/
+def I25_kasset_claim := @knowledge_attach_requires_kasset_claim
+def I25_claim_kasset := @knowledge_attach_requires_claim_kasset
+def I25_provenance := @knowledge_attach_requires_provenance_hash
+def I25_author := @knowledge_attach_requires_author
+def I25_credential := @knowledge_attach_requires_credential
+
+/-- I26 — a sibling link is single-assignment; an identical link is a replay. -/
+def I26_cover_single := @cover_attach_single_assignment
+def I26_knowledge_single := @knowledge_attach_single_assignment
 
 end Invariants
 end RPrint
