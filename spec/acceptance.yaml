@@ -4,6 +4,12 @@ status: foundation+live-client
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
+local_rerun:
+  date: 2026-11-23
+  node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+  devnet: "local 40403, single validator, fresh"
+  suites_total: 18
+  suites_passing: 18
 ci_campaign:
   run: 45250733118
   url: "https://github.com/rhovision-org/r-print/actions/runs/45250733118"

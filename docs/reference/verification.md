@@ -14,7 +14,8 @@ interfaces, membership_auth, pause_scope, payments, publication, root, schema
 
 The node reported `rholo node 0.1.0` build `8fe0136`. The r-cash components were installed
 from the pinned commit `49b441dea4f5561992387ed670ab263fcd5dd164`. The suite results are
-written to `deployments/suite-results.json` and are gitignored.
+written to `deployments/suite-results.json` and are gitignored. A fresh local 40403 devnet
+on node build `5b9685e` independently passed 18/18 after the suite key fix.
 
 ## Recorded live client smoke
 
