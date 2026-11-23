@@ -16,7 +16,14 @@ export function MemberTable({ members }: { members: Record<string, Member> }) {
       </thead>
       <tbody>
         {rows.map(([id, member]) => (
-          <tr key={id} className={member.status === "removed" ? "removed" : undefined}>
+          <tr
+            key={id}
+            className={member.status === "removed" ? "removed" : undefined}
+            data-testid="member-row"
+            data-member-id={id}
+            data-role={member.role}
+            data-status={member.status}
+          >
             <td>
               <Hash value={id} />
             </td>

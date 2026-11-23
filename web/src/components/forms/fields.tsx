@@ -231,7 +231,11 @@ export function Repeater({
 export function ReplyView({ result }: { result: Reply<unknown> | null }) {
   if (!result) return null;
   return (
-    <pre className={result.ok ? "reply ok" : "reply refused"}>
+    <pre
+      className={result.ok ? "reply ok" : "reply refused"}
+      data-testid="form-reply"
+      data-ok={String(result.ok)}
+    >
       {JSON.stringify(result, null, 2)}
     </pre>
   );

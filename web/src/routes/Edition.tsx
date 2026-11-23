@@ -26,7 +26,13 @@ export function Edition() {
                   Issue {value.number} · {value.editionId}
                 </h1>
                 <p className="muted">
-                  <span className="tag">{statusLabel(value.status)}</span>{" "}
+                  <span
+                    className="tag"
+                    data-testid="edition-status"
+                    data-status={value.status}
+                  >
+                    {statusLabel(value.status)}
+                  </span>{" "}
                   {value.articles.length} article(s) · created{" "}
                   {formatHeight(value.createdAtHeight)}
                 </p>

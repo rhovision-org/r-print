@@ -34,7 +34,12 @@ export function Home() {
         ) : (
           <ul className="catalogue">
             {catalogue.map((entry) => (
-              <li key={entry.uri}>
+              <li
+                key={entry.uri}
+                data-testid="catalogue-entry"
+                data-uri={entry.uri}
+                data-kind={entry.kind}
+              >
                 <span className="tag">{entry.kind}</span>
                 <Link to={routeFor(entry.kind, entry.uri)}>{entry.title}</Link>
                 <code>{entry.uri}</code>

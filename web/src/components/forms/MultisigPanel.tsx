@@ -126,8 +126,8 @@ export function MultisigPanel({
   }
 
   return (
-    <fieldset className="multisig">
-      <legend>
+    <fieldset className="multisig" data-testid="multisig">
+      <legend data-testid="multisig-count" data-count={signatures.length}>
         Multisig {signatures.length}/{authority.threshold} ({authority.kind})
       </legend>
       <p className="muted">
@@ -139,7 +139,7 @@ export function MultisigPanel({
       </button>
       {payloadError ? <p className="error">{payloadError}</p> : null}
       {payload ? (
-        <pre className="payload">
+        <pre className="payload" data-testid="multisig-payload">
           <code>{payload}</code>
         </pre>
       ) : null}
@@ -158,7 +158,12 @@ export function MultisigPanel({
             >
               <option value="">Choose…</option>
               {keystores.map((record) => (
-                <option key={record.id} value={record.id}>
+                <option
+                  key={record.id}
+                  value={record.id}
+                  data-testid="multisig-signer"
+                  data-address={record.address}
+                >
                   {record.label || record.address}
                 </option>
               ))}

@@ -71,6 +71,7 @@ export function SealEditionForm({
 
   return (
     <FormPanel
+      method="sealEdition"
       title="Seal the edition"
       description={`Edition("seal") signs the ordered manifest. ${note}`}
       onSubmit={onSubmit}

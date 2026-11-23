@@ -140,6 +140,7 @@ export function Network() {
         </p>
         <textarea
           className="manifest"
+          data-testid="manifest-input"
           rows={4}
           value={manifest}
           onChange={(event) => setManifest(event.target.value)}
@@ -154,17 +155,17 @@ export function Network() {
           <h2>Node status</h2>
           <AsyncBlock state={status}>
             {(value) => (
-              <dl>
+              <dl data-testid="network-status">
                 <dt>Endpoint</dt>
-                <dd>{value.node}</dd>
+                <dd data-testid="node-endpoint">{value.node}</dd>
                 <dt>Network / shard</dt>
-                <dd>
+                <dd data-testid="node-network">
                   {value.networkId} · {value.shardId}
                 </dd>
                 <dt>Latest height</dt>
-                <dd>{value.latestBlockNumber}</dd>
+                <dd data-testid="node-height">{value.latestBlockNumber}</dd>
                 <dt>Accepts deploys</dt>
-                <dd>{value.acceptsDeploys ? "yes" : "no"}</dd>
+                <dd data-testid="node-accepts">{value.acceptsDeploys ? "yes" : "no"}</dd>
                 <dt>Degraded</dt>
                 <dd>{value.degraded || "—"}</dd>
               </dl>
@@ -184,7 +185,7 @@ export function Network() {
               Resolve
             </button>
             {resolved ? (
-              <p>
+              <p data-testid="component-resolution">
                 <code>{resolved}</code>
               </p>
             ) : null}
@@ -211,7 +212,11 @@ export function Network() {
         <button type="button" onClick={requestFaucet} disabled={!session.address}>
           Request 30 REV
         </button>
-        {faucet ? <pre className="payload">{faucet}</pre> : null}
+        {faucet ? (
+          <pre className="payload" data-testid="faucet-result">
+            {faucet}
+          </pre>
+        ) : null}
       </section>
 
       <section className="panel">
@@ -221,7 +226,11 @@ export function Network() {
         ) : (
           <ul className="deploy-list">
             {settings.catalogue.map((item) => (
-              <li key={`${item.kind}:${item.uri}`}>
+              <li
+                key={`${item.kind}:${item.uri}`}
+                data-testid="network-catalogue-item"
+                data-uri={item.uri}
+              >
                 <span className="tag">{item.kind}</span> <strong>{item.title}</strong>{" "}
                 <code>{item.uri}</code>
                 <button

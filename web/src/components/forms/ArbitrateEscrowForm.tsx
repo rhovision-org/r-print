@@ -81,6 +81,7 @@ export function ArbitrateEscrowForm({
 
   return (
     <FormPanel
+      method="arbitrateEscrow"
       title="Arbitrate the dispute"
       description={`CommissionEscrow("arbitrate"). ${note}`}
       onSubmit={onSubmit}

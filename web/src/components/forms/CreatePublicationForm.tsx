@@ -152,6 +152,7 @@ export function CreatePublicationForm({ onDone }: { onDone?: () => void }) {
 
   return (
     <FormPanel
+      method="createPublication"
       title="Found a publication"
       description={`PublicationFactory("create"). ${note}`}
       onSubmit={onSubmit}

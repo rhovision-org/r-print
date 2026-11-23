@@ -116,6 +116,7 @@ export function ProposeCommissionForm({ onDone }: { onDone?: () => void }) {
 
   return (
     <FormPanel
+      method="proposeCommission"
       title="Commission a story or investigation"
       description={`CommissionFactory("propose"). ${note}`}
       onSubmit={onSubmit}

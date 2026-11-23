@@ -27,7 +27,13 @@ export function CommissionEscrow() {
                 <div>
                   <h1>{value.escrowId}</h1>
                   <p className="muted">
-                    <span className="tag">{statusLabel(value.status)}</span>{" "}
+                    <span
+                      className="tag"
+                      data-testid="escrow-status"
+                      data-status={value.status}
+                    >
+                      {statusLabel(value.status)}
+                    </span>{" "}
                     {formatFee(value.total)} · hard deadline {formatHeight(value.hardDeadlineHeight)}
                   </p>
                 </div>

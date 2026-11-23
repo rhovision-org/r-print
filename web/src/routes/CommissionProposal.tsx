@@ -25,7 +25,14 @@ export function CommissionProposal() {
               <div>
                 <h1>{value.proposalId}</h1>
                 <p className="muted">
-                  <span className="tag">{statusLabel(value.status)}</span> {formatFee(value.total)} ·{" "}
+                  <span
+                    className="tag"
+                    data-testid="proposal-status"
+                    data-status={value.status}
+                  >
+                    {statusLabel(value.status)}
+                  </span>{" "}
+                  {formatFee(value.total)} ·{" "}
                   {value.milestones.length} milestone(s)
                 </p>
               </div>

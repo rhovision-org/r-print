@@ -24,7 +24,14 @@ export function Article() {
               <div>
                 <h1>{value.articleId}</h1>
                 <p className="muted">
-                  <span className="tag">{statusLabel(value.status)}</span> {value.license} ·{" "}
+                  <span
+                    className="tag"
+                    data-testid="article-status"
+                    data-status={value.status}
+                  >
+                    {statusLabel(value.status)}
+                  </span>{" "}
+                  {value.license} ·{" "}
                   {value.access}
                   {value.publishHeight ? ` · published ${formatHeight(value.publishHeight)}` : ""}
                 </p>

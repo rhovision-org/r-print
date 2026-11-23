@@ -16,7 +16,12 @@ export function StatusBanner() {
   }
 
   return (
-    <div className="status-banner" role="status">
+    <div
+      className="status-banner"
+      role="status"
+      data-mode={settings.mode}
+      data-unlocked={String(unlocked)}
+    >
       {text}
     </div>
   );

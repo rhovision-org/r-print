@@ -72,6 +72,7 @@ export function SimpleForm({
 
   return (
     <FormPanel
+      method={spec.method}
       title={spec.title}
       description={[spec.description, note].filter(Boolean).join(" ")}
       onSubmit={onSubmit}

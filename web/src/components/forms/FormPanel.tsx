@@ -4,6 +4,7 @@ import { FormError, ReplyView } from "./fields";
 
 /** A typed write form: fields, submit, busy/error and the chain reply. */
 export function FormPanel({
+  method,
   title,
   description,
   children,
@@ -15,6 +16,7 @@ export function FormPanel({
   error = null,
   footer,
 }: {
+  method: string;
   title: string;
   description?: string;
   children: ReactNode;
@@ -27,7 +29,7 @@ export function FormPanel({
   footer?: ReactNode;
 }) {
   return (
-    <section className="panel form-panel">
+    <section className="panel form-panel" data-testid={`form-${method}`} data-method={method}>
       <h2>{title}</h2>
       {description ? <p className="muted">{description}</p> : null}
       <form onSubmit={onSubmit}>

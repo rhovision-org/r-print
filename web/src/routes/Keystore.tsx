@@ -125,11 +125,24 @@ export function Keystore() {
           Fixture mode. Switch to live in Network settings to create or unlock a wallet.
         </p>
       ) : null}
-      {message ? <p className="ok-text">{message}</p> : null}
-      {error ? <p className="error">{error}</p> : null}
+      {message ? (
+        <p className="ok-text" data-testid="keystore-message">
+          {message}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="error" data-testid="keystore-error">
+          {error}
+        </p>
+      ) : null}
 
       <section className="grid">
-        <form className="panel" onSubmit={create}>
+        <form
+          className="panel"
+          data-testid="form-keystoreCreate"
+          data-method="keystoreCreate"
+          onSubmit={create}
+        >
           <h2>Create a wallet</h2>
           <div className="fields">
             <TextField label="Label" name="label" value={label} onChange={setLabel} />
@@ -146,7 +159,12 @@ export function Keystore() {
           </div>
         </form>
 
-        <form className="panel" onSubmit={unlockSaved}>
+        <form
+          className="panel"
+          data-testid="form-keystoreUnlock"
+          data-method="keystoreUnlock"
+          onSubmit={unlockSaved}
+        >
           <h2>Unlock a saved keystore</h2>
           <div className="fields">
             <label className="field">
@@ -154,7 +172,12 @@ export function Keystore() {
               <select value={selected} onChange={(event) => setSelected(event.target.value)}>
                 <option value="">Choose…</option>
                 {saved.map((record) => (
-                  <option key={record.id} value={record.id}>
+                  <option
+                    key={record.id}
+                    value={record.id}
+                    data-testid="keystore-option"
+                    data-address={record.address}
+                  >
                     {record.label} · {record.address.slice(0, 10)}…
                   </option>
                 ))}
@@ -174,7 +197,12 @@ export function Keystore() {
         </form>
       </section>
 
-      <form className="panel" onSubmit={importKeystore}>
+      <form
+        className="panel"
+        data-testid="form-importKeystore"
+        data-method="importKeystore"
+        onSubmit={importKeystore}
+      >
         <h2>Import an encrypted document</h2>
         <div className="fields">
           <TextAreaField
@@ -201,14 +229,16 @@ export function Keystore() {
         <h2>Session</h2>
         <dl>
           <dt>Status</dt>
-          <dd>{session.unlocked ? "unlocked" : "locked"}</dd>
+          <dd data-testid="session-status">
+            {session.unlocked ? "unlocked" : "locked"}
+          </dd>
           <dt>REV address</dt>
           <dd>
-            <code>{session.address ?? "—"}</code>
+            <code data-testid="session-address">{session.address ?? "—"}</code>
           </dd>
           <dt>Public key</dt>
           <dd>
-            <code>{session.publicKey ?? "—"}</code>
+            <code data-testid="session-public-key">{session.publicKey ?? "—"}</code>
           </dd>
         </dl>
         <div className="actions">
@@ -219,7 +249,12 @@ export function Keystore() {
       </section>
 
       {session.unlocked ? (
-        <form className="panel" onSubmit={exportCurrent}>
+        <form
+          className="panel"
+          data-testid="form-exportKeystore"
+          data-method="exportKeystore"
+          onSubmit={exportCurrent}
+        >
           <h2>Export the encrypted document</h2>
           <div className="fields">
             <TextField
@@ -244,7 +279,11 @@ export function Keystore() {
         ) : (
           <ul className="deploy-list">
             {saved.map((record) => (
-              <li key={record.id}>
+              <li
+                key={record.id}
+                data-testid="saved-keystore"
+                data-address={record.address}
+              >
                 <strong>{record.label}</strong> <code>{record.address}</code>
                 <button type="button" className="secondary" onClick={() => remove(record.id)}>
                   Remove

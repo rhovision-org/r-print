@@ -34,14 +34,26 @@ export function DeployResult() {
             </thead>
             <tbody>
               {records.map((record) => (
-                <tr key={record.id}>
+                <tr
+                  key={record.id}
+                  data-testid="deploy-row"
+                  data-method={record.method}
+                  data-status={record.status}
+                  data-deploy-id={record.deployId ?? ""}
+                  data-block-number={record.blockNumber ?? ""}
+                >
                   <td>
                     <strong>{record.method}</strong>
                     <br />
                     <code>{record.target}</code>
                   </td>
                   <td>
-                    <span className={`tag ${record.status}`}>{record.status}</span>
+                    <span
+                      className={`tag ${record.status}`}
+                      data-testid="deploy-status"
+                    >
+                      {record.status}
+                    </span>
                   </td>
                   <td>
                     <code>{record.deployId ?? "—"}</code>

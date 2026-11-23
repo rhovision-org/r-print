@@ -88,6 +88,7 @@ export function PublicationAdminForm({
 
   return (
     <FormPanel
+      method="publicationAdmin"
       title="Publication admin (multisig)"
       description={`Publication("admin"). ${note}`}
       onSubmit={onSubmit}

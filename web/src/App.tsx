@@ -70,13 +70,17 @@ function ClientShell() {
         <h1>Starting the live client</h1>
         {bridgeError ? (
           <>
-            <p className="error">{bridgeError}</p>
+            <p className="error" data-testid="boot-error">
+              {bridgeError}
+            </p>
             <button type="button" onClick={() => update({ mode: "fixture" })}>
               Use fixture mode
             </button>
           </>
         ) : (
-          <p className="muted">Loading the WASM wallet and term builders…</p>
+          <p className="muted" data-testid="boot-loading">
+            Loading the WASM wallet and term builders…
+          </p>
         )}
       </main>
     );

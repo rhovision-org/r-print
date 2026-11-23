@@ -27,7 +27,13 @@ export function Coordination() {
               <div>
                 <h1>{value.coordinationId}</h1>
                 <p className="muted">
-                  <span className="tag">{statusLabel(value.status)}</span>{" "}
+                  <span
+                    className="tag"
+                    data-testid="coordination-status"
+                    data-status={value.status}
+                  >
+                    {statusLabel(value.status)}
+                  </span>{" "}
                   {value.subjectRef.kind} <Hash value={value.subjectRef.uri} />
                 </p>
               </div>

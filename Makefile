@@ -17,7 +17,7 @@ export RHOLO_DIR := $(abspath $(RHOLO_DIR))
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
         client-lint client-test client-wasm client-wasm-pack client-wasm-node \
         client-wasm-smoke client-live cli-live wasm-build client-check \
-        web-install web-test web-build
+        web-install web-test web-build web-e2e-install web-e2e-fixture web-e2e-live
 
 venv:
 	python3 -m venv .venv
@@ -156,6 +156,17 @@ client-live: client-wasm-node
 cli-live:
 	RPRINT_NODE=$(NODE) cargo test -p rprint-cli --test devnet_live -- \
 		--ignored --test-threads=1
+
+# Browser end-to-end. Fixture has no node or WASM dependency; live needs a devnet.
+web-e2e-install:
+	npm --prefix web run test:e2e:install
+
+web-e2e-fixture:
+	npm --prefix web run test:e2e:fixture
+
+web-e2e-live: client-wasm-pack
+	RPRINT_E2E_LIVE=1 RPRINT_NODE=$(NODE) RPRINT_REPO=$(abspath .) \
+		npm --prefix web run test:e2e:live
 
 wasm-build: client-wasm-pack
 
