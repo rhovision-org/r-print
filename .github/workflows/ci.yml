@@ -88,11 +88,30 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci --prefix web --no-audit --no-fund
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('web/package-lock.json') }}
+      - name: Install Playwright Chromium
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Browser fixture e2e (no node, no WASM)
+        run: make web-e2e-fixture
       - run: make client-wasm-pack
       - run: make client-wasm-smoke
       - run: npm --prefix web run typecheck
       - run: npm --prefix web test -- --run
       - run: npm --prefix web run build
+      - name: Upload Playwright fixture report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-fixture
+          path: |
+            web/playwright-report/
+            web/test-results/
+          if-no-files-found: ignore
 
   devnet:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
@@ -122,6 +141,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
       - name: Build the node image and the r-cash CLI
         run: |
           (cd rnode-rust && tools/devnet.sh build)
@@ -152,6 +173,29 @@ jobs:
           npm ci --prefix web --no-audit --no-fund
           make client-live
           make cli-live
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('web/package-lock.json') }}
+      - name: Install Playwright Chromium
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Browser live e2e
+        env:
+          RCASH_DIR: ${{ github.workspace }}/rholo
+          RHOLO_DIR: ${{ github.workspace }}/rnode-rust
+        run: make web-e2e-live NODE=http://127.0.0.1:40403
+      - name: Upload browser e2e results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-e2e
+          path: |
+            web/playwright-report/
+            web/test-results/
+            deployments/browser-e2e-results.json
+          if-no-files-found: ignore
       - name: Upload suite and live-client results
         if: always()
         uses: actions/upload-artifact@v4
