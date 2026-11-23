@@ -8,8 +8,9 @@ admin_keys, commission, commission_refusals, commission_dispute, conservation, a
 article_refusals, interfaces, pause_scope, behavior, corrections and edition. The node was
 rholo node `0.1.0` build `8fe0136`. A later live-client smoke on the local 50403 devnet
 (rholo node build `5b9685e`) founded a publication, wrote an article through its lifecycle
-and sealed an edition: 11 steps, 11 finalized deploys. Both are measured local results, not a
-public testnet or mainnet claim.
+and sealed an edition: 11 steps, 11 finalized deploys. The CI dispatch devnet on the pinned
+node build `e2d073d` independently recorded 18/18 suites and 11/11 finalized live steps. All
+are local or CI Docker results, not a public testnet or mainnet claim.
 
 ## Labels
 

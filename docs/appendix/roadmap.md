@@ -14,12 +14,13 @@
 | M5 | Pause scope | Passing |
 | M6 | Golden small-newsroom transcript | Passing |
 | M7 | Rust client and live web client | Passing |
-| M8 | Docs, CI and recorded verification | In progress (CI devnet job is dispatch/schedule) |
-| M9 | Horizontal live client layer | Passing on the recorded local devnet |
+| M8 | Docs, CI and recorded verification | Passing (dispatch run 45250733118) |
+| M9 | Horizontal live client layer | Passing on the recorded local and CI devnets |
 
 The acceptance map is `spec/acceptance.yaml`; the recorded contract campaign is 18/18 suites
 on the local 50403 devnet with rholo node build `8fe0136`. The live client smoke recorded 11
-finalized steps on the same devnet with node build `5b9685e`.
+finalized steps on the same devnet with node build `5b9685e`. The CI devnet dispatch run
+recorded 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
 
 ## Next
 

@@ -4,7 +4,8 @@
 
 > **Status:** Devnet-only, unaudited. 18 behavioural suites pass on the local 50403 devnet;
 > a recorded live-client smoke on the same devnet founded a publication, wrote an article and
-> sealed an edition with 11 finalized deploys. The baseline escrow is implemented; r-sure
+> sealed an edition with 11 finalized deploys; the CI dispatch devnet independently recorded
+> 18/18 suites and 11/11 finalized live steps. The baseline escrow is implemented; r-sure
 > cover and r-gen K-Assets are optional surfaces; subscriptions, revenue splits,
 > crowdfunding and the Lean model are design.
 

@@ -37,6 +37,22 @@ Eleven deploys, all `finalized`; the machine-readable record is
 `deployments/live-client-results.json`. `make cli-live` separately records a CLI
 create-and-read against the same devnet. These are local results, not a public testnet run.
 
+## CI devnet campaign
+
+The dispatch run
+[45250733118](https://github.com/rhovision-org/r-print/actions/runs/45250733118) passed
+every job, including the `devnet` job. On the pinned node `RChain Node 0.1.0` build
+`e2d073dcd02f1e560ccb84749937138a1e184b0b`, the campaign recorded:
+
+- **18/18** behavioural suites pass on the GitHub Actions Docker devnet (public 40403).
+- The live client smoke passed 11 steps with 11 finalized deploys (wallet, publication,
+  member, commission proposal, article lifecycle, edition seal, admin multisig).
+- The job uploaded `suite-results.json` and `live-client-results.json` as the
+  `suite-results` artifact.
+
+Push and pull-request runs keep static/docs/parse/client/web as gates; the devnet job runs
+on dispatch and schedule because it builds the node image and a Docker network.
+
 ## Static and parser gates
 
 | Gate | Result |
@@ -68,7 +84,8 @@ create-and-read against the same devnet. These are local results, not a public t
 
 ## What is not verified
 
-- No public testnet or mainnet run.
+- No public testnet or mainnet run; the CI devnet is a local single-validator Docker
+  network, not a public network.
 - No audit, no penetration test, no formal refinement.
 - No r-sure or r-gen root enabled in the recorded campaign; the adapters were disabled and
   the optional surfaces were exercised with mock entity contracts.

@@ -1,9 +1,18 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
-status: foundation
+status: foundation+live-client
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
+ci_campaign:
+  run: 45250733118
+  url: "https://github.com/rhovision-org/r-print/actions/runs/45250733118"
+  date: 2026-11-23
+  node: "RChain Node 0.1.0 (e2d073dcd02f1e560ccb84749937138a1e184b0b)"
+  devnet: "GitHub Actions Docker devnet, public 40403"
+  suites_total: 18
+  suites_passing: 18
+  live_client: "11 steps, 11 finalized deploys"
 milestones:
   M0:
     title: scaffold and static gates
@@ -42,8 +51,10 @@ milestones:
     status: passing
   M8:
     title: docs, CI and recorded verification
-    evidence: ["make docs-check", ".github/workflows/ci.yml"]
-    status: in_progress
+    evidence:
+      ["make docs-check", ".github/workflows/ci.yml",
+       "devnet dispatch run 45250733118: 18/18 suites and the live smoke"]
+    status: passing
   M9:
     title: horizontal live client layer
     evidence:

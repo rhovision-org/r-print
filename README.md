@@ -14,9 +14,10 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > `RprintApi` method is implemented, the key stays in WASM, and writes require finality.
 > The recorded live smoke founded a publication with a 2-of-2 admin set, wrote an article
 > through its lifecycle, sealed a one-article edition and paused through admin multisig on
-> the local 50403 devnet
-> (rholo node build `5b9685e`). Subscriptions, revenue splits, crowdfunding, reader tips,
-> syndication, the coordination-record contract and the Lean model remain design.
+> the local 50403 devnet (rholo node build `5b9685e`). The CI dispatch devnet recorded
+> 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
+> Subscriptions, revenue splits, crowdfunding, reader tips, syndication, the
+> coordination-record contract and the Lean model remain design.
 
 ## Why
 
@@ -85,8 +86,9 @@ make cli-live         # CLI read/submit against the same devnet
 
 The measured contract campaign on 2026-11-23 passed all 18 suites on a local single-validator
 devnet (rholo node 0.1.0 build `8fe0136`). The live client smoke was recorded later on the
-local 50403 devnet (node build `5b9685e`): 11 steps, 11 finalized deploys. There is no claim
-of a testnet or audited deployment.
+local 50403 devnet (node build `5b9685e`): 11 steps, 11 finalized deploys. The CI dispatch
+devnet on the pinned node build `e2d073d` recorded 18/18 suites and 11/11 finalized live
+steps. There is no claim of a public testnet or audited deployment.
 
 ## The graph
 
