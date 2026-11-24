@@ -154,7 +154,7 @@ coverage:
     invariant: I23
     statement: an ambiguous submit reuses the op id and the key stays in WASM
     status: mechanism
-    evidence: [crates/rprint-wasm, deployments/live-client-results.json]
+    evidence: [crates/rprint-wasm, spec/acceptance.yaml]
     note: no client export returns a plaintext secret
   - id: INV-I24
     invariant: I24
@@ -256,7 +256,7 @@ assumptions:
   - id: ASM-019
     statement: an ambiguous submit is retried with the same op id
     boundary: client
-    evidence: [crates/rprint-wasm, deployments/live-client-results.json]
+    evidence: [crates/rprint-wasm, spec/acceptance.yaml]
 
 divergences:
   - id: DIV-001
