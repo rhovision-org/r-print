@@ -30,10 +30,6 @@ namespace RPrint
 
 /-! ## Factory creation -/
 
-structure FactoryState where
-  issued : List Id
-  deriving DecidableEq, Repr
-
 def factoryCreate (s : FactoryState) (id : Id) (authorized termsOk : Bool) :
     Option FactoryState :=
   if !authorized then none
@@ -56,6 +52,42 @@ theorem factoryCreate_guard_eq (s : FactoryState) (id : Id) (authorized termsOk 
           by_cases h : id ∈ s.issued
           · simp [factoryCreate, factoryCreateGuard, h]
           · simp [factoryCreate, factoryCreateGuard, h]
+
+def publicationFactoryCreateGuard (s : FactoryState) (id : Id)
+    (authorized clockOk codecOk termsOk cellOk roleOk unknownOk : Bool) : Bool :=
+  authorized && clockOk && codecOk && termsOk && cellOk && roleOk && unknownOk &&
+    !decide (id ∈ s.issued)
+
+theorem publicationFactoryCreate_guard_eq (s : FactoryState) (id : Id)
+    (authorized clockOk codecOk termsOk cellOk roleOk unknownOk : Bool) :
+    (publicationFactoryCreate s id authorized clockOk codecOk termsOk cellOk roleOk
+      unknownOk).isSome =
+      publicationFactoryCreateGuard s id authorized clockOk codecOk termsOk cellOk
+        roleOk unknownOk := by
+  unfold publicationFactoryCreate publicationFactoryCreateGuard
+  repeat (split <;> simp_all)
+
+def escrowFactoryCreateFundedGuard (s : FactoryState) (id : Id)
+    (authorized thresholdOk paymentsOk : Bool) : Bool :=
+  authorized && thresholdOk && paymentsOk && !decide (id ∈ s.issued)
+
+theorem escrowFactoryCreateFunded_guard_eq (s : FactoryState) (id : Id)
+    (authorized thresholdOk paymentsOk : Bool) :
+    (escrowFactoryCreateFunded s id authorized thresholdOk paymentsOk).isSome =
+      escrowFactoryCreateFundedGuard s id authorized thresholdOk paymentsOk := by
+  unfold escrowFactoryCreateFunded escrowFactoryCreateFundedGuard
+  repeat (split <;> simp_all)
+
+def editionFactoryCreateGuard (s : FactoryState) (id : Id)
+    (authorized editionOk statusOk : Bool) : Bool :=
+  authorized && editionOk && statusOk && !decide (id ∈ s.issued)
+
+theorem editionFactoryCreate_guard_eq (s : FactoryState) (id : Id)
+    (authorized editionOk statusOk : Bool) :
+    (editionFactoryCreate s id authorized editionOk statusOk).isSome =
+      editionFactoryCreateGuard s id authorized editionOk statusOk := by
+  unfold editionFactoryCreate editionFactoryCreateGuard
+  repeat (split <;> simp_all)
 
 /-! ## Publication authority -/
 
@@ -361,6 +393,70 @@ theorem articleAttachKnowledge_guard_eq (s : ArticleState) (callerAuthorized : B
       by_cases hs : s.status = ArticleStatus.submitted ∨ s.status = ArticleStatus.approved
       · simp [articleAttachKnowledge, articleAttachKnowledgeGuard, ha, hs]
       · simp [articleAttachKnowledge, articleAttachKnowledgeGuard, ha, hs]
+
+/-- Composite shorthand for `Article.attachKnowledge`: article authority and
+status, adapter resolution, the membership arm, and the r-gen chain. This is a
+guard-structure composition, not a refinement of the deployed Rholang. -/
+def articleAttachKnowledgeChain (a : ArticleState) (k : KnowledgeState)
+    (callerAuthorized roleOk adapterOk membershipOk : Bool)
+    (kasset claim prov cred : Id) (kf : KAssetFact) (cf : ClaimFact)
+    (pf : ProvenanceFact) (credF : Option CredentialFact) (now : Height) :
+    Option (ArticleState × KnowledgeState) :=
+  if !callerAuthorized then none
+  else if !roleOk then none
+  else if !adapterOk then none
+  else if !membershipOk then none
+  else if a.status = ArticleStatus.submitted ∨ a.status = ArticleStatus.approved then
+    match knowledgeAttach k kasset claim prov cred kf cf pf credF now with
+    | none => none
+    | some k' => some ({ a with kassetUri := some kasset }, k')
+  else none
+
+def articleAttachKnowledgeChainGuard (a : ArticleState) (k : KnowledgeState)
+    (callerAuthorized roleOk adapterOk membershipOk : Bool)
+    (kasset claim prov cred : Id) (kf : KAssetFact) (cf : ClaimFact)
+    (pf : ProvenanceFact) (credF : Option CredentialFact) (now : Height) : Bool :=
+  callerAuthorized && roleOk && adapterOk && membershipOk &&
+    (a.status = ArticleStatus.submitted ∨ a.status = ArticleStatus.approved) &&
+    knowledgeAttachGuard k kasset claim prov cred kf cf pf credF now
+
+theorem articleAttachKnowledgeChain_guard_eq (a : ArticleState) (k : KnowledgeState)
+    (callerAuthorized roleOk adapterOk membershipOk : Bool)
+    (kasset claim prov cred : Id) (kf : KAssetFact) (cf : ClaimFact)
+    (pf : ProvenanceFact) (credF : Option CredentialFact) (now : Height) :
+    (articleAttachKnowledgeChain a k callerAuthorized roleOk adapterOk membershipOk
+      kasset claim prov cred kf cf pf credF now).isSome =
+      articleAttachKnowledgeChainGuard a k callerAuthorized roleOk adapterOk membershipOk
+        kasset claim prov cred kf cf pf credF now := by
+  unfold articleAttachKnowledgeChain articleAttachKnowledgeChainGuard
+  cases ha : callerAuthorized with
+  | false => simp [ha]
+  | true =>
+      cases hr : roleOk with
+      | false => simp [ha, hr]
+      | true =>
+          cases had : adapterOk with
+          | false => simp [ha, hr, had]
+          | true =>
+              cases hm : membershipOk with
+              | false => simp [ha, hr, had, hm]
+              | true =>
+                  by_cases hs : a.status = ArticleStatus.submitted ∨
+                      a.status = ArticleStatus.approved
+                  · simp only [ha, hr, had, hm, hs, Bool.not_true, if_true, if_false,
+                      Bool.true_and]
+                    cases h : knowledgeAttach k kasset claim prov cred kf cf pf credF now with
+                    | none =>
+                        have hg := knowledgeAttach_guard_eq k kasset claim prov cred kf cf pf credF now
+                        rw [h] at hg
+                        simp at hg
+                        simp [h, hg]
+                    | some k' =>
+                        have hg := knowledgeAttach_guard_eq k kasset claim prov cred kf cf pf credF now
+                        rw [h] at hg
+                        simp at hg
+                        simp [h, hg]
+                  · simp [ha, hr, had, hm, hs]
 
 def articleApproveGuard (s : ArticleState) (callerIsEditor : Bool) : Bool :=
   callerIsEditor && (s.status = ArticleStatus.submitted) &&

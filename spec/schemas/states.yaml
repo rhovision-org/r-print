@@ -1,0 +1,157 @@
+schema: rprint.schemas/v1
+scope: >-
+  Top-level map shapes for the six deployed state cells. This is a shape gate,
+  not a validation of caps or cross-field invariants; those remain in the
+  contract guards and the rigour ledger.
+states:
+  publicationState:
+    source: contracts/src/deploy/10_publication.rho
+    anchor: 'pubSpawn!('
+    doc_heading: publicationState
+    required:
+      [publicationId, charterHash, status, admins, threshold, nonce, schemaVersion,
+       charter, members, ops]
+    properties:
+      publicationId: {type: string}
+      charterHash: {type: string}
+      status: {type: string}
+      admins: {type: list}
+      threshold: {type: int}
+      nonce: {type: int}
+      schemaVersion: {type: int}
+      charter: {type: map}
+      members: {type: map}
+      ops: {type: map}
+  commissionProposalState:
+    source: contracts/src/deploy/20_commission.rho
+    anchor: 'proposalState!('
+    doc_heading: commissionProposalState
+    required:
+      [proposalId, publicationId, publicationUri, writerId, writerDid, editorId,
+       titleHash, briefHash, total, milestones, graceBlocks, disputeWindowBlocks,
+       requireFactCheck, coverUri, coverStatus, coverAssetId, coverPerClaimLimit,
+       coverAggregateRemaining, coverInsured, status, escrowUri, createdAtHeight,
+       ops, schemaVersion]
+    properties:
+      proposalId: {type: string}
+      publicationId: {type: string}
+      publicationUri: {type: string}
+      writerId: {type: string}
+      writerDid: {type: string}
+      editorId: {type: string}
+      titleHash: {type: string}
+      briefHash: {type: string}
+      total: {type: int}
+      milestones: {type: list}
+      graceBlocks: {type: int}
+      disputeWindowBlocks: {type: int}
+      requireFactCheck: {type: bool}
+      coverUri: {type: string}
+      coverStatus: {type: string}
+      coverAssetId: {type: string}
+      coverPerClaimLimit: {type: int}
+      coverAggregateRemaining: {type: int}
+      coverInsured: {type: string}
+      status: {type: string}
+      escrowUri: {type: string}
+      createdAtHeight: {type: int}
+      ops: {type: map}
+      schemaVersion: {type: int}
+  commissionEscrowState:
+    source: contracts/src/deploy/21_commission_escrow.rho
+    anchor: 'escrowState!('
+    doc_heading: commissionEscrowState
+    required:
+      [escrowId, proposalId, publicationId, publicationUri, writerId, writerDid,
+       editorId, funderId, assetId, purseUri, total, milestones, graceBlocks,
+       disputeWindowBlocks, hardDeadlineHeight, paidWriter, refundedFunder, fee,
+       status, dispute, nonce, ops, schemaVersion]
+    properties:
+      escrowId: {type: string}
+      proposalId: {type: string}
+      publicationId: {type: string}
+      publicationUri: {type: string}
+      writerId: {type: string}
+      writerDid: {type: string}
+      editorId: {type: string}
+      funderId: {type: string}
+      assetId: {type: string}
+      purseUri: {type: string}
+      total: {type: int}
+      milestones: {type: list}
+      graceBlocks: {type: int}
+      disputeWindowBlocks: {type: int}
+      hardDeadlineHeight: {type: int}
+      paidWriter: {type: int}
+      refundedFunder: {type: int}
+      fee: {type: int}
+      status: {type: string}
+      dispute: {type: map}
+      nonce: {type: int}
+      ops: {type: map}
+      schemaVersion: {type: int}
+  articleState:
+    source: contracts/src/deploy/30_article.rho
+    anchor: 'articleState!('
+    doc_heading: articleState
+    required:
+      [articleId, publicationId, publicationUri, authors, contentHash, license,
+       customLicenseHash, access, sectionHash, requireFactCheck, requireKAsset,
+       kassetUri, claimUri, provenanceUri, credentialUri, knowledgeAtHeight,
+       status, publishHeight, retractHeight, attestations, corrections,
+       createdAtHeight, ops, schemaVersion]
+    properties:
+      articleId: {type: string}
+      publicationId: {type: string}
+      publicationUri: {type: string}
+      authors: {type: list}
+      contentHash: {type: string}
+      license: {type: string}
+      customLicenseHash: {type: string}
+      access: {type: string}
+      sectionHash: {type: string}
+      requireFactCheck: {type: bool}
+      requireKAsset: {type: bool}
+      kassetUri: {type: string}
+      claimUri: {type: string}
+      provenanceUri: {type: string}
+      credentialUri: {type: string}
+      knowledgeAtHeight: {type: int}
+      status: {type: string}
+      publishHeight: {type: int}
+      retractHeight: {type: int}
+      attestations: {type: list}
+      corrections: {type: list}
+      createdAtHeight: {type: int}
+      ops: {type: map}
+      schemaVersion: {type: int}
+  editionState:
+    source: contracts/src/deploy/31_edition.rho
+    anchor: 'editionState!('
+    doc_heading: editionState
+    required:
+      [editionId, publicationId, publicationUri, number, titleHash, coverHash,
+       articles, status, seal, createdAtHeight, ops, schemaVersion]
+    properties:
+      editionId: {type: string}
+      publicationId: {type: string}
+      publicationUri: {type: string}
+      number: {type: int}
+      titleHash: {type: string}
+      coverHash: {type: string}
+      articles: {type: list}
+      status: {type: string}
+      seal: {type: map}
+      createdAtHeight: {type: int}
+      ops: {type: map}
+      schemaVersion: {type: int}
+  factoryState:
+    source: contracts/src/deploy/10_publication.rho
+    anchor: 'factoryState!('
+    doc_heading: factoryState
+    required: [ids, schemaVersion]
+    optional: [ops]
+    properties:
+      ids: {type: map}
+      ops: {type: map}
+      schemaVersion: {type: int}

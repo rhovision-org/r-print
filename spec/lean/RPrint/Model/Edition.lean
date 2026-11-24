@@ -209,4 +209,17 @@ theorem edition_sealed_manifest_immutable (s : EditionState) (callerIsEditor : B
   · simp [editionSeal, h]
   · simp [editionAppend, h]
 
+/-! ## Factory creation
+
+The edition factory's terms and status reads are Bool atoms in the shallow guard
+model. -/
+
+def editionFactoryCreate (s : FactoryState) (id : Id)
+    (authorized editionOk statusOk : Bool) : Option FactoryState :=
+  if !authorized then none
+  else if !editionOk then none
+  else if !statusOk then none
+  else if id ∈ s.issued then none
+  else some { s with issued := id :: s.issued }
+
 end RPrint

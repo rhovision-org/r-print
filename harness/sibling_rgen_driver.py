@@ -63,6 +63,9 @@ def main() -> int:
         assertions.expect_ok("claim validate", validated)
         return claim_uri, validated[1]["uri"]
 
+    identity_reply = fixtures.ensure_identity("reporter1", "rprint-writer")
+    assertions.expect_ok("identity", identity_reply)
+
     claim_uri, kasset_uri = chain("reporter1")
     provenance = fixtures.provenance_create(kasset_uri, [author], key="deployer")
     assertions.expect_ok("provenance", provenance)
@@ -114,6 +117,7 @@ def main() -> int:
     result = {
         "contentHash": content_hash,
         "authorAddress": author,
+        "identityAddress": author,
         "credentialUri": author_cred,
         "revokedCredentialUri": revoked_uri,
         "expiredCredentialUri": expired[1],

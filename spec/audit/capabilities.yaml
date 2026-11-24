@@ -404,37 +404,37 @@ capabilities:
   - id: CAP-024
     name: RgenAdapter
     kind: published-contract
-    source: contracts/src/deploy/05_rgen.rho:126
+    source: contracts/src/deploy/05_rgen.rho:209
     source_atom: 'bundle+{*RgenAdapter}'
     creator: PrintRoot installer
     holders: every deploy that resolves component:rgen-adapter
     exposure: registry-uri
     attenuation: none
     authority_check: caller-subject
-    arms: [health, claim, kasset, provenance, provenanceInfo, identity, credential]
+    arms: [health, claim, kasset, provenance, provenanceInfo, identity, credential, membership]
     delegation: [r-gen root resolution]
     revocation: root rotate
     forge_path: publish a look-alike adapter or a self-consistent fake chain
-    hazard: a URI is designation, not factory membership; the strict chain checks shape, not sibling membership
+    hazard: claim and credential membership are verified through the pinned factories; provenance membership remains a residual because the pinned r-gen rev has no query
     disposition: finding
-    evidence: contracts/src/deploy/05_rgen.rho:126
+    evidence: contracts/src/deploy/05_rgen.rho:209
   - id: CAP-025
     name: RsureAdapter
     kind: published-contract
-    source: contracts/src/deploy/06_rsure.rho:71
+    source: contracts/src/deploy/06_rsure.rho:126
     source_atom: 'bundle+{*RsureAdapter}'
     creator: PrintRoot installer
     holders: every deploy that resolves component:rsure-adapter
     exposure: registry-uri
     attenuation: none
     authority_check: caller-subject
-    arms: [health, policy, slip]
+    arms: [health, policy, slip, membership]
     delegation: [r-sure root resolution]
     revocation: root rotate
     forge_path: publish a look-alike adapter or a fake policy
-    hazard: a policy that returns active/insured/asset can be attached without a factory-membership check
+    hazard: policy membership is now checked against the pinned policy book; the disabled-root path remains shape-only by design
     disposition: finding
-    evidence: contracts/src/deploy/06_rsure.rho:71
+    evidence: contracts/src/deploy/06_rsure.rho:126
   - id: CAP-026
     name: state-cells
     kind: private-name
@@ -472,17 +472,17 @@ capabilities:
   - id: CAP-028
     name: sibling-designation
     kind: data-reference
-    source: contracts/src/deploy/05_rgen.rho:55
+    source: contracts/src/deploy/05_rgen.rho:128
     source_atom: ''
     creator: the caller
     holders: the caller
     exposure: reply-value
     attenuation: none
     authority_check: none
-    arms: [claim, kasset, provenance, credential]
+    arms: [claim, kasset, provenance, credential, membership]
     delegation: []
     revocation: none
     forge_path: a self-consistent fake Claim/KAsset/Provenance set satisfies the shape checks
-    hazard: the v0.1 adapters trust the URI's designation; factory membership is not verified
+    hazard: claim and KAsset membership are verified through the pinned claim factory; provenance membership remains a documented residual
     disposition: finding
-    evidence: contracts/src/deploy/05_rgen.rho:55
+    evidence: contracts/src/deploy/05_rgen.rho:128

@@ -619,4 +619,17 @@ theorem escrow_terminal_conserved (s : EscrowState) (hs : escrowSafe s)
   simp only [Amount] at hc h0 ⊢
   omega
 
+/-! ## Factory creation
+
+The funded-escrow factory's threshold and purse move are Bool atoms in the
+shallow guard model. -/
+
+def escrowFactoryCreateFunded (s : FactoryState) (id : Id)
+    (authorized thresholdOk paymentsOk : Bool) : Option FactoryState :=
+  if !authorized then none
+  else if !thresholdOk then none
+  else if !paymentsOk then none
+  else if id ∈ s.issued then none
+  else some { s with issued := id :: s.issued }
+
 end RPrint

@@ -6,7 +6,7 @@ from __future__ import annotations
 import actors
 from article_fixture import (approve, article_data, attach_knowledge,
                              create_article, editorial_publication,
-                             mock_knowledge, publish, submit, attest)
+                             mock_knowledge, publish, rgen_enabled, submit, attest)
 from assertions import expect, expect_ok, expect_refusal, one
 from helpers import call_uri
 from preflight import require_devnet
@@ -31,11 +31,18 @@ def main() -> int:
     expect("attestation count", len(atts), 1)
 
     claim, kasset, provenance = mock_knowledge()
-    attach_knowledge(article, kasset, claim, provenance)
-    knowledge = one(call_uri(article["uri"], "knowledge"))[1]
-    expect("kasset link", knowledge.get("kassetUri"), kasset)
-    expect("claim link", knowledge.get("claimUri"), claim)
-    expect("provenance link", knowledge.get("provenanceUri"), provenance)
+    if rgen_enabled():
+        expect_refusal("mock knowledge membership",
+                       one(call_uri(article["uri"], "attachKnowledge",
+                                    f'*dId, "know-probe", "{kasset}", "{claim}", '
+                                    f'"{provenance}", ""'), key="reporter1"),
+                       "membership")
+    else:
+        attach_knowledge(article, kasset, claim, provenance)
+        knowledge = one(call_uri(article["uri"], "knowledge"))[1]
+        expect("kasset link", knowledge.get("kassetUri"), kasset)
+        expect("claim link", knowledge.get("claimUri"), claim)
+        expect("provenance link", knowledge.get("provenanceUri"), provenance)
 
     approve(article)
     expect("approved status", one(call_uri(article["uri"], "status"))[1], "approved")
@@ -66,9 +73,16 @@ def main() -> int:
                    one(call_uri(gated["uri"], "approve", '*dId, "gate-approve"'),
                        key="deployer"),
                    "kasset")
-    attach_knowledge(gated, kasset, claim, provenance)
-    approve(gated)
-    expect("gated approved", one(call_uri(gated["uri"], "status"))[1], "approved")
+    if rgen_enabled():
+        expect_refusal("gated mock membership",
+                       one(call_uri(gated["uri"], "attachKnowledge",
+                                    f'*dId, "gate-know", "{kasset}", "{claim}", '
+                                    f'"{provenance}", ""'), key="reporter1"),
+                       "membership")
+    else:
+        attach_knowledge(gated, kasset, claim, provenance)
+        approve(gated)
+        expect("gated approved", one(call_uri(gated["uri"], "status"))[1], "approved")
     return 0
 
 

@@ -1,0 +1,15 @@
+{
+  "editionId": "edition-1",
+  "publicationId": "pub-1",
+  "publicationUri": "rho:id:pub-1",
+  "number": 1,
+  "titleHash": "title-1",
+  "coverHash": "cover-1",
+  "articles": [{"articleId": "article-1", "articleUri": "rho:id:article-1",
+                "contentHash": "content-1", "kassetUri": ""}],
+  "status": "draft",
+  "seal": {"manifestHash": "", "editorId": "", "editorSig": "", "sealedAtHeight": 0},
+  "createdAtHeight": 1,
+  "ops": {},
+  "schemaVersion": 1
+}

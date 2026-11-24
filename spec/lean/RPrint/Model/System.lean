@@ -29,7 +29,12 @@ are not theorems and are never described as proved:
 * `rgenKassetInfo` — a K-Asset `get` returns the stated claim reference;
 * `rgenClaimInfo` — a Claim `get` returns the stated K-Asset reference and status;
 * `rgenProvenanceInfo` — a Provenance `get` returns the stated asset, claim and writers;
-* `rgenCredentialVerify` — a credential verify returns the stated subject and status.
+* `rgenCredentialVerify` — a credential verify returns the stated subject and status;
+* `rsurePolicyMembership` — the pinned r-sure policy book maps a policy id to its URI;
+* `rgenChainMembership` — the pinned r-gen claim and credential factories verify issued URIs;
+* `rgenProvenanceResidual` — provenance membership has no query in the pinned r-gen rev;
+* `rgenIdentityDirectory` — the directory lookup returns the member's identity;
+* `rsureSlipInfo` — a Slip `info` read returns the stated status and premium.
 -/
 
 namespace RPrint
@@ -51,6 +56,11 @@ structure Boundary where
   rgenClaimInfo : Bool
   rgenProvenanceInfo : Bool
   rgenCredentialVerify : Bool
+  rsurePolicyMembership : Bool
+  rgenChainMembership : Bool
+  rgenProvenanceResidual : Bool
+  rgenIdentityDirectory : Bool
+  rsureSlipInfo : Bool
   deriving DecidableEq, Repr
 
 def boundary : Boundary :=
@@ -69,7 +79,12 @@ def boundary : Boundary :=
     rgenKassetInfo := true
     rgenClaimInfo := true
     rgenProvenanceInfo := true
-    rgenCredentialVerify := true }
+    rgenCredentialVerify := true
+    rsurePolicyMembership := true
+    rgenChainMembership := true
+    rgenProvenanceResidual := true
+    rgenIdentityDirectory := true
+    rsureSlipInfo := true }
 
 /-- Composition: a publication member write is guarded by the publisher key. -/
 def system_publication_authority := @publication_addMember_requires_publisher

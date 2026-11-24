@@ -99,6 +99,13 @@ def main() -> int:
         attach(wrong_asset, policy_stub("active", rsure["insured"], "USD")),
         "asset")
 
+    fake = propose(pub, proposal_id=f"cover-fake:{node.height()}")
+    accept(fake)
+    expect_refusal(
+        "fake policy membership",
+        attach(fake, policy_stub("active", rsure["insured"], rsure["assetId"])),
+        "membership")
+
     escrow = fund(proposal)
     expect("escrow cover",
            one(call_uri(escrow["escrow_uri"], "cover"))[1], rsure["policyUri"])

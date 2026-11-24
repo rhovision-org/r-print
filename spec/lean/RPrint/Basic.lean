@@ -17,6 +17,11 @@ abbrev Height := Nat
 abbrev Id := Nat
 abbrev Bps : Nat := 10000
 
+/-- An issuance factory: the ids it has issued, newest first. -/
+structure FactoryState where
+  issued : List Id
+  deriving DecidableEq, Repr
+
 /-- Truncating division, the node's `/` on naturals. -/
 def floorDiv (n d : Nat) : Nat := n / d
 

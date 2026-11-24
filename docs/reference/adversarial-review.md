@@ -14,7 +14,7 @@
 | RPA-007 | Credential status was read from the issuance record, not `Credential("get")` | S2 / P0 | fixed |
 | RPA-009 | Independent technical review is outstanding | S2 / P1 | risk-accepted until M14 |
 | RPA-003, RPA-004 | The fund editor guard and the cover proposal-status guard diverged from the source | S3 / P2 | fixed |
-| RPA-008 | Sixteen client writes have no live test | S3 / P2 | risk-accepted; explicit in the client-op map |
+| RPA-008 | Eight client writes have no live test | S3 / P2 | risk-accepted; explicit in the client-op map |
 | RPA-010 | There is no schema source of truth | S4 / P2 | risk-accepted; M14 |
 
 RPA-005, RPA-006 and RPA-007 were found by the first real-sibling campaign. The
@@ -24,13 +24,14 @@ KAsset/Claim records use `Uri` values rather than strings.
 
 ## Red-team probes
 
-`harness/redteam.py` records 11 probes. Nine are `fixed` (the intended refusal
-happened) and two are `accepted`:
+`harness/redteam.py` records 12 probes. Eleven are `fixed` (the intended refusal
+happened) and one is `accepted`:
 
 | Probe | Observed | Meaning |
 |---|---|---|
-| RT-007 | A fake policy with `active`, treasury and asset is attached | RPA-001; v0.1 checks shape, not factory membership |
-| RT-011 | A self-consistent fake Claim/KAsset/Provenance chain is attached | RPA-001; same trust boundary |
+| RT-007 | A fake policy is refused at the policy-book membership check | RPA-001; fixed |
+| RT-011 | A self-consistent fake Claim/KAsset chain is refused at the claim-factory membership check | RPA-001; fixed |
+| RT-012 | A real Claim/KAsset with a self-consistent fake provenance is attached | RPA-001 residual; the pinned r-gen rev has no provenance membership query |
 
 The accepted probes are evidence for a risk, not a pass. The ledger is
 `spec/audit/redteam.yaml`; the recorded run is
@@ -40,7 +41,8 @@ The accepted probes are evidence for a risk, not a pass. The ledger is
 
 Every P0/P1 finding has one row in `spec/audit/closeout.yaml`. The two
 risk-accepted rows expire on 2027-02-28. The adapter-membership decision is
-`IMP-001`; the independent review is `IMP-005`; the live escrow and client
+`IMP-001`; the independent review is `IMP-005` and its packet is
+`spec/audit/review-packet.md` (prepared, review still outstanding); the live escrow and client
 gaps are `IMP-003`.
 
 ## What this review does not claim

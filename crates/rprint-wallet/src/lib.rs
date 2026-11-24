@@ -12,7 +12,7 @@ pub use decode::{decode_reply_json, ReplyJson};
 use rcash_chain::address::eth_address_from_public_key;
 use rcash_chain::deploy::DeployOptions;
 use rcash_chain::KeyPair;
-use rprint_core::{canonical, edition_manifest_items};
+use rprint_core::{admin_payload, canonical, edition_manifest_items};
 use serde::Serialize;
 use serde_json::Value;
 use zeroize::Zeroize;
@@ -205,6 +205,26 @@ impl Wallet {
             .sign_prehash(&digest)
             .map_err(|error| WalletError::Signing(error.to_string()))?;
         Ok((hex(&digest), hex(&signature)))
+    }
+
+    /// Sign the canonical admin payload used by `pubVerifyAdmin`.
+    ///
+    /// The contract hashes the payload with blake2b256 and verifies a prehash
+    /// signature, so this signs the digest rather than the text.
+    pub fn sign_admin_payload(
+        &self,
+        domain: &str,
+        nonce: u64,
+        action: &str,
+        args: &[&str],
+    ) -> Result<String, WalletError> {
+        let key = self.key()?;
+        let text = admin_payload(domain, nonce, action, args);
+        let digest = rchain_crypto::hash::blake2b256::hash(text.as_bytes());
+        let signature = key
+            .sign_prehash(&digest)
+            .map_err(|error| WalletError::Signing(error.to_string()))?;
+        Ok(hex(&signature))
     }
 
     fn key(&self) -> Result<&KeyPair, WalletError> {

@@ -18,6 +18,7 @@ shared_atoms:
     - terms
     - unknown
     - duplicate
+    - membership
     - publication
     - proposal
   contracts/src/deploy/21_commission_escrow.rho:
@@ -28,6 +29,7 @@ shared_atoms:
     - terms
     - unknown
     - duplicate
+    - membership
     - publication
   contracts/src/deploy/31_edition.rho:
     - clock
@@ -41,12 +43,14 @@ shared_atoms:
     - credential-factory
     - disabled
     - identity-directory
+    - membership
     - provenance-factory
     - uri
   contracts/src/deploy/06_rsure.rho:
     - disabled
     - distribution-factory
     - line-factory
+    - membership
     - policy-factory
     - slip-factory
 
@@ -56,12 +60,12 @@ arms:
     contract: PublicationFactory
     arm: create
     cell: PublicationFactory
-    status: partial
-    guard_eq: RPrint.factoryCreate_guard_eq
+    status: proved
+    guard_eq: RPrint.publicationFactoryCreate_guard_eq
     atoms: [clock, codec, duplicate, member, not owner, publication, publication cell, role, terms, unknown]
-    modeled_atoms: [duplicate, not owner]
-    unmodelled_atoms: [clock, codec, member, publication, publication cell, role, terms, unknown]
-    note: the generic factory create guard models authority, terms and id reuse; member, role and cell validation are in the cell factory
+    modeled_atoms: [clock, codec, duplicate, member, not owner, publication, publication cell, role, terms, unknown]
+    unmodelled_atoms: []
+    note: the factory guard models authority, each external validation as a Bool atom, and id reuse; it does not model charter or roster semantics
 
   - id: publication.addMember
     source: contracts/src/deploy/11_publication_cell.rho
@@ -194,12 +198,12 @@ arms:
     contract: CommissionEscrowFactory
     arm: createFunded
     cell: CommissionEscrowFactory
-    status: partial
-    guard_eq: RPrint.factoryCreate_guard_eq
+    status: proved
+    guard_eq: RPrint.escrowFactoryCreateFunded_guard_eq
     atoms: [below threshold, not owner, payments]
-    modeled_atoms: [not owner]
-    unmodelled_atoms: [below threshold, payments]
-    note: the generic factory guard models authority and id reuse; the threshold and the purse move are boundary reads
+    modeled_atoms: [below threshold, not owner, payments]
+    unmodelled_atoms: []
+    note: the factory guard models authority, the threshold check and the purse move as Bool atoms, plus id reuse
 
   - id: escrow.submit
     source: contracts/src/deploy/21_commission_escrow.rho
@@ -308,12 +312,12 @@ arms:
     contract: Article
     arm: attachKnowledge
     cell: Article
-    status: partial
-    guard_eq: RPrint.articleAttachKnowledge_guard_eq
-    atoms: [author, claim, claim kasset, claim status, credential, kasset, kasset claim, knowledge, not owner, paused, provenance, provenance asset, provenance claim, provenance hash, rgen adapter, status]
-    modeled_atoms: [not owner, paused, status]
-    unmodelled_atoms: [author, claim, claim kasset, claim status, credential, kasset, kasset claim, knowledge, provenance, provenance asset, provenance claim, provenance hash, rgen adapter]
-    note: the article model checks status and authorization; the chain checks are modelled in Model/Adapter and exercised by unit_knowledge
+    status: proved
+    guard_eq: RPrint.articleAttachKnowledgeChain_guard_eq
+    atoms: [author, claim, claim kasset, claim status, credential, kasset, kasset claim, knowledge, membership, not owner, provenance, provenance asset, provenance claim, provenance hash, rgen adapter, role, status]
+    modeled_atoms: [author, claim, claim kasset, claim status, credential, kasset, kasset claim, knowledge, membership, not owner, provenance, provenance asset, provenance claim, provenance hash, rgen adapter, role, status]
+    unmodelled_atoms: []
+    note: the composite guard models article authority, status and role, adapter resolution, the membership arm, and the r-gen chain facts; it is a guard-structure composition, not a refinement
 
   - id: article.approve
     source: contracts/src/deploy/30_article.rho
@@ -375,12 +379,12 @@ arms:
     contract: EditionFactory
     arm: create
     cell: EditionFactory
-    status: partial
-    guard_eq: RPrint.factoryCreate_guard_eq
+    status: proved
+    guard_eq: RPrint.editionFactoryCreate_guard_eq
     atoms: [edition, not owner, status]
-    modeled_atoms: [not owner]
-    unmodelled_atoms: [edition, status]
-    note: the generic factory guard models authority and id reuse; edition terms are validated by the cell factory
+    modeled_atoms: [edition, not owner, status]
+    unmodelled_atoms: []
+    note: the factory guard models authority, edition terms and status as Bool atoms, plus id reuse
 
   - id: edition.append
     source: contracts/src/deploy/31_edition.rho

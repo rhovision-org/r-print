@@ -236,7 +236,7 @@ in {
           (true, now) => {
             new Article, articleState, articleCanAttach, articleKnowledgeGo,
                 artKnowKasset, artKnowClaim, artKnowProvenance, artKnowCredential,
-                artKnowVerify, artKnowStore, uCh in {
+                artKnowVerify, artKnowMembership, artKnowStore, uCh in {
               articleState!({
                 "articleId": articleId,
                 "publicationId": data.get("publicationId"),
@@ -583,10 +583,36 @@ in {
                           for (@v <- vCh) {
                             match v {
                               (true, true) => {
+                                artKnowMembership!(s, callerId, opId, kassetUri, claimUri,
+                                                   provenanceUri, credentialUri, *ret2)
+                              }
+                              _ => { articleState!(s) | ret2!((false, "provenance hash")) }
+                            }
+                          }
+                        }
+                      }
+                      _ => { articleState!(s) | ret2!((false, "rgen adapter")) }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowMembership(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                         @provenanceUri, @credentialUri, ret2) = {
+                new aCh in {
+                  resolveComponent!("component:rgen-adapter", *aCh) |
+                  for (@a <- aCh) {
+                    match a {
+                      (true, Adapter) => {
+                        new mCh in {
+                          @Adapter!("membership", kassetUri, claimUri, credentialUri, *mCh) |
+                          for (@m <- mCh) {
+                            match m {
+                              (true, Nil) => {
                                 artKnowStore!(s, callerId, opId, kassetUri, claimUri,
                                               provenanceUri, credentialUri, *ret2)
                               }
-                              _ => { articleState!(s) | ret2!((false, "provenance hash")) }
+                              _ => { articleState!(s) | ret2!((false, "membership")) }
                             }
                           }
                         }

@@ -6,6 +6,18 @@
       "input": "true",
       "output": "none"
     },
+    "article.attachKnowledge.chain.membership": {
+      "input": "none",
+      "output": "none"
+    },
+    "article.attachKnowledge.chain.ok": {
+      "input": "ok",
+      "output": "ok"
+    },
+    "article.attachKnowledge.chain.published": {
+      "input": "none",
+      "output": "none"
+    },
     "article.attachKnowledge.published": {
       "input": "published",
       "output": "none"
@@ -168,6 +180,54 @@
     },
     "escrow.submit.too_late": {
       "input": "pending,deadline 100,now 101",
+      "output": "none"
+    },
+    "factory.edition.duplicate": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.edition.not_owner": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.edition.ok": {
+      "input": "id:5",
+      "output": "id:5"
+    },
+    "factory.edition.status": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.escrow.not_owner": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.escrow.ok": {
+      "input": "id:5",
+      "output": "id:5"
+    },
+    "factory.escrow.payments": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.escrow.threshold": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.publication.duplicate": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.publication.not_owner": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.publication.ok": {
+      "input": "id:5",
+      "output": "id:5"
+    },
+    "factory.publication.terms": {
+      "input": "none",
       "output": "none"
     },
     "knowledge.attach.author": {

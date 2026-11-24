@@ -10,6 +10,12 @@ review:
     The escrow and publication authority paths, the r-sure cover and r-gen
     knowledge chains, and the live-client coverage gap. The review used the
     real-sibling campaign, the guard bridge and the model ledger.
+  packet: spec/audit/review-packet.md
+  independent_review:
+    status: outstanding
+    reviewer: null
+    requested_at: null
+    due: null
 findings:
   - id: RPA-001
     title: Adapter designation is not factory membership
@@ -28,11 +34,13 @@ findings:
     actions: [IMP-001]
     disposition: accept-risk
     note: >-
-      The adapters verify shape, reciprocal references, the hash and the
-      credential, but not that the policy or chain was issued by the pinned
-      sibling factory. A self-consistent fake policy or fake Claim/KAsset/
-      Provenance set can pass. v0.1 is devnet-only; the risk is accepted until
-      M14 adds or documents factory-membership verification.
+      The adapters now check policy membership through the pinned r-sure policy
+      book and claim/credential membership through the pinned r-gen factories;
+      the KAsset is bound to the verified claim's kassetRef. Provenance has no
+      membership query in the pinned r-gen rev, so a self-consistent provenance
+      record attached to a real claim and KAsset still passes. The residual is
+      accepted until r-gen exposes a membership query; disabled roots remain
+      shape-only by design.
   - id: RPA-002
     title: The release/release race claim is not proved
     severity: S3
@@ -140,7 +148,7 @@ findings:
     disposition: fixed
     note: The factory verify record has no status or expiry; the adapter now reads Credential("get").
   - id: RPA-008
-    title: Sixteen of thirty-two client writes have no live test
+    title: Eight of thirty-two client writes have no live test
     severity: S3
     likelihood: B
     risk: 6
@@ -154,7 +162,11 @@ findings:
     arms: []
     actions: [IMP-003]
     disposition: accept-risk
-    note: The map records 22 recorded, 5 fixture-only and 16 no-live methods; the gap is explicit.
+    note: >-
+      The map records 29 recorded, 5 fixture-only and 9 no-live methods; the live
+      escrow journey covers fund, submit, release, cancel, dispute, resolve,
+      expire and arbitrate. Membership changes, pause, proposal cancel, article
+      attest/correct/retract, coordinationInfo and browser escrow remain no-live.
   - id: RPA-009
     title: Independent technical review is outstanding
     severity: S2
@@ -180,9 +192,14 @@ findings:
     category: evidence
     evidence:
       - docs/reference/data-schemas.md
-    claim: The state and reply shapes are machine-checked.
-    verdict: unproved
+      - spec/schemas/states.yaml
+      - tools/check_schemas.py
+    claim: The top-level state shapes are machine-checked.
+    verdict: proved-but-narrower
     arms: []
     actions: [IMP-004]
-    disposition: accept-risk
-    note: The shapes are prose and fixtures; spec/schemas is deferred to M14.
+    disposition: fixed
+    note: >-
+      `make check-schemas` compares the six declared state schemas with the doc
+      blocks, the deployed initializers and committed examples. The gate covers
+      top-level keys and types, not caps or cross-field invariants.

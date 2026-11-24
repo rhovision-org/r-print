@@ -142,6 +142,7 @@ namespace RPrint
 #print axioms RPrint.cover_attach_preserves_status
 #print axioms RPrint.cover_attachSystem_escrow
 #print axioms RPrint.cover_attach_preserves_conservation
+#print axioms RPrint.knowledgeAttach_guard_eq
 #print axioms RPrint.knowledge_attach_refuses_published
 #print axioms RPrint.knowledge_attach_refuses_draft
 #print axioms RPrint.knowledge_attach_requires_kasset_claim
@@ -159,6 +160,9 @@ namespace RPrint
 
 -- Arm guards
 #print axioms RPrint.factoryCreate_guard_eq
+#print axioms RPrint.publicationFactoryCreate_guard_eq
+#print axioms RPrint.escrowFactoryCreateFunded_guard_eq
+#print axioms RPrint.editionFactoryCreate_guard_eq
 #print axioms RPrint.publicationAddMember_guard_eq
 #print axioms RPrint.publicationRemoveMember_guard_eq
 #print axioms RPrint.publicationSetRole_guard_eq
@@ -178,6 +182,7 @@ namespace RPrint
 #print axioms RPrint.escrowResolveDispute_guard_eq
 #print axioms RPrint.articleSubmit_guard_eq
 #print axioms RPrint.articleAttachKnowledge_guard_eq
+#print axioms RPrint.articleAttachKnowledgeChain_guard_eq
 #print axioms RPrint.articleApprove_guard_eq
 #print axioms RPrint.articlePublish_guard_eq
 #print axioms RPrint.articleCorrect_guard_eq

@@ -269,6 +269,34 @@ def knowledgeAttach (s : KnowledgeState) (kasset claim prov cred : Id)
           some (knowledgeAssign s kasset claim prov cred now)
         else none
 
+def knowledgeAttachGuard (s : KnowledgeState) (kasset claim prov cred : Id)
+    (k : KAssetFact) (c : ClaimFact) (p : ProvenanceFact)
+    (cf : Option CredentialFact) (now : Height) : Bool :=
+  knowledgeAttachable s.status && !(kasset == 0 || claim == 0 || prov == 0) &&
+    match s.kassetUri with
+    | some _ => sameKnowledge s kasset claim prov cred
+    | none => knowledgeFactsOk s kasset claim prov cred k c p cf now
+
+theorem knowledgeAttach_guard_eq (s : KnowledgeState) (kasset claim prov cred : Id)
+    (k : KAssetFact) (c : ClaimFact) (p : ProvenanceFact)
+    (cf : Option CredentialFact) (now : Height) :
+    (knowledgeAttach s kasset claim prov cred k c p cf now).isSome =
+      knowledgeAttachGuard s kasset claim prov cred k c p cf now := by
+  unfold knowledgeAttach knowledgeAttachGuard
+  cases hs : knowledgeAttachable s.status with
+  | false => simp [hs]
+  | true =>
+      cases hz : (kasset == 0 || claim == 0 || prov == 0) with
+      | true => simp [hs, hz]
+      | false =>
+          cases hk : s.kassetUri with
+          | some u =>
+              cases hsk : sameKnowledge s kasset claim prov cred <;>
+                simp [hs, hz, hk, hsk]
+          | none =>
+              cases hfk : knowledgeFactsOk s kasset claim prov cred k c p cf now <;>
+                simp [hs, hz, hk, hfk]
+
 theorem knowledge_attach_refuses_published (s : KnowledgeState) (kasset claim prov cred : Id)
     (k : KAssetFact) (c : ClaimFact) (p : ProvenanceFact)
     (cf : Option CredentialFact) (now : Height)

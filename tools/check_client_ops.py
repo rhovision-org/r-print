@@ -36,14 +36,17 @@ def contract_source() -> str:
     return "\n".join(parts)
 
 
-def evidence_for(test: str) -> Path | None:
+def evidence_for(test: str) -> list[Path]:
     if test.endswith("web/tests/live-client.ts"):
-        return ROOT / "deployments" / "live-client-results.json"
+        return [ROOT / "deployments" / "live-client-results.json"]
     if test.endswith("journey.spec.ts"):
-        return ROOT / "deployments" / "browser-e2e-results.json"
+        return [ROOT / "deployments" / "browser-e2e-results.json"]
     if test.endswith("devnet_live.rs"):
-        return ROOT / "deployments" / "cli-live-results.json"
-    return None
+        return [
+            ROOT / "deployments" / "cli-live-results.json",
+            ROOT / "deployments" / "cli-live-escrow-results.json",
+        ]
+    return []
 
 
 def main() -> int:
@@ -108,16 +111,29 @@ def main() -> int:
         else:
             counts[live] += 1
         if live == "recorded":
-            evidence = evidence_for(row["test"])
-            if evidence is None:
+            files = evidence_for(row["test"])
+            if not files:
                 errors.append(f"{method}: recorded without a known evidence file")
-            elif not evidence.is_file():
-                print(f"check-client-ops: warning: {method}: {evidence.name} "
-                      f"is not present in this checkout", file=sys.stderr)
-            else:
+                continue
+            payloads = []
+            for evidence in files:
+                if not evidence.is_file():
+                    continue
                 payload = json.loads(evidence.read_text())
-                if payload.get("pass") is not True:
-                    errors.append(f"{method}: {evidence.name} does not record a pass")
+                payload["_name"] = evidence.name
+                payloads.append(payload)
+            if not payloads:
+                print(f"check-client-ops: warning: {method}: no evidence artifact "
+                      "is present in this checkout", file=sys.stderr)
+                continue
+            with_methods = [p for p in payloads if isinstance(p.get("methods"), list)]
+            if with_methods:
+                if not any(p.get("pass") is True and method in p["methods"]
+                           for p in with_methods):
+                    errors.append(
+                        f"{method}: no artifact lists the method and records a pass")
+            elif not any(p.get("pass") is True for p in payloads):
+                errors.append(f"{method}: evidence does not record a pass")
 
     missing = sorted(set(all_methods) - seen)
     extra = sorted(seen - set(all_methods))

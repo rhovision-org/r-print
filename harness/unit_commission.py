@@ -6,7 +6,7 @@ from __future__ import annotations
 import actors
 from assertions import expect, expect_ok, expect_refusal, one
 from commission_fixture import (accept, editor_publication, fund, propose,
-                                release, submit)
+                                release, rsure_enabled, submit)
 from helpers import call_uri
 from preflight import require_devnet
 from publication_fixture import quoted
@@ -47,28 +47,31 @@ def main() -> int:
     expect("accepted status",
            one(call_uri(proposal["uri"], "status"))[1], "accepted")
 
-    # Optional r-sure surface: attach a real-shaped policy reference.
+    # Optional r-sure surface: a mock policy is refused when the sibling root is real.
     mock = policy_mock("active", pub["treasury"], pub["asset_id"])
     attached = one(call_uri(proposal["uri"], "attachCover",
                             f'*dId, "cover-1", "{mock}"'), key="reporter1")
-    expect_ok("attach cover", attached)
-    cover = one(call_uri(proposal["uri"], "cover"))
-    expect("cover uri", cover[1], mock)
-    expect("cover status", cover[2], "active")
-    cover_info = one(call_uri(proposal["uri"], "coverInfo"))
-    expect("cover asset", cover_info[1].get("coverAssetId"), pub["asset_id"])
-    expect("cover insured", cover_info[1].get("coverInsured"), pub["treasury"])
+    if rsure_enabled():
+        expect_refusal("mock cover membership", attached, "membership")
+    else:
+        expect_ok("attach cover", attached)
+        cover = one(call_uri(proposal["uri"], "cover"))
+        expect("cover uri", cover[1], mock)
+        expect("cover status", cover[2], "active")
+        cover_info = one(call_uri(proposal["uri"], "coverInfo"))
+        expect("cover asset", cover_info[1].get("coverAssetId"), pub["asset_id"])
+        expect("cover insured", cover_info[1].get("coverInsured"), pub["treasury"])
 
-    replay = one(call_uri(proposal["uri"], "attachCover",
-                          f'*dId, "cover-1", "{mock}"'), key="reporter1")
-    expect_ok("cover replay", replay)
+        replay = one(call_uri(proposal["uri"], "attachCover",
+                              f'*dId, "cover-1", "{mock}"'), key="reporter1")
+        expect_ok("cover replay", replay)
 
-    other = policy_mock("active", pub["treasury"], pub["asset_id"])
-    expect_refusal(
-        "cover overwrite",
-        one(call_uri(proposal["uri"], "attachCover",
-                     f'*dId, "cover-2", "{other}"'), key="reporter1"),
-        "cover")
+        other = policy_mock("active", pub["treasury"], pub["asset_id"])
+        expect_refusal(
+            "cover overwrite",
+            one(call_uri(proposal["uri"], "attachCover",
+                         f'*dId, "cover-2", "{other}"'), key="reporter1"),
+            "cover")
 
     inactive = propose(pub, proposal_id=f"cover-inactive:{node.height()}")
     accept(inactive)
@@ -105,7 +108,8 @@ def main() -> int:
     expect("escrow paid", info[1].get("paidWriter"), 0)
     balance = one(call_uri(escrow["escrow_uri"], "balance"))
     expect("escrow balance", balance[1], 1000)
-    expect("escrow cover", one(call_uri(escrow["escrow_uri"], "cover"))[1], mock)
+    escrow_cover = one(call_uri(escrow["escrow_uri"], "cover"))[1]
+    expect("escrow cover", escrow_cover, "" if rsure_enabled() else mock)
 
     writer_before = actors.balance(proposal["writer"])
     submit(escrow, "m1")

@@ -4,17 +4,23 @@ items:
     priority: P0
     title: Verify or explicitly decline sibling factory membership
     finding: RPA-001
-    status: proposed
-    compatibility: no wire change; an adapter check or a documented trust boundary
-    tests: add fake-policy and fake-chain red-team probes
-    action: resolve the policy/chain through the pinned sibling root before accepting it
+    status: partial
+    compatibility: no wire change; internal adapter arm and membership checks before the state commit
+    tests: fake-policy and fake-chain probes now refuse; a real chain with fake provenance remains accepted
+    action: check policy membership through the pinned policy book, claim and credential membership through the pinned factories, bind the KAsset to the verified claim, and decline provenance membership explicitly
     files:
       - path: contracts/src/deploy/05_rgen.rho
         function: RgenAdapter
-        lines: '55-129'
+        lines: '128-208'
       - path: contracts/src/deploy/06_rsure.rho
         function: RsureAdapter
-        lines: '55-67'
+        lines: '71-125'
+      - path: contracts/src/deploy/20_commission.rho
+        function: proposalCoverMembership
+        lines: '279-330'
+      - path: contracts/src/deploy/30_article.rho
+        function: artKnowMembership
+        lines: '600-630'
   - id: IMP-002
     priority: P1
     title: Bind submit and release to the consumed milestone
@@ -31,25 +37,31 @@ items:
     priority: P2
     title: Record a live escrow journey and close the client-op gap
     finding: RPA-008
-    status: proposed
+    status: partial
     compatibility: none
-    tests: fund, submit, release, cancel, dispute and resolve on the devnet
-    action: extend cli-live and the browser journey
+    tests: fund, submit, release, cancel, dispute, resolve, expire and arbitrate on the devnet
+    action: extended cli-live with a funded escrow journey; browser escrow remains
     files:
       - path: crates/rprint-cli/tests/devnet_live.rs
-        function: attaches_cover_and_knowledge_live
-        lines: '1-440'
+        function: funds_settles_and_resolves_an_escrow_live
+        lines: '480-700'
+      - path: spec/vectors/client-ops.tsv
+        function: rows
+        lines: '21-31'
   - id: IMP-004
     priority: P2
     title: Add spec/schemas and a schema checker
     finding: RPA-010
-    status: proposed
+    status: fixed
     compatibility: none
-    tests: validate fixtures and state snapshots
+    tests: six state examples and the doc/source field-set gate
     action: derive schemas from data-schemas.md and the deployed maps
     files:
-      - path: docs/reference/data-schemas.md
-        function: schema tables
+      - path: spec/schemas/states.yaml
+        function: states
+        lines: '1-160'
+      - path: tools/check_schemas.py
+        function: main
         lines: '1-200'
   - id: IMP-005
     priority: P1
@@ -57,33 +69,42 @@ items:
     finding: RPA-009
     status: proposed
     compatibility: none
-    tests: external review record
-    action: commission an independent review of the escrow and authority paths
+    tests: signed independent report
+    action: send the prepared packet to an independent reviewer and record the signed report
     files:
+      - path: spec/audit/review-packet.md
+        function: packet
+        lines: '1-120'
       - path: spec/audit/findings.yaml
         function: review
-        lines: '1-20'
+        lines: '1-25'
   - id: IMP-006
     priority: P2
     title: Add the read-only and operator arm inventory
     finding: '-'
-    status: proposed
+    status: fixed
     compatibility: none
-    tests: generated inventory gate
-    action: extend the flow manifest to every deployed arm
+    tests: generated inventory gate over 119 deployed arms
+    action: derive every deployed arm and require a guard, flow or inventory row
     files:
-      - path: spec/flows/core.yaml
-        function: rules
-        lines: '1-400'
+      - path: tools/check_arm_inventory.py
+        function: main
+        lines: '1-120'
+      - path: spec/inventory/read-only.yaml
+        function: rows
+        lines: '1-320'
   - id: IMP-007
     priority: P2
     title: Add shallow factory create models
     finding: '-'
-    status: proposed
+    status: fixed
     compatibility: model-only
-    tests: create/issued guards and vectors
-    action: model the four factory create arms
+    tests: create/issued guards and 15 factory vectors
+    action: model the four factory create arms and the composite article knowledge attach
     files:
       - path: spec/lean/RPrint/Model/Publication.lean
-        function: publicationAddMember
-        lines: '1-200'
+        function: publicationFactoryCreate
+        lines: '1-220'
+      - path: spec/lean/RPrint/ArmGuards.lean
+        function: articleAttachKnowledgeChain
+        lines: '350-460'
