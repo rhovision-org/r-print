@@ -1,9 +1,10 @@
 {
-  "pinned_commit": "c0ae67d4a493800ce1f8787800f725d9f768f6b5",
+  "pinned_commit": "bcc840c25e334048bef390823a21aaf7e209d15b",
   "min_version": 1,
   "conventions": "kasset.conventions/v1",
-  "root_manifest_path": "../RGen/docs/src/verification/2026-11-04.json",
-  "root_state_path": "../RGen/deployments/devnet.json",
+  "sibling_dir": "RGen",
+  "root_manifest_path": "deployments/devnet.json",
+  "root_state_path": "deployments/devnet.json",
   "required_components": [
     "component:identity-factory",
     "component:identity-directory",

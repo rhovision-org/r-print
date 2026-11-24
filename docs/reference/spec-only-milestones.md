@@ -29,9 +29,10 @@ can use escrow alone, cover alone, or both.
 
 ## K-Assets
 
-K-Assets are optional. `Article.attachKnowledge` is implemented; `requireKAsset` is an
-opt-in gate. A future edition policy could require a KAsset for inclusion, but it must be a
-policy flag, not a change to the article lifecycle.
+K-Assets are optional. `Article.attachKnowledge` is implemented and verifies the reciprocal
+Claim ↔ KAsset references, the bound Provenance and the article content hash, the author and an
+optional credential; `requireKAsset` is an opt-in gate. A future edition policy could require a
+KAsset for inclusion, but it must be a policy flag, not a change to the article lifecycle.
 
 ## Coordination
 

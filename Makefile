@@ -4,21 +4,34 @@ RCASH_DIR ?= ../Rholphin
 RHOLO_DIR ?= ../RNodeRust
 NODE ?= http://localhost:40403
 WASM_PACK ?= wasm-pack
+SIBLINGS_DIR ?= ..
+RGEN_DIR ?= $(abspath $(SIBLINGS_DIR)/RGen)
+RSURE_DIR ?= $(abspath $(SIBLINGS_DIR)/RSure)
+KEYFILE ?= $(abspath .devnet/keys.json)
+SIBLING_SUITES = cover,knowledge
+RPRINT_SIBLINGS ?= 0
 
 # Make every recipe and its Python children use the same absolute checkout. CI sets
 # RCASH_DIR to its `rholo` checkout, so no sibling named Rholphin exists there.
 export RCASH_DIR := $(abspath $(RCASH_DIR))
 export RHOLO_DIR := $(abspath $(RHOLO_DIR))
+export RPRINT_SIBLINGS_DIR := $(abspath $(SIBLINGS_DIR))
 
 .PHONY: venv build build-check measure measure-check metrics metrics-compare \
         metrics-baseline check-arch check-captures check-select check-placeholders \
-        check-money check-suites check-graph check-flows check-vectors check spec-check parse-check \
+        check-money check-suites check-graph check-flows check-vectors \
+        check-guard-bridge check-race-matrix check-rigor check-conformance \
+        check-core-vectors gen-core-vectors check-client-ops check-capabilities \
+        check-audit check-closeout check-hazop check-redteam-results redteam \
+        check spec-check parse-check \
         lean-build lean-check lean-vectors lean-vectors-write check-flows-strict formal-check \
         docs docs-serve docs-check devnet devnet-up devnet-wait down status rcash-install \
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
         client-lint client-test client-wasm client-wasm-pack client-wasm-node \
         client-wasm-smoke client-live cli-live wasm-build client-check \
-        web-install web-test web-build web-e2e-install web-e2e-fixture web-e2e-live
+        web-install web-test web-build web-e2e-install web-e2e-fixture web-e2e-live \
+        siblings-venv siblings-install install-with-siblings sibling-fixture \
+        sibling-suites sibling-suites-strict siblings-campaign
 
 venv:
 	python3 -m venv .venv
@@ -70,6 +83,46 @@ check-flows:
 check-vectors:
 	$(PY) tools/check_vectors.py
 
+check-guard-bridge:
+	$(PY) tools/check_guard_bridge.py
+
+check-race-matrix:
+	$(PY) tools/check_race_matrix.py
+
+check-rigor:
+	$(PY) tools/check_rigor.py
+
+check-conformance:
+	$(PY) tools/check_conformance.py
+
+check-core-vectors:
+	$(PY) tools/check_core_vectors.py
+
+gen-core-vectors:
+	$(PY) tools/gen_core_vectors.py --write
+
+check-client-ops:
+	$(PY) tools/check_client_ops.py
+
+check-capabilities:
+	$(PY) tools/check_capabilities.py
+
+check-audit:
+	$(PY) tools/check_audit.py
+
+check-closeout:
+	$(PY) tools/check_closeout.py
+
+check-hazop:
+	$(PY) tools/check_hazop.py
+
+check-redteam-results:
+	$(PY) tools/check_redteam_results.py
+
+redteam:
+	$(PY) harness/run_suites.py --suites redteam \
+		--results deployments/redteam-suite-results.json --require-run
+
 lean-build:
 	cd spec/lean && lake build
 
@@ -85,13 +138,15 @@ lean-vectors:
 check-flows-strict:
 	$(PY) tools/check_flows.py --strict
 
-formal-check: lean-check lean-vectors check-flows check-flows-strict
+formal-check: lean-check lean-vectors check-core-vectors check-flows check-flows-strict
 
 check-graph:
 	$(PY) tools/check_graph.py
 
 spec-check: build-check measure-check metrics-compare check-arch check-captures check-select \
-            check-placeholders check-money check-suites check-graph check-flows check-vectors
+            check-placeholders check-money check-suites check-graph check-flows check-vectors \
+            check-guard-bridge check-race-matrix check-rigor check-conformance \
+            check-client-ops check-capabilities check-audit check-closeout check-hazop
 
 parse-check:
 	$(PY) harness/install.py --dry-run --profile safe
@@ -142,6 +197,40 @@ install:
 
 setup: devnet-up rcash-keys rcash-bootstrap keys install
 
+# Optional sibling surfaces. The defaults resolve the checkouts next to r-print; CI
+# sets SIBLINGS_DIR to $GITHUB_WORKSPACE/siblings.
+siblings-venv:
+	$(PY) -m pip -q install -r $(RSURE_DIR)/harness/requirements.txt \
+		-r $(RGEN_DIR)/harness/requirements.txt
+
+siblings-install:
+	cd $(RSURE_DIR) && \
+		RSHARE_KEYS=$(KEYFILE) RSURE_KEYS=$(KEYFILE) RSHARE_NODE=$(NODE) \
+		RSURE_NODE=$(NODE) $(abspath $(PY)) harness/install.py --node $(NODE)
+	cd $(RGEN_DIR) && \
+		RGEN_KEYS=$(KEYFILE) RGEN_NODE=$(NODE) \
+		RGEN_MANIFEST=$(RGEN_DIR)/deployments/devnet.json \
+		$(abspath $(PY)) harness/install.py --node $(NODE) --fresh
+
+install-with-siblings:
+	RPRINT_SIBLINGS=1 $(PY) harness/install.py --node $(NODE) --profile safe --siblings
+
+sibling-fixture:
+	$(PY) harness/sibling_fixture.py --write
+
+sibling-suites: sibling-fixture
+	RPRINT_SIBLING_FIXTURE=deployments/sibling-fixture.json \
+		$(PY) harness/run_suites.py --suites $(SIBLING_SUITES) \
+		--results deployments/sibling-suite-results.json --optional
+
+sibling-suites-strict: sibling-fixture
+	RPRINT_SIBLING_FIXTURE=deployments/sibling-fixture.json \
+		$(PY) harness/run_suites.py --suites $(SIBLING_SUITES) \
+		--results deployments/sibling-suite-results.json --require-run
+
+siblings-campaign: devnet-up rcash-keys rcash-bootstrap keys siblings-venv \
+		siblings-install install-with-siblings sibling-suites-strict
+
 unit-all:
 	$(PY) harness/run_suites.py
 
@@ -168,11 +257,13 @@ client-wasm-smoke: client-wasm-node
 
 # Live smoke: real WASM signing + real HTTP against a healthy devnet.
 client-live: client-wasm-node
-	RPRINT_NODE=$(NODE) npm --prefix web exec -- tsx web/tests/live-client.ts
+	RPRINT_NODE=$(NODE) RPRINT_SIBLINGS=$(RPRINT_SIBLINGS) \
+		npm --prefix web exec -- tsx web/tests/live-client.ts
 
 # CLI live read/submit smoke, same devnet.
 cli-live:
-	RPRINT_NODE=$(NODE) cargo test -p rprint-cli --test devnet_live -- \
+	RPRINT_NODE=$(NODE) RPRINT_SIBLINGS=$(RPRINT_SIBLINGS) \
+		cargo test -p rprint-cli --test devnet_live -- \
 		--ignored --test-threads=1
 
 # Browser end-to-end. Fixture has no node or WASM dependency; live needs a devnet.

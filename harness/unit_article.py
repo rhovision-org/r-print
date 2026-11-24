@@ -26,11 +26,11 @@ def main() -> int:
     expect("draft status", one(call_uri(article["uri"], "status"))[1], "draft")
     submit(article)
     expect("submitted status", one(call_uri(article["uri"], "status"))[1], "submitted")
-    attest(article)
+    attest(article, case="ART-attest-ok")
     atts = one(call_uri(article["uri"], "attestations"))[1]
     expect("attestation count", len(atts), 1)
 
-    kasset, claim, provenance = mock_knowledge()
+    claim, kasset, provenance = mock_knowledge()
     attach_knowledge(article, kasset, claim, provenance)
     knowledge = one(call_uri(article["uri"], "knowledge"))[1]
     expect("kasset link", knowledge.get("kassetUri"), kasset)

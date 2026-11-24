@@ -17,11 +17,16 @@
 | M8 | Docs, CI and recorded verification | Passing (dispatch run 45250733118) |
 | M9 | Horizontal live client layer | Passing on the recorded local and CI devnets |
 | M10 | Browser end-to-end layer | Passing: 27 fixture tests and a 13-step live browser journey (CI dispatch 45270193372) |
-| M11 | Lean 4 formal model | Passing: 108 theorems, 38 vectors, 15 core arms `proved-model`, zero proof escapes |
+| M11 | Lean 4 formal model | Passing; M13 extends the model to 215 theorems, 62 vectors, 43 flow rules and 19 `proved-conformance` rules |
+| M12 | Sibling surfaces | Passing locally (2026-11-24): 18/18 suites, 2/2 real-sibling suites (43 assertions), CLI cover + knowledge, 12-step web live smoke; CI dispatch pending because the commits are unpushed |
+| M13 | Rigor ledger, conformance and audit | Passing (2026-11-24): 26 invariants, 31 guard arms (27 proved, 4 partial), 28 race pairs (all proved), 19 conformance arms, 10 findings, 11 red-team probes, 32 HAZOP rows |
 
 The acceptance map is `spec/acceptance.yaml`; the recorded contract campaign is 18/18 suites
-on the local 50403 devnet with rholo node build `8fe0136`. The live client smoke recorded 11
-finalized steps on the same devnet with node build `5b9685e`. The CI devnet dispatch run
+on the local 50403 devnet with rholo node build `8fe0136`. A fresh 2026-11-24 local 40403
+devnet with the pinned r-sure and r-gen roots then recorded 18/18 suites (232 assertions),
+2/2 sibling suites (43 assertions), the CLI cover + knowledge journey and a 12-step web smoke.
+The live client smoke recorded 11 finalized steps on the same devnet with node build
+`5b9685e`. The CI devnet dispatch run
 recorded 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
 The browser layer records 27 fixture tests over two projects and a 13-step live Chromium
 journey with 10 finalized writes and 1 refusal, locally on node build `5b9685e` and in CI
@@ -30,13 +35,12 @@ steps in the same job).
 
 ## Next
 
-1. Enable an r-sure root on a devnet and exercise `attachCover` against a real Policy.
-2. Enable an r-gen root and exercise `attachKnowledge` against a validated Claim/KAsset and
-   a bound Provenance record.
-3. Implement the coordination record (design edge) and a golden quantum-os outcome.
-4. Extend the Lean model beyond the four cores: commission funding across an r-cash
-   account, the r-sure cover tie and the r-gen K-Asset tie.
-5. Audit the escrow and the publication authority paths.
+1. Dispatch the M12 CI devnet job after the commits are pushed and record the run id and
+   counts.
+2. M14: close the material gaps — the four partial factory guards, schemas, the live escrow
+   journey, the adapter membership decision and an independent technical review.
+3. M15: the completeness surfaces — coordination record, subscriptions, revenue splits,
+   syndication, multi-validator and testnet campaigns.
 
 ## Explicitly deferred
 

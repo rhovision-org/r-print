@@ -2,6 +2,7 @@ import RPrint.Model.Publication
 import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
+import RPrint.Model.Adapter
 
 /-!
 # System composition and boundary
@@ -23,7 +24,12 @@ are not theorems and are never described as proved:
 * `canonicalUriBinding` — a child is bound to the canonical publication URI;
 * `memberKeyDerivation` — a member key is the derived REV address;
 * `arbitrationQuorumTie` — the deployed arbitration fallback matches the model;
-* `rgenKassetValidation` — an r-gen K-Asset is validated by the sibling root.
+* `rgenKassetValidation` — an r-gen K-Asset is validated by the sibling root;
+* `rsurePolicyInfo` — an r-sure `Policy("info")` read returns the stated policy facts;
+* `rgenKassetInfo` — a K-Asset `get` returns the stated claim reference;
+* `rgenClaimInfo` — a Claim `get` returns the stated K-Asset reference and status;
+* `rgenProvenanceInfo` — a Provenance `get` returns the stated asset, claim and writers;
+* `rgenCredentialVerify` — a credential verify returns the stated subject and status.
 -/
 
 namespace RPrint
@@ -40,6 +46,11 @@ structure Boundary where
   memberKeyDerivation : Bool
   arbitrationQuorumTie : Bool
   rgenKassetValidation : Bool
+  rsurePolicyInfo : Bool
+  rgenKassetInfo : Bool
+  rgenClaimInfo : Bool
+  rgenProvenanceInfo : Bool
+  rgenCredentialVerify : Bool
   deriving DecidableEq, Repr
 
 def boundary : Boundary :=
@@ -53,7 +64,12 @@ def boundary : Boundary :=
     canonicalUriBinding := true
     memberKeyDerivation := true
     arbitrationQuorumTie := true
-    rgenKassetValidation := true }
+    rgenKassetValidation := true
+    rsurePolicyInfo := true
+    rgenKassetInfo := true
+    rgenClaimInfo := true
+    rgenProvenanceInfo := true
+    rgenCredentialVerify := true }
 
 /-- Composition: a publication member write is guarded by the publisher key. -/
 def system_publication_authority := @publication_addMember_requires_publisher
@@ -69,5 +85,11 @@ def system_article_freeze := @article_publish_freezes_hash
 
 /-- Composition: a sealed edition binds its manifest and is terminal. -/
 def system_edition_seal := @edition_seal_binds_manifest
+
+/-- Composition: an r-sure cover is bound to the publication treasury and asset. -/
+def system_cover_attach := @cover_attach_requires_insured
+
+/-- Composition: an r-gen knowledge link requires the proven provenance chain. -/
+def system_knowledge_chain := @knowledge_attach_requires_provenance_hash
 
 end RPrint

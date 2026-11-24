@@ -51,7 +51,7 @@ def main() -> int:
     expect("writer paid", after_release["writer"] - before["writer"], 400)
     expect("escrow reduced", before["escrow"] - after_release["escrow"], 400)
 
-    cancel(escrow, actor="sponsor")
+    cancel(escrow, actor="sponsor", case="ESC-cancel-ok")
     after_cancel = closed_set(uri)
     expect("set constant after cancel", total(after_cancel), baseline)
     expect("escrow closed", after_cancel["escrow"], 0)
@@ -64,7 +64,7 @@ def main() -> int:
     accept(expired_proposal)
     expired_escrow = fund(expired_proposal, funder="sponsor")
     expired_before = closed_set(expired_escrow["escrow_uri"])
-    expire(expired_escrow)
+    expire(expired_escrow, case="ESC-expire-ok")
     expired_after = closed_set(expired_escrow["escrow_uri"])
     expect("expired set constant", total(expired_after), total(expired_before))
     expect("expired escrow", expired_after["escrow"], 0)

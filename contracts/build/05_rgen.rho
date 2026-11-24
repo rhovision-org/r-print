@@ -17,10 +17,10 @@ in {
       new rCh, Root, kCh, iCh, pCh, cfCh in {
         rl!(`__RGEN_ROOT_URI__`, *rCh) |
         for (Root <- rCh) {
-          Root!("resolve", "component:claim-factory", 1, *kCh) |
-          Root!("resolve", "component:credential-factory", 1, *cfCh) |
-          Root!("resolve", "component:identity-directory", 1, *iCh) |
-          Root!("resolve", "component:provenance-factory", 1, *pCh) |
+          Root!("resolve", "component:claim-factory", *kCh) |
+          Root!("resolve", "component:credential-factory", *cfCh) |
+          Root!("resolve", "component:identity-directory", *iCh) |
+          Root!("resolve", "component:provenance-factory", *pCh) |
           for (@k <- kCh; @cf <- cfCh; @i <- iCh; @p <- pCh) {
             match k {
               (true, _, _) => {
@@ -73,6 +73,17 @@ in {
     }
   } |
 
+  contract RgenAdapter(@"provenanceInfo", @uri, ret) = {
+    if (uri.length() == 0) {
+      ret!((false, "uri"))
+    } else {
+      new cCh in {
+        rl!(uri, *cCh) |
+        for (Provenance <- cCh) { Provenance!("get", *ret) }
+      }
+    }
+  } |
+
   contract RgenAdapter(@"identity", @address, ret) = {
     if ("__RGEN_ROOT_URI__".length() == 0) {
       ret!((false, "disabled"))
@@ -80,7 +91,7 @@ in {
       new rCh, Root, dCh, dc in {
         rl!(`__RGEN_ROOT_URI__`, *rCh) |
         for (Root <- rCh) {
-          Root!("resolve", "component:identity-directory", 1, *dCh) |
+          Root!("resolve", "component:identity-directory", *dCh) |
           for (@d <- dCh) {
             match d {
               (true, uri, _) => {
@@ -99,19 +110,12 @@ in {
     if ("__RGEN_ROOT_URI__".length() == 0) {
       ret!((false, "disabled"))
     } else {
-      new rCh, Root, fCh, fc in {
-        rl!(`__RGEN_ROOT_URI__`, *rCh) |
-        for (Root <- rCh) {
-          Root!("resolve", "component:credential-factory", 1, *fCh) |
-          for (@f <- fCh) {
-            match f {
-              (true, u, _) => {
-                rl!(u, *fc) |
-                for (Factory <- fc) { Factory!("verify", uri, *ret) }
-              }
-              _ => { ret!((false, "credential-factory")) }
-            }
-          }
+      if (uri.length() == 0) {
+        ret!((false, "uri"))
+      } else {
+        new cCh in {
+          rl!(uri, *cCh) |
+          for (Credential <- cCh) { Credential!("get", *ret) }
         }
       }
     }

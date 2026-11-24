@@ -151,39 +151,33 @@ def escrowOfProposal (p : ProposalState) (_funderId : Id) : EscrowState :=
     milestones := p.milestones, graceBlocks := 0, disputeWindowBlocks := 0,
     hardDeadline := 0, disputeAt := none, nonce := 0 }
 
-def commissionFund (p : ProposalState) (funder : Id) (isEditor : Bool) :
+def commissionFund (p : ProposalState) (funder : Id) :
     Option (ProposalState × EscrowState) :=
-  if !isEditor then none
-  else if p.status = ProposalStatus.accepted then
+  if p.status = ProposalStatus.accepted then
     some ({ p with status := ProposalStatus.funded, funderId := some funder },
           escrowOfProposal p funder)
   else none
 
 theorem commission_fund_requires_accepted (p : ProposalState) (funder : Id)
-    (isEditor : Bool) (h : p.status ≠ ProposalStatus.accepted) :
-    commissionFund p funder isEditor = none := by
-  by_cases he : isEditor = true
-  · simp [commissionFund, he, h]
-  · have hef : isEditor = false := by simpa using he
-    simp [commissionFund, hef]
+    (h : p.status ≠ ProposalStatus.accepted) :
+    commissionFund p funder = none := by
+  simp [commissionFund, h]
 
-theorem commission_fund_requires_editor (p : ProposalState) (funder : Id)
-    (isEditor : Bool) (h : isEditor = false) :
-    commissionFund p funder isEditor = none := by
+theorem commission_fund_any_caller (p : ProposalState) (funder : Id)
+    (h : p.status = ProposalStatus.accepted) :
+    ∃ p' e, commissionFund p funder = some (p', e) := by
   simp [commissionFund, h]
 
 theorem commission_fund_creates_active_escrow (p : ProposalState) (funder : Id)
-    (isEditor : Bool) (p' : ProposalState) (e : EscrowState)
-    (h : commissionFund p funder isEditor = some (p', e)) :
+    (p' : ProposalState) (e : EscrowState)
+    (h : commissionFund p funder = some (p', e)) :
     e.status = EscrowStatus.active ∧ e.total = p.total ∧ e.purse = p.total := by
   unfold commissionFund at h
   split at h
   · simp at h
-  · split at h
-    · simp at h
-      rcases h with ⟨rfl, rfl⟩
-      simp [escrowOfProposal]
-    · simp at h
+    rcases h with ⟨rfl, rfl⟩
+    simp [escrowOfProposal]
+  · simp at h
 
 def commissionCancel (p : ProposalState) (authorized : Bool) : Option ProposalState :=
   if !authorized then none
@@ -198,155 +192,211 @@ theorem commission_cancel_requires_writer_or_editor (p : ProposalState)
 
 /-! ## Escrow transitions -/
 
-def escrowSubmit (s : EscrowState) (callerIsWriter : Bool) (mStatus : MilestoneStatus)
-    (milestoneId : Id) (now deadline : Height) : Option EscrowState :=
+def findMilestone : List Milestone → Id → Option Milestone
+  | [], _ => none
+  | m :: rest, id => if m.milestoneId = id then some m else findMilestone rest id
+
+theorem findMilestone_setMilestoneStatus_same (ms : List Milestone) (id : Id)
+    (st : MilestoneStatus) :
+    findMilestone (setMilestoneStatus ms id st) id =
+      (findMilestone ms id).map (fun m => { m with status := st }) := by
+  induction ms with
+  | nil => simp [setMilestoneStatus, findMilestone]
+  | cons m rest ih =>
+      by_cases h : m.milestoneId = id
+      · simp [setMilestoneStatus, findMilestone, h]
+      · simp [setMilestoneStatus, findMilestone, h, ih]
+
+def escrowSubmit (s : EscrowState) (callerIsWriter : Bool)
+    (milestoneId : Id) (now : Height) : Option EscrowState :=
   if !callerIsWriter then none
   else if s.status = EscrowStatus.active then
-    if mStatus = MilestoneStatus.pending then
-      if now ≤ deadline + s.graceBlocks then
-        some { s with milestones :=
-          setMilestoneStatus s.milestones milestoneId MilestoneStatus.submitted }
-      else none
-    else none
+    match findMilestone s.milestones milestoneId with
+    | none => none
+    | some m =>
+        if m.status = MilestoneStatus.pending then
+          if now ≤ m.deadline + s.graceBlocks then
+            some { s with milestones :=
+              setMilestoneStatus s.milestones milestoneId MilestoneStatus.submitted }
+          else none
+        else none
   else none
 
 theorem escrow_submit_requires_writer (s : EscrowState) (callerIsWriter : Bool)
-    (mStatus : MilestoneStatus) (milestoneId : Id) (now deadline : Height)
-    (h : callerIsWriter = false) :
-    escrowSubmit s callerIsWriter mStatus milestoneId now deadline = none := by
+    (milestoneId : Id) (now : Height) (h : callerIsWriter = false) :
+    escrowSubmit s callerIsWriter milestoneId now = none := by
   simp [escrowSubmit, h]
 
 theorem escrow_submit_requires_active (s : EscrowState) (callerIsWriter : Bool)
-    (mStatus : MilestoneStatus) (milestoneId : Id) (now deadline : Height)
-    (h : s.status ≠ EscrowStatus.active) :
-    escrowSubmit s callerIsWriter mStatus milestoneId now deadline = none := by
+    (milestoneId : Id) (now : Height) (h : s.status ≠ EscrowStatus.active) :
+    escrowSubmit s callerIsWriter milestoneId now = none := by
   by_cases hw : callerIsWriter = true
   · simp [escrowSubmit, hw, h]
   · have hwf : callerIsWriter = false := by simpa using hw
     simp [escrowSubmit, hwf]
 
 theorem escrow_submit_requires_pending (s : EscrowState) (callerIsWriter : Bool)
-    (mStatus : MilestoneStatus) (milestoneId : Id) (now deadline : Height)
-    (h : mStatus ≠ MilestoneStatus.pending) :
-    escrowSubmit s callerIsWriter mStatus milestoneId now deadline = none := by
+    (milestoneId : Id) (now : Height) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m)
+    (h : m.status ≠ MilestoneStatus.pending) :
+    escrowSubmit s callerIsWriter milestoneId now = none := by
   by_cases hw : callerIsWriter = true
   · by_cases ha : s.status = EscrowStatus.active
-    · simp [escrowSubmit, hw, ha, h]
+    · simp [escrowSubmit, hw, ha, hm, h]
     · simp [escrowSubmit, hw, ha]
   · have hwf : callerIsWriter = false := by simpa using hw
     simp [escrowSubmit, hwf]
 
 theorem escrow_submit_refuses_too_late (s : EscrowState) (callerIsWriter : Bool)
-    (mStatus : MilestoneStatus) (milestoneId : Id) (now deadline : Height)
+    (milestoneId : Id) (now : Height) (m : Milestone)
     (hw : callerIsWriter = true) (ha : s.status = EscrowStatus.active)
-    (hp : mStatus = MilestoneStatus.pending) (h : ¬ now ≤ deadline + s.graceBlocks) :
-    escrowSubmit s callerIsWriter mStatus milestoneId now deadline = none := by
-  simp [escrowSubmit, hw, ha, hp, h]
+    (hm : findMilestone s.milestones milestoneId = some m)
+    (hp : m.status = MilestoneStatus.pending)
+    (h : ¬ now ≤ m.deadline + s.graceBlocks) :
+    escrowSubmit s callerIsWriter milestoneId now = none := by
+  simp [escrowSubmit, hw, ha, hm, hp, h]
 
-def escrowRelease (s : EscrowState) (callerIsEditor : Bool) (mStatus : MilestoneStatus)
-    (priorReleased : Bool) (milestoneId : Id) (amount : Amount) : Option EscrowState :=
+def escrowRelease (s : EscrowState) (callerIsEditor : Bool)
+    (priorReleased : Bool) (milestoneId : Id) : Option EscrowState :=
   if !callerIsEditor then none
   else if s.status = EscrowStatus.active then
-    if mStatus = MilestoneStatus.submitted then
-      if priorReleased then
-        if amount ≤ s.purse then
-          some { s with
-            paidWriter := s.paidWriter + amount,
-            purse := s.purse - amount,
-            milestones := setMilestoneStatus s.milestones milestoneId
-              MilestoneStatus.released }
+    match findMilestone s.milestones milestoneId with
+    | none => none
+    | some m =>
+        if m.status = MilestoneStatus.submitted then
+          if priorReleased then
+            if m.amount ≤ s.purse then
+              some { s with
+                paidWriter := s.paidWriter + m.amount,
+                purse := s.purse - m.amount,
+                milestones := setMilestoneStatus s.milestones milestoneId
+                  MilestoneStatus.released }
+            else none
+          else none
         else none
-      else none
-    else none
   else none
 
 theorem escrow_release_requires_editor (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id)
-    (amount : Amount) (h : callerIsEditor = false) :
-    escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount = none := by
+    (priorReleased : Bool) (milestoneId : Id) (h : callerIsEditor = false) :
+    escrowRelease s callerIsEditor priorReleased milestoneId = none := by
   simp [escrowRelease, h]
 
 theorem escrow_release_requires_active (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id)
-    (amount : Amount) (h : s.status ≠ EscrowStatus.active) :
-    escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount = none := by
+    (priorReleased : Bool) (milestoneId : Id)
+    (h : s.status ≠ EscrowStatus.active) :
+    escrowRelease s callerIsEditor priorReleased milestoneId = none := by
   by_cases he : callerIsEditor = true
   · simp [escrowRelease, he, h]
   · have hef : callerIsEditor = false := by simpa using he
     simp [escrowRelease, hef]
 
 theorem escrow_release_requires_submitted (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id)
-    (amount : Amount) (h : mStatus ≠ MilestoneStatus.submitted) :
-    escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount = none := by
+    (priorReleased : Bool) (milestoneId : Id) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m)
+    (h : m.status ≠ MilestoneStatus.submitted) :
+    escrowRelease s callerIsEditor priorReleased milestoneId = none := by
   by_cases he : callerIsEditor = true
   · by_cases ha : s.status = EscrowStatus.active
-    · simp [escrowRelease, he, ha, h]
+    · simp [escrowRelease, he, ha, hm, h]
     · simp [escrowRelease, he, ha]
   · have hef : callerIsEditor = false := by simpa using he
     simp [escrowRelease, hef]
 
-theorem escrow_release_pays_once (s : EscrowState) (callerIsEditor : Bool)
-    (priorReleased : Bool) (milestoneId : Id) (amount : Amount) :
-    escrowRelease s callerIsEditor MilestoneStatus.released priorReleased milestoneId amount
-      = none := by
-  have h : MilestoneStatus.released ≠ MilestoneStatus.submitted := by decide
-  exact escrow_release_requires_submitted s callerIsEditor MilestoneStatus.released
-    priorReleased milestoneId amount h
-
-theorem escrow_release_requires_prior (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id)
-    (amount : Amount) (h : priorReleased = false) :
-    escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount = none := by
+theorem escrow_release_sets_released (s : EscrowState) (callerIsEditor : Bool)
+    (priorReleased : Bool) (milestoneId : Id) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m) (s' : EscrowState)
+    (h : escrowRelease s callerIsEditor priorReleased milestoneId = some s') :
+    findMilestone s'.milestones milestoneId =
+      some { m with status := MilestoneStatus.released } := by
+  unfold escrowRelease at h
   by_cases he : callerIsEditor = true
   · by_cases ha : s.status = EscrowStatus.active
-    · by_cases hm : mStatus = MilestoneStatus.submitted
-      · simp [escrowRelease, he, ha, hm, h]
-      · simp [escrowRelease, he, ha, hm]
+    · simp [he, ha, hm] at h
+      by_cases hsub : m.status = MilestoneStatus.submitted
+      · simp [hsub] at h
+        by_cases hp : priorReleased = true
+        · simp [hp] at h
+          by_cases hb : m.amount ≤ s.purse
+          · simp [hb] at h
+            cases h
+            simp [findMilestone_setMilestoneStatus_same, hm]
+          · simp [hb] at h
+        · have hpf : priorReleased = false := by simpa using hp
+          simp [hpf] at h
+      · simp [hsub] at h
+    · simp [he, ha] at h
+  · simp [he] at h
+
+theorem escrow_release_pays_once (s : EscrowState) (callerIsEditor : Bool)
+    (priorReleased : Bool) (milestoneId : Id) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m) (s' : EscrowState)
+    (h : escrowRelease s callerIsEditor priorReleased milestoneId = some s') :
+    escrowRelease s' callerIsEditor priorReleased milestoneId = none := by
+  have hset := escrow_release_sets_released s callerIsEditor priorReleased milestoneId
+    m hm s' h
+  have hnot : ({ m with status := MilestoneStatus.released } : Milestone).status
+      ≠ MilestoneStatus.submitted := by simp
+  exact escrow_release_requires_submitted s' callerIsEditor priorReleased milestoneId
+    { m with status := MilestoneStatus.released } hset hnot
+
+theorem escrow_release_requires_prior (s : EscrowState) (callerIsEditor : Bool)
+    (priorReleased : Bool) (milestoneId : Id) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m)
+    (h : priorReleased = false) :
+    escrowRelease s callerIsEditor priorReleased milestoneId = none := by
+  by_cases he : callerIsEditor = true
+  · by_cases ha : s.status = EscrowStatus.active
+    · by_cases hm' : m.status = MilestoneStatus.submitted
+      · simp [escrowRelease, he, ha, hm, hm', h]
+      · simp [escrowRelease, he, ha, hm, hm']
     · simp [escrowRelease, he, ha]
   · have hef : callerIsEditor = false := by simpa using he
     simp [escrowRelease, hef]
 
 theorem escrow_release_bounded_by_purse (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id)
-    (amount : Amount) (h : ¬ amount ≤ s.purse) :
-    escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount = none := by
+    (priorReleased : Bool) (milestoneId : Id) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m)
+    (h : ¬ m.amount ≤ s.purse) :
+    escrowRelease s callerIsEditor priorReleased milestoneId = none := by
   by_cases he : callerIsEditor = true
   · by_cases ha : s.status = EscrowStatus.active
-    · by_cases hm : mStatus = MilestoneStatus.submitted
+    · by_cases hm' : m.status = MilestoneStatus.submitted
       · by_cases hp : priorReleased = true
-        · simp [escrowRelease, he, ha, hm, hp, h]
+        · simp [escrowRelease, he, ha, hm, hm', hp, h]
         · have hpf : priorReleased = false := by simpa using hp
-          simp [escrowRelease, he, ha, hm, hpf]
-      · simp [escrowRelease, he, ha, hm]
+          simp [escrowRelease, he, ha, hm, hm', hpf]
+      · simp [escrowRelease, he, ha, hm, hm']
     · simp [escrowRelease, he, ha]
   · have hef : callerIsEditor = false := by simpa using he
     simp [escrowRelease, hef]
 
 theorem escrow_release_conserves (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id)
-    (amount : Amount) (hs : escrowConserves s)
-    (h : escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount = some s') :
+    (priorReleased : Bool) (milestoneId : Id) (m : Milestone)
+    (hm : findMilestone s.milestones milestoneId = some m) (hs : escrowConserves s)
+    (h : escrowRelease s callerIsEditor priorReleased milestoneId = some s') :
     escrowConserves s' := by
+  unfold escrowRelease at h
   by_cases he : callerIsEditor = true
   · by_cases ha : s.status = EscrowStatus.active
-    · by_cases hm : mStatus = MilestoneStatus.submitted
-      · by_cases hp : priorReleased = true
-        · by_cases hb : amount ≤ s.purse
-          · simp [escrowRelease, he, ha, hm, hp, hb] at h
+    · simp [he, ha, hm] at h
+      by_cases hsub : m.status = MilestoneStatus.submitted
+      · simp [hsub] at h
+        by_cases hp : priorReleased = true
+        · simp [hp] at h
+          by_cases hb : m.amount ≤ s.purse
+          · simp [hb] at h
             cases h
             simp [escrowConserves] at hs ⊢
-            have hsplit : amount + (s.purse - amount) = s.purse :=
+            have hsplit : m.amount + (s.purse - m.amount) = s.purse :=
               Nat.add_sub_of_le hb
             simp only [Amount] at hs hb hsplit ⊢
             omega
-          · simp [escrowRelease, he, ha, hm, hp, hb] at h
+          · simp [hb] at h
         · have hpf : priorReleased = false := by simpa using hp
-          simp [escrowRelease, he, ha, hm, hpf] at h
-      · simp [escrowRelease, he, ha, hm] at h
-    · simp [escrowRelease, he, ha] at h
-  · have hef : callerIsEditor = false := by simpa using he
-    simp [escrowRelease, hef] at h
+          simp [hpf] at h
+      · simp [hsub] at h
+    · simp [he, ha] at h
+  · simp [he] at h
 
 def escrowCancel (s : EscrowState) (callerAuthorized : Bool) : Option EscrowState :=
   if !callerAuthorized then none
@@ -407,6 +457,18 @@ theorem escrow_dispute_only_active (s : EscrowState) (callerAuthorized : Bool)
   · simp [escrowDispute, hc, h]
   · have hcf : callerAuthorized = false := by simpa using hc
     simp [escrowDispute, hcf]
+
+theorem escrow_dispute_conserves (s : EscrowState) (callerAuthorized : Bool)
+    (now : Height) (s' : EscrowState) (hs : escrowConserves s)
+    (h : escrowDispute s callerAuthorized now = some s') : escrowConserves s' := by
+  by_cases hc : callerAuthorized = true
+  · by_cases ha : s.status = EscrowStatus.active
+    · simp [escrowDispute, hc, ha] at h
+      cases h
+      simpa [escrowConserves] using hs
+    · simp [escrowDispute, hc, ha] at h
+  · have hcf : callerAuthorized = false := by simpa using hc
+    simp [escrowDispute, hcf] at h
 
 def escrowArbitrate (s : EscrowState) (nonce : Nat) (writerBps : Nat)
     (authorized : Bool) : Option EscrowState :=

@@ -70,7 +70,7 @@ edges:
     kind: call
     arms: [CommissionProposal.attachCover, RsureAdapter.policy]
     source: contracts/src/deploy/20_commission.rho
-    status: surface
+    status: implemented
 
   - id: funds-slip
     verb: funds
@@ -160,7 +160,7 @@ edges:
     kind: call
     arms: [RgenAdapter.credential, CredentialFactory.verify]
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
+    status: implemented
 
   - id: anchors-did
     verb: anchorsDID
@@ -196,7 +196,7 @@ edges:
     kind: reference
     arms: [KAsset.get.claimRef, RgenAdapter.kasset]
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
+    status: implemented
 
   - id: provenance-of
     verb: provenanceOf
@@ -214,7 +214,7 @@ edges:
     kind: hash
     arms: [Provenance.anchor, RgenAdapter.provenance]
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
+    status: implemented
 
   - id: article-wraps-knowledge
     verb: wraps

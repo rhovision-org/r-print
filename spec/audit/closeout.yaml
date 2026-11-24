@@ -1,0 +1,103 @@
+schema_version: rprint.closeout/v1
+baseline: '2026-11-24'
+standard: 'Every P0/P1 has exactly one terminal decision: fixed, risk-accepted or narrowed-claim.'
+review:
+  owner: patrick
+  independence: single maintainer; independent technical review is outstanding
+items:
+  - id: RPA-001
+    priority: P0
+    decision: risk-accepted
+    owner: patrick
+    rationale: >-
+      v0.1 is devnet-only. The adapters verify the chain shape, reciprocal
+      references, hash and credential; factory membership is a documented trust
+      boundary until M14 adds or explicitly declines it.
+    evidence:
+      - kind: doc
+        ref: spec/audit/capabilities.yaml
+      - kind: doc
+        ref: spec/proofs/rigor.yaml
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: '2027-02-28'
+  - id: RPA-002
+    priority: P1
+    decision: fixed
+    owner: patrick
+    rationale: >-
+      The model now reads the consumed milestone and its amount; the
+      release/release and release/arbitrate pairs are proved in
+      Model/Races.lean.
+    evidence:
+      - kind: doc
+        ref: spec/flows/races.yaml
+      - kind: gate
+        ref: tools/check_race_matrix.py
+      - kind: doc
+        ref: spec/proofs/rigor.yaml
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: null
+  - id: RPA-005
+    priority: P0
+    decision: fixed
+    owner: patrick
+    rationale: >-
+      The chain now normalises r-gen Uri values with .toString(); the
+      real-sibling knowledge suite records 25 assertions.
+    evidence:
+      - kind: test
+        ref: harness/unit_knowledge.py
+      - kind: code
+        ref: contracts/src/deploy/30_article.rho:430
+      - kind: doc
+        ref: docs/reference/verification.md
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: null
+  - id: RPA-006
+    priority: P0
+    decision: fixed
+    owner: patrick
+    rationale: The r-gen adapter now calls resolve with (key, ret); r-sure keeps (key, minVersion, ret).
+    evidence:
+      - kind: code
+        ref: contracts/src/deploy/05_rgen.rho:20
+      - kind: test
+        ref: harness/unit_knowledge.py
+      - kind: doc
+        ref: AGENTS.md
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: null
+  - id: RPA-007
+    priority: P0
+    decision: fixed
+    owner: patrick
+    rationale: The credential adapter reads Credential("get") for status and expiry.
+    evidence:
+      - kind: code
+        ref: contracts/src/deploy/05_rgen.rho:109
+      - kind: test
+        ref: harness/unit_knowledge.py
+      - kind: doc
+        ref: AGENTS.md
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: null
+  - id: RPA-009
+    priority: P1
+    decision: risk-accepted
+    owner: patrick
+    rationale: >-
+      The tranche records an internal maintainer review. Independent review is
+      budgeted as M14-INDEPENDENT and remains outstanding.
+    evidence:
+      - kind: doc
+        ref: spec/audit/findings.yaml
+      - kind: doc
+        ref: spec/proofs/rigor.yaml
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: '2027-02-28'

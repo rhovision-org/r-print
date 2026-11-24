@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 
 import actors
+import corpus
 from assertions import one
 from helpers import block_height, call_uri, resolve_component
 from publication_fixture import create_publication, quoted
@@ -22,23 +23,43 @@ def editorial_publication(label: str = "article") -> dict:
         admins=["deployer"], threshold=1)
 
 
-def mock_knowledge() -> tuple[str, str, str]:
-    """A Claim, KAsset and Provenance stand-in with the read arms r-print calls."""
-    reply = one("""
-new Claim, KAsset, Provenance, rs(`rho:registry:insertArbitrary`),
-    c1, c2, c3, deployId(`rho:rchain:deployId`) in {
-  contract Claim(@"get", ret) = { ret!((true, {"status": "open"})) } |
-  contract KAsset(@"get", ret) = { ret!((true, {"status": "validated"})) } |
-  contract Provenance(@"verify", @hash, ret) = { ret!((true, true)) } |
-  rs!(bundle+{*Claim}, *c1) |
-  rs!(bundle+{*KAsset}, *c2) |
-  rs!(bundle+{*Provenance}, *c3) |
-  for (@a <- c1; @b <- c2; @c <- c3) { deployId!([a, b, c]) }
-}
+def _mock_entity(verify: bool) -> str:
+    """One state cell with `get`/`config` and, for provenance, a `verify` arm."""
+    verify_arm = (
+        '  contract E(@"verify", @hash, ret) = { ret!((true, true)) } |\n'
+        if verify else "")
+    reply = one(f"""
+new E, st, rs(`rho:registry:insertArbitrary`), ch, deployId(`rho:rchain:deployId`) in {{
+  st!({{}}) |
+  contract E(@"get", ret) = {{ for (@s <<- st) {{ ret!((true, s)) }} }} |
+  contract E(@"config", @v, ret) = {{ for (@_ <- st) {{ st!(v) | ret!((true, Nil)) }} }} |
+{verify_arm}  rs!(bundle+{{*E}}, *ch) |
+  for (@u <- ch) {{ deployId!(u) }}
+}}
 """)
-    if not (isinstance(reply, list) and len(reply) == 3):
-        raise AssertionError(f"mock knowledge: {reply!r}")
-    return reply[0], reply[1], reply[2]
+    if not isinstance(reply, str):
+        raise AssertionError(f"mock entity: {reply!r}")
+    return reply
+
+
+def mock_knowledge(author: str = "reporter1") -> tuple[str, str, str]:
+    """A configured Claim, KAsset and Provenance stand-in with reciprocal references."""
+    claim = _mock_entity(False)
+    kasset = _mock_entity(False)
+    provenance = _mock_entity(True)
+    address = actors.address(author)
+    states = [
+        (claim, {"status": "validated", "claimant": address,
+                 "kassetRef": {"uri": kasset}}),
+        (kasset, {"status": "validated", "claimRef": {"uri": claim}}),
+        (provenance, {"assetRef": {"uri": kasset, "claimRef": {"uri": claim}},
+                      "writers": [address]}),
+    ]
+    for uri, payload in states:
+        configured = one(call_uri(uri, "config", json.dumps(payload)))
+        if not (isinstance(configured, tuple) and configured and configured[0] is True):
+            raise AssertionError(f"mock knowledge config {uri}: {configured!r}")
+    return claim, kasset, provenance
 
 
 def article_data(publication: dict, content_hash: str = "content:1",
@@ -83,12 +104,16 @@ def submit(article: dict, content_hash: str | None = None) -> None:
         raise AssertionError(f"submit: {reply!r}")
 
 
-def attest(article: dict, kind: str = "factcheck") -> None:
+def attest(article: dict, kind: str = "factcheck",
+           case: str | None = None):
     reply = one(call_uri(article["uri"], "attest",
                          f'*dId, "attest:{article["article_id"]}", "fact-1", "{kind}", "evidence"'),
                 key="reporter2")
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"attest: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)
+    return reply
 
 
 def approve(article: dict, key: str = "deployer") -> None:

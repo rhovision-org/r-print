@@ -1,0 +1,405 @@
+schema: rprint.guards/v1
+scope: mutating arms in the eight cornerstone deploy terms
+method: >-
+  Each row names the deployed arm, the model transition behind it, the source
+  atoms that must be present, and a guard_eq theorem over the shallow model.
+  This is a drift check and a model guard bridge, not an extraction or a
+  semantics-preserving refinement of the deployed Rholang.
+
+shared_atoms:
+  contracts/src/deploy/11_publication_cell.rho:
+    - clock
+    - codec
+    - terms
+    - unknown
+    - publication
+  contracts/src/deploy/20_commission.rho:
+    - clock
+    - terms
+    - unknown
+    - duplicate
+    - publication
+    - proposal
+  contracts/src/deploy/21_commission_escrow.rho:
+    - clock
+    - unknown
+  contracts/src/deploy/30_article.rho:
+    - clock
+    - terms
+    - unknown
+    - duplicate
+    - publication
+  contracts/src/deploy/31_edition.rho:
+    - clock
+    - codec
+    - terms
+    - unknown
+    - duplicate
+    - publication
+  contracts/src/deploy/05_rgen.rho:
+    - claim-factory
+    - credential-factory
+    - disabled
+    - identity-directory
+    - provenance-factory
+    - uri
+  contracts/src/deploy/06_rsure.rho:
+    - disabled
+    - distribution-factory
+    - line-factory
+    - policy-factory
+    - slip-factory
+
+arms:
+  - id: publication.factory.create
+    source: contracts/src/deploy/10_publication.rho
+    contract: PublicationFactory
+    arm: create
+    cell: PublicationFactory
+    status: partial
+    guard_eq: RPrint.factoryCreate_guard_eq
+    atoms: [clock, codec, duplicate, member, not owner, publication, publication cell, role, terms, unknown]
+    modeled_atoms: [duplicate, not owner]
+    unmodelled_atoms: [clock, codec, member, publication, publication cell, role, terms, unknown]
+    note: the generic factory create guard models authority, terms and id reuse; member, role and cell validation are in the cell factory
+
+  - id: publication.addMember
+    source: contracts/src/deploy/11_publication_cell.rho
+    contract: Publication
+    arm: addMember
+    cell: Publication
+    status: proved
+    guard_eq: RPrint.publicationAddMember_guard_eq
+    atoms: [duplicate, member, members, not owner, paused, role, unknown member]
+    modeled_atoms: [duplicate, member, members, not owner, paused, role, unknown member]
+    unmodelled_atoms: []
+    note: publisher, cap and duplicate are in the model
+
+  - id: publication.removeMember
+    source: contracts/src/deploy/11_publication_cell.rho
+    contract: Publication
+    arm: removeMember
+    cell: Publication
+    status: proved
+    guard_eq: RPrint.publicationRemoveMember_guard_eq
+    atoms: [last publisher, not member, not owner, paused, role, unknown member]
+    modeled_atoms: [last publisher, not member, not owner, paused, role, unknown member]
+    unmodelled_atoms: []
+
+  - id: publication.setRole
+    source: contracts/src/deploy/11_publication_cell.rho
+    contract: Publication
+    arm: setRole
+    cell: Publication
+    status: proved
+    guard_eq: RPrint.publicationSetRole_guard_eq
+    atoms: [last publisher, not member, not owner, paused, role, unknown member]
+    modeled_atoms: [last publisher, not member, not owner, paused, role, unknown member]
+    unmodelled_atoms: []
+
+  - id: publication.attestSelf
+    source: contracts/src/deploy/11_publication_cell.rho
+    contract: Publication
+    arm: attestSelf
+    cell: Publication
+    status: proved
+    guard_eq: RPrint.publicationAttestSelf_guard_eq
+    atoms: [not member, not owner]
+    modeled_atoms: [not member, not owner]
+    unmodelled_atoms: []
+    note: the DID anchor is data, not authority
+
+  - id: publication.pause
+    source: contracts/src/deploy/11_publication_cell.rho
+    contract: Publication
+    arm: pause
+    cell: Publication
+    status: proved
+    guard_eq: RPrint.publicationPause_guard_eq
+    atoms: [not owner, paused, role]
+    modeled_atoms: [not owner, paused, role]
+    unmodelled_atoms: []
+
+  - id: publication.admin
+    source: contracts/src/deploy/11_publication_cell.rho
+    contract: Publication
+    arm: admin
+    cell: Publication
+    status: proved
+    guard_eq: RPrint.publicationAdmin_guard_eq
+    atoms: [below threshold, not owner, platform admin, replay, unknown action]
+    modeled_atoms: [below threshold, not owner, platform admin, replay, unknown action]
+    unmodelled_atoms: []
+
+  - id: commission.propose
+    source: contracts/src/deploy/20_commission.rho
+    contract: CommissionFactory
+    arm: propose
+    cell: CommissionFactory
+    status: proved
+    guard_eq: RPrint.commissionPropose_guard_eq
+    atoms: [not owner, paused, role, status]
+    modeled_atoms: [not owner, paused, role, status]
+    unmodelled_atoms: []
+    note: terms and milestone validation are checked before the transition and are not modelled
+
+  - id: commission.accept
+    source: contracts/src/deploy/20_commission.rho
+    contract: CommissionProposal
+    arm: accept
+    cell: CommissionProposal
+    status: proved
+    guard_eq: RPrint.commissionAccept_guard_eq
+    atoms: [not owner, paused, role, status]
+    modeled_atoms: [not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: commission.fund
+    source: contracts/src/deploy/20_commission.rho
+    contract: CommissionProposal
+    arm: fund
+    cell: CommissionProposal
+    status: proved
+    guard_eq: RPrint.commissionFund_guard_eq
+    atoms: [escrow factory, not owner, paused, status]
+    modeled_atoms: [escrow factory, not owner, paused, status]
+    unmodelled_atoms: []
+    note: any signer may fund; the escrow factory result is a boundary read
+
+  - id: commission.cancel
+    source: contracts/src/deploy/20_commission.rho
+    contract: CommissionProposal
+    arm: cancel
+    cell: CommissionProposal
+    status: proved
+    guard_eq: RPrint.commissionCancel_guard_eq
+    atoms: [not owner, paused, role, status]
+    modeled_atoms: [not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: commission.attachCover
+    source: contracts/src/deploy/20_commission.rho
+    contract: CommissionProposal
+    arm: attachCover
+    cell: CommissionProposal
+    status: proved
+    guard_eq: RPrint.coverAttach_guard_eq
+    atoms: [asset, cover, insured, not owner, paused, policy, policy status, role, rsure adapter, status]
+    modeled_atoms: [asset, cover, insured, not owner, paused, policy, policy status, role, rsure adapter, status]
+    unmodelled_atoms: []
+    note: the policy facts are a boundary read; the guard checks active, insured, asset and single assignment
+
+  - id: escrow.factory.createFunded
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrowFactory
+    arm: createFunded
+    cell: CommissionEscrowFactory
+    status: partial
+    guard_eq: RPrint.factoryCreate_guard_eq
+    atoms: [below threshold, not owner, payments]
+    modeled_atoms: [not owner]
+    unmodelled_atoms: [below threshold, payments]
+    note: the generic factory guard models authority and id reuse; the threshold and the purse move are boundary reads
+
+  - id: escrow.submit
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: submit
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowSubmit_guard_eq
+    atoms: [milestone, not owner, not submitted, not writer, role, status, too late]
+    modeled_atoms: [milestone, not owner, not submitted, not writer, role, status, too late]
+    unmodelled_atoms: []
+    note: the model reads the consumed milestone and its block-height deadline
+
+  - id: escrow.release
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: release
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowRelease_guard_eq
+    atoms: [editor, milestone, not owner, not submitted, role, status]
+    modeled_atoms: [editor, milestone, not owner, not submitted, role, status]
+    unmodelled_atoms: []
+    note: the model reads the consumed milestone and its amount
+
+  - id: escrow.cancel
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: cancel
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowCancel_guard_eq
+    atoms: [closed, not owner, role, status]
+    modeled_atoms: [closed, not owner, role, status]
+    unmodelled_atoms: []
+
+  - id: escrow.expire
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: expire
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowExpire_guard_eq
+    atoms: [not owner, status, too early]
+    modeled_atoms: [not owner, status, too early]
+    unmodelled_atoms: []
+
+  - id: escrow.dispute
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: dispute
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowDispute_guard_eq
+    atoms: [not owner, role, status]
+    modeled_atoms: [not owner, role, status]
+    unmodelled_atoms: []
+
+  - id: escrow.arbitrate
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: arbitrate
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowArbitrate_guard_eq
+    atoms: [bps, not owner, replay, role, status]
+    modeled_atoms: [bps, not owner, replay, role, status]
+    unmodelled_atoms: []
+
+  - id: escrow.resolveDispute
+    source: contracts/src/deploy/21_commission_escrow.rho
+    contract: CommissionEscrow
+    arm: resolveDispute
+    cell: CommissionEscrow
+    status: proved
+    guard_eq: RPrint.escrowResolveDispute_guard_eq
+    atoms: [not owner, status, too early]
+    modeled_atoms: [not owner, status, too early]
+    unmodelled_atoms: []
+
+  - id: article.factory.create
+    source: contracts/src/deploy/30_article.rho
+    contract: ArticleFactory
+    arm: create
+    cell: ArticleFactory
+    status: proved
+    guard_eq: RPrint.factoryCreate_guard_eq
+    atoms: [not owner]
+    modeled_atoms: [not owner]
+    unmodelled_atoms: []
+    note: the factory arm's own guard is authority plus id reuse; article terms are validated by the cell factory
+
+  - id: article.submit
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: submit
+    cell: Article
+    status: proved
+    guard_eq: RPrint.articleSubmit_guard_eq
+    atoms: [not author, not owner, paused, status]
+    modeled_atoms: [not author, not owner, paused, status]
+    unmodelled_atoms: []
+
+  - id: article.attachKnowledge
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: attachKnowledge
+    cell: Article
+    status: partial
+    guard_eq: RPrint.articleAttachKnowledge_guard_eq
+    atoms: [author, claim, claim kasset, claim status, credential, kasset, kasset claim, knowledge, not owner, paused, provenance, provenance asset, provenance claim, provenance hash, rgen adapter, status]
+    modeled_atoms: [not owner, paused, status]
+    unmodelled_atoms: [author, claim, claim kasset, claim status, credential, kasset, kasset claim, knowledge, provenance, provenance asset, provenance claim, provenance hash, rgen adapter]
+    note: the article model checks status and authorization; the chain checks are modelled in Model/Adapter and exercised by unit_knowledge
+
+  - id: article.approve
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: approve
+    cell: Article
+    status: proved
+    guard_eq: RPrint.articleApprove_guard_eq
+    atoms: [not owner, paused, role, status]
+    modeled_atoms: [not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: article.publish
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: publish
+    cell: Article
+    status: proved
+    guard_eq: RPrint.articlePublish_guard_eq
+    atoms: [not owner, paused, role, status]
+    modeled_atoms: [not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: article.correct
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: correct
+    cell: Article
+    status: proved
+    guard_eq: RPrint.articleCorrect_guard_eq
+    atoms: [corrections, not owner, paused, role, status]
+    modeled_atoms: [corrections, not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: article.retract
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: retract
+    cell: Article
+    status: proved
+    guard_eq: RPrint.articleRetract_guard_eq
+    atoms: [not owner, paused, role, status]
+    modeled_atoms: [not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: article.attest
+    source: contracts/src/deploy/30_article.rho
+    contract: Article
+    arm: attest
+    cell: Article
+    status: proved
+    guard_eq: RPrint.articleAttest_guard_eq
+    atoms: [attestations, not owner, paused, role, status]
+    modeled_atoms: [attestations, not owner, paused, role, status]
+    unmodelled_atoms: []
+
+  - id: edition.factory.create
+    source: contracts/src/deploy/31_edition.rho
+    contract: EditionFactory
+    arm: create
+    cell: EditionFactory
+    status: partial
+    guard_eq: RPrint.factoryCreate_guard_eq
+    atoms: [edition, not owner, status]
+    modeled_atoms: [not owner]
+    unmodelled_atoms: [edition, status]
+    note: the generic factory guard models authority and id reuse; edition terms are validated by the cell factory
+
+  - id: edition.append
+    source: contracts/src/deploy/31_edition.rho
+    contract: Edition
+    arm: append
+    cell: Edition
+    status: proved
+    guard_eq: RPrint.editionAppend_guard_eq
+    atoms: [article, edition full, not owner, role, status]
+    modeled_atoms: [article, edition full, not owner, role, status]
+    unmodelled_atoms: []
+
+  - id: edition.seal
+    source: contracts/src/deploy/31_edition.rho
+    contract: Edition
+    arm: seal
+    cell: Edition
+    status: proved
+    guard_eq: RPrint.editionSeal_guard_eq
+    atoms: [not owner, role, signature, status, verifier]
+    modeled_atoms: [not owner, role, signature, status, verifier]
+    unmodelled_atoms: []

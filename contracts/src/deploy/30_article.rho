@@ -9,7 +9,8 @@ new
   deployId(`rho:rchain:deployId`),
   rootCh, c, ack,
   authOwner, authIsOwner, authPubKey, resolveComponent,
-  artCanonical, artNowHeight, artActive, artMember, artAuthorOk, artCreateGo
+  artCanonical, artNowHeight, artActive, artMember, artAuthorOk,
+  artAnyAuthor, artWritersAuthor, artMatchedAuthor, artCreateGo
 in {
   // @@INLINE:lib/Resolve.rho@@
   // @@INLINE:lib/Auth.rho@@
@@ -87,6 +88,62 @@ in {
                   }
                 }
                 _ => { ret!((false, "role")) }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract artAnyAuthor(@authors, @i, @who, ret) = {
+    if (i >= authors.length()) {
+      ret!(false)
+    } else {
+      match authors.nth(i) {
+        a => {
+          if (a.get("memberId") == who) { ret!(true) }
+          else { artAnyAuthor!(authors, i + 1, who, *ret) }
+        }
+      }
+    }
+  } |
+
+  contract artWritersAuthor(@writers, @authors, @i, ret) = {
+    if (i >= writers.length()) {
+      ret!(false)
+    } else {
+      match writers.nth(i) {
+        w => {
+          new aCh in {
+            artAnyAuthor!(authors, 0, w, *aCh) |
+            for (@a <- aCh) {
+              if (a) { ret!(true) }
+              else { artWritersAuthor!(writers, authors, i + 1, *ret) }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract artMatchedAuthor(@claimant, @writers, @authors, @i, ret) = {
+    new cCh in {
+      artAnyAuthor!(authors, 0, claimant, *cCh) |
+      for (@c <- cCh) {
+        if (c) { ret!(claimant) }
+        else {
+          if (i >= writers.length()) { ret!("") }
+          else {
+            match writers.nth(i) {
+              w => {
+                new aCh in {
+                  artAnyAuthor!(authors, 0, w, *aCh) |
+                  for (@a <- aCh) {
+                    if (a) { ret!(w) }
+                    else { artMatchedAuthor!(claimant, writers, authors, i + 1, *ret) }
+                  }
+                }
               }
             }
           }
@@ -177,7 +234,9 @@ in {
       for (@n <- nCh) {
         match n {
           (true, now) => {
-            new Article, articleState, articleCanAttach, articleKnowledgeGo, uCh in {
+            new Article, articleState, articleCanAttach, articleKnowledgeGo,
+                artKnowKasset, artKnowClaim, artKnowProvenance, artKnowCredential,
+                artKnowVerify, artKnowStore, uCh in {
               articleState!({
                 "articleId": articleId,
                 "publicationId": data.get("publicationId"),
@@ -269,7 +328,7 @@ in {
                         for (@s <- articleState) {
                           match s.get("ops").get(callerId ++ ":" ++ opId2) {
                             Nil => {
-                              if (s.get("status") == "published" || s.get("status") == "retracted") {
+                              if (s.get("status") != "submitted" && s.get("status") != "approved") {
                                 articleState!(s) | ret2!((false, "status"))
                               } else {
                                 new rCh in {
@@ -316,62 +375,245 @@ in {
 
               contract articleKnowledgeGo(@s, @callerId, @opId, @kassetUri,
                                           @claimUri, @provenanceUri, @credentialUri, ret2) = {
+                if (kassetUri.length() == 0) {
+                  articleState!(s) | ret2!((false, "kasset"))
+                } else {
+                  if (claimUri.length() == 0) {
+                    articleState!(s) | ret2!((false, "claim"))
+                  } else {
+                    if (provenanceUri.length() == 0) {
+                      articleState!(s) | ret2!((false, "provenance"))
+                    } else {
+                      if (s.get("kassetUri") != "") {
+                        if (s.get("kassetUri") == kassetUri
+                            && s.get("claimUri") == claimUri
+                            && s.get("provenanceUri") == provenanceUri
+                            && s.get("credentialUri") == credentialUri) {
+                          articleState!(
+                            s.set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                          ret2!((true, Nil))
+                        } else {
+                          articleState!(s) | ret2!((false, "knowledge"))
+                        }
+                      } else {
+                        new aCh in {
+                          resolveComponent!("component:rgen-adapter", *aCh) |
+                          for (@a <- aCh) {
+                            match a {
+                              (true, Adapter) => {
+                                new kCh in {
+                                  @Adapter!("kasset", kassetUri, *kCh) |
+                                  for (@k <- kCh) {
+                                    match k {
+                                      (true, kState) => {
+                                        artKnowKasset!(s, callerId, opId, kassetUri,
+                                                       claimUri, provenanceUri, credentialUri,
+                                                       kState, *ret2)
+                                      }
+                                      _ => { articleState!(s) | ret2!((false, "kasset")) }
+                                    }
+                                  }
+                                }
+                              }
+                              _ => { articleState!(s) | ret2!((false, "rgen adapter")) }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowKasset(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                     @provenanceUri, @credentialUri, @kState, ret2) = {
+                if (kState.get("claimRef").get("uri").toString() != claimUri) {
+                  articleState!(s) | ret2!((false, "kasset claim"))
+                } else {
+                  new aCh in {
+                    resolveComponent!("component:rgen-adapter", *aCh) |
+                    for (@a <- aCh) {
+                      match a {
+                        (true, Adapter) => {
+                          new cCh in {
+                            @Adapter!("claim", claimUri, *cCh) |
+                            for (@c <- cCh) {
+                              match c {
+                                (true, cState) => {
+                                  artKnowClaim!(s, callerId, opId, kassetUri, claimUri,
+                                                provenanceUri, credentialUri, kState,
+                                                cState, *ret2)
+                                }
+                                _ => { articleState!(s) | ret2!((false, "claim")) }
+                              }
+                            }
+                          }
+                        }
+                        _ => { articleState!(s) | ret2!((false, "rgen adapter")) }
+                      }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowClaim(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                    @provenanceUri, @credentialUri, @kState, @cState,
+                                    ret2) = {
+                if (cState.get("kassetRef").get("uri").toString() != kassetUri) {
+                  articleState!(s) | ret2!((false, "claim kasset"))
+                } else {
+                  if (cState.get("status") != "validated"
+                      && cState.get("status") != "conditional") {
+                    articleState!(s) | ret2!((false, "claim status"))
+                  } else {
+                    new aCh in {
+                      resolveComponent!("component:rgen-adapter", *aCh) |
+                      for (@a <- aCh) {
+                        match a {
+                          (true, Adapter) => {
+                            new pCh in {
+                              @Adapter!("provenanceInfo", provenanceUri, *pCh) |
+                              for (@p <- pCh) {
+                                match p {
+                                  (true, pState) => {
+                                    artKnowProvenance!(s, callerId, opId, kassetUri,
+                                                       claimUri, provenanceUri,
+                                                       credentialUri, cState, pState, *ret2)
+                                  }
+                                  _ => { articleState!(s) | ret2!((false, "provenance")) }
+                                }
+                              }
+                            }
+                          }
+                          _ => { articleState!(s) | ret2!((false, "rgen adapter")) }
+                        }
+                      }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowProvenance(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                         @provenanceUri, @credentialUri, @cState,
+                                         @pState, ret2) = {
+                if (pState.get("assetRef").get("uri").toString() != kassetUri) {
+                  articleState!(s) | ret2!((false, "provenance asset"))
+                } else {
+                  if (pState.get("assetRef").get("claimRef").get("uri").toString() != claimUri) {
+                    articleState!(s) | ret2!((false, "provenance claim"))
+                  } else {
+                    new mCh in {
+                      artMatchedAuthor!(cState.get("claimant"), pState.get("writers"),
+                                        s.get("authors"), 0, *mCh) |
+                      for (@matched <- mCh) {
+                        if (matched == "") {
+                          articleState!(s) | ret2!((false, "author"))
+                        } else {
+                          artKnowCredential!(s, callerId, opId, kassetUri, claimUri,
+                                             provenanceUri, credentialUri, matched, *ret2)
+                        }
+                      }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowCredential(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                         @provenanceUri, @credentialUri, @matched,
+                                         ret2) = {
+                if (credentialUri == "") {
+                  artKnowVerify!(s, callerId, opId, kassetUri, claimUri,
+                                 provenanceUri, credentialUri, *ret2)
+                } else {
+                  new aCh in {
+                    resolveComponent!("component:rgen-adapter", *aCh) |
+                    for (@a <- aCh) {
+                      match a {
+                        (true, Adapter) => {
+                          new ccCh in {
+                            @Adapter!("credential", credentialUri, *ccCh) |
+                            for (@cc <- ccCh) {
+                              match cc {
+                                (true, cred) => {
+                                  if (cred.get("subject") != matched
+                                      || cred.get("status") != "active") {
+                                    articleState!(s) | ret2!((false, "credential"))
+                                  } else {
+                                    new nCh in {
+                                      artNowHeight!(*nCh) |
+                                      for (@n <- nCh) {
+                                        match n {
+                                          (true, now) => {
+                                            if (cred.get("expiresAt") != 0
+                                                && now > cred.get("expiresAt")) {
+                                              articleState!(s) | ret2!((false, "credential"))
+                                            } else {
+                                              artKnowVerify!(s, callerId, opId, kassetUri,
+                                                             claimUri, provenanceUri,
+                                                             credentialUri, *ret2)
+                                            }
+                                          }
+                                          _ => { articleState!(s) | ret2!(n) }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                _ => { articleState!(s) | ret2!((false, "credential")) }
+                              }
+                            }
+                          }
+                        }
+                        _ => { articleState!(s) | ret2!((false, "rgen adapter")) }
+                      }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowVerify(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                     @provenanceUri, @credentialUri, ret2) = {
                 new aCh in {
                   resolveComponent!("component:rgen-adapter", *aCh) |
                   for (@a <- aCh) {
                     match a {
                       (true, Adapter) => {
-                        new kCh in {
-                          @Adapter!("kasset", kassetUri, *kCh) |
-                          for (@k <- kCh) {
-                            match k {
-                              (true, _) => {
-                                new cCh in {
-                                  @Adapter!("claim", claimUri, *cCh) |
-                                  for (@c <- cCh) {
-                                    match c {
-                                      (true, _) => {
-                                        new pCh in {
-                                          @Adapter!("provenance", provenanceUri,
-                                                    s.get("contentHash"), *pCh) |
-                                          for (@p <- pCh) {
-                                            match p {
-                                              (true, true) => {
-                                                new nCh in {
-                                                  artNowHeight!(*nCh) |
-                                                  for (@n <- nCh) {
-                                                    match n {
-                                                      (true, now) => {
-                                                        articleState!(
-                                                          s.set("kassetUri", kassetUri)
-                                                           .set("claimUri", claimUri)
-                                                           .set("provenanceUri", provenanceUri)
-                                                           .set("credentialUri", credentialUri)
-                                                           .set("knowledgeAtHeight", now)
-                                                           .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
-                                                        ret2!((true, Nil))
-                                                      }
-                                                      _ => { articleState!(s) | ret2!(n) }
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                              _ => { articleState!(s) | ret2!((false, "provenance")) }
-                                            }
-                                          }
-                                        }
-                                      }
-                                      _ => { articleState!(s) | ret2!((false, "claim")) }
-                                    }
-                                  }
-                                }
+                        new vCh in {
+                          @Adapter!("provenance", provenanceUri, s.get("contentHash"), *vCh) |
+                          for (@v <- vCh) {
+                            match v {
+                              (true, true) => {
+                                artKnowStore!(s, callerId, opId, kassetUri, claimUri,
+                                              provenanceUri, credentialUri, *ret2)
                               }
-                              _ => { articleState!(s) | ret2!((false, "kasset")) }
+                              _ => { articleState!(s) | ret2!((false, "provenance hash")) }
                             }
                           }
                         }
                       }
                       _ => { articleState!(s) | ret2!((false, "rgen adapter")) }
+                    }
+                  }
+                }
+              } |
+
+              contract artKnowStore(@s, @callerId, @opId, @kassetUri, @claimUri,
+                                    @provenanceUri, @credentialUri, ret2) = {
+                new nCh in {
+                  artNowHeight!(*nCh) |
+                  for (@n <- nCh) {
+                    match n {
+                      (true, now) => {
+                        articleState!(
+                          s.set("kassetUri", kassetUri)
+                           .set("claimUri", claimUri)
+                           .set("provenanceUri", provenanceUri)
+                           .set("credentialUri", credentialUri)
+                           .set("knowledgeAtHeight", now)
+                           .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                        ret2!((true, Nil))
+                      }
+                      _ => { articleState!(s) | ret2!(n) }
                     }
                   }
                 }

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -20,6 +21,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import deploy as node  # noqa: E402
 import preflight  # noqa: E402
+import sibling_paths  # noqa: E402
 from minify_rho import minify  # noqa: E402
 from profiles import DEFAULT_PROFILE, PROFILES  # noqa: E402
 from rcash_paths import configured_manifest  # noqa: E402
@@ -91,30 +93,40 @@ def admin_literal(keys: dict, dev_single_key: bool) -> str:
     return "[" + ", ".join(f'"{key}".hexToBytes()' for key in distinct[:3]) + "]"
 
 
+def siblings_requested() -> bool:
+    return os.environ.get("RPRINT_SIBLINGS") == "1"
+
+
 def optional_root(config_name: str, manifest_key: str = "root_manifest_path") -> str:
     """Read a sibling root URI from its manifest, or return an empty string.
 
     The adapters are optional surfaces: an empty root renders their `health` arm as
-    disabled and keeps the baseline escrow / optional K-Asset links available.
+    disabled and keeps the baseline escrow / optional K-Asset links available. When
+    `--siblings` or `RPRINT_SIBLINGS=1` is set, the root is required and a missing
+    manifest or root URI fails the install instead of silently disabling the surface.
     """
     path = ROOT / "configs" / config_name
     if not path.is_file():
+        if siblings_requested():
+            raise SystemExit(f"install: siblings requested but missing {path}")
         return ""
     cfg = json.loads(path.read_text())
-    if not cfg.get("enabled", False):
+    if not cfg.get("enabled", False) and not siblings_requested():
         return ""
-    manifest = cfg.get(manifest_key)
-    if not manifest:
-        return ""
-    candidate = Path(manifest)
-    if not candidate.is_absolute():
-        candidate = (ROOT / candidate).resolve()
-    if not candidate.is_file():
-        return ""
+    if not cfg.get("sibling_dir"):
+        raise SystemExit(f"install: {path.name} has no sibling_dir")
+    manifest = sibling_paths.manifest(cfg, manifest_key)
+    if not manifest.is_file():
+        raise SystemExit(
+            f"install: missing sibling manifest {manifest}; install the pinned sibling "
+            "or set RPRINT_SIBLINGS_DIR")
     try:
-        return json.loads(candidate.read_text()).get("root_uri", "")
-    except (OSError, ValueError):
-        return ""
+        uri = json.loads(manifest.read_text()).get("root_uri", "")
+    except (OSError, ValueError) as error:
+        raise SystemExit(f"install: cannot read {manifest}: {error}")
+    if not uri:
+        raise SystemExit(f"install: {manifest} has no root_uri")
+    return uri
 
 
 def verify_rcash(root_uri: str, required: list[str]) -> None:
@@ -139,9 +151,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--dev-single-key", action="store_true",
                     help="allow a 2-of-3 set built from one devnet key (never for production)")
+    ap.add_argument("--siblings", action="store_true",
+                    help="require and enable the r-sure and r-gen roots")
     ap.add_argument("--profile", choices=sorted(PROFILES), default=DEFAULT_PROFILE)
     args = ap.parse_args(argv)
     order = PROFILES[args.profile]
+    if args.siblings:
+        os.environ["RPRINT_SIBLINGS"] = "1"
 
     if args.node:
         node.NODE = args.node

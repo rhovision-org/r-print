@@ -17,6 +17,7 @@ Slip/Distribution/Policy/Line edges are the scaling surface for proper insurance
 becomes dead money at scale, so a publication can attach an r-sure policy through
 `CommissionProposal("attachCover")` without changing the baseline escrow semantics.
 
-K-Assets are optional on articles. `Article("attachKnowledge")` links an r-gen Claim,
-KAsset and Provenance record; `requireKAsset` is a publication/commission opt-in, never a
+K-Assets are optional on articles. `Article("attachKnowledge")` links an r-gen Claim, KAsset
+and Provenance record and verifies the reciprocal references, the bound content hash, the
+author and an optional credential; `requireKAsset` is a publication/commission opt-in, never a
 default gate.

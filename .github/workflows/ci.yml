@@ -33,6 +33,7 @@ jobs:
       - run: python3 -m pip install -r harness/requirements.txt
       - run: python3 tools/check_lean.py
       - run: python3 tools/check_lean_vectors.py
+      - run: python3 tools/check_core_vectors.py
       - run: python3 tools/check_flows.py --strict
 
   docs:
@@ -132,7 +133,7 @@ jobs:
   devnet:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -145,6 +146,16 @@ jobs:
           repository: rchain-community/rchain-rust
           ref: e2d073dcd02f1e560ccb84749937138a1e184b0b
           path: rnode-rust
+      - uses: actions/checkout@v4
+        with:
+          repository: rhovision-org/r-sure
+          ref: 0da5d0436e5f33eec3de20adb887ece4b1edcad3
+          path: siblings/RSure
+      - uses: actions/checkout@v4
+        with:
+          repository: rhovision-org/r-gen
+          ref: bcc840c25e334048bef390823a21aaf7e209d15b
+          path: siblings/RGen
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -174,21 +185,35 @@ jobs:
           make rcash-keys
           make rcash-bootstrap
           make keys
-      - name: Install r-print and run the suites
+      - name: Install the pinned sibling roots
         env:
           RCASH_DIR: ${{ github.workspace }}/rholo
           RHOLO_DIR: ${{ github.workspace }}/rnode-rust
+          SIBLINGS_DIR: ${{ github.workspace }}/siblings
         run: |
-          make install
+          make siblings-venv
+          make siblings-install NODE=http://127.0.0.1:40403
+      - name: Install r-print with the sibling roots and run the suites
+        env:
+          RCASH_DIR: ${{ github.workspace }}/rholo
+          RHOLO_DIR: ${{ github.workspace }}/rnode-rust
+          SIBLINGS_DIR: ${{ github.workspace }}/siblings
+        run: |
+          make install-with-siblings NODE=http://127.0.0.1:40403
           make unit-all
+          make sibling-suites-strict
+          make redteam
+          python3 tools/check_redteam_results.py
       - name: Live client smoke
         env:
           RCASH_DIR: ${{ github.workspace }}/rholo
           RHOLO_DIR: ${{ github.workspace }}/rnode-rust
+          SIBLINGS_DIR: ${{ github.workspace }}/siblings
+          RPRINT_SIBLINGS: "1"
         run: |
           npm ci --prefix web --no-audit --no-fund
-          make client-live
-          make cli-live
+          make client-live RPRINT_SIBLINGS=1
+          make cli-live RPRINT_SIBLINGS=1
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
@@ -220,3 +245,8 @@ jobs:
           path: |
             deployments/suite-results.json
             deployments/live-client-results.json
+            deployments/sibling-fixture.json
+            deployments/sibling-suite-results.json
+            deployments/cli-live-results.json
+            deployments/redteam-results.json
+            deployments/redteam-suite-results.json

@@ -1429,6 +1429,7 @@ dependencies = [
  "clap",
  "rcash-chain",
  "rprint-core",
+ "rprint-keystore",
  "rprint-sdk",
  "rprint-wallet",
  "serde_json",

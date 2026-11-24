@@ -9,9 +9,10 @@
 > and write form with the node and WASM blocked, and a live browser journey records 10
 > finalized writes and 1 refusal; CI dispatch 45270193372 recorded 27 fixture tests and the
 > browser journey on the pinned node. The baseline escrow is implemented; r-sure cover and r-gen
-> K-Assets are optional surfaces. A Lean 4.12 model covers publication authority, commission
-> escrow, article lifecycle and edition seal as `proved-model`; it is not a Rholang
-> refinement. Subscriptions, revenue splits and crowdfunding remain design.
+> K-Assets are optional surfaces with strict chain checks. A Lean 4.12 model covers publication
+> authority, commission escrow, article lifecycle, edition seal and the two sibling ties as
+> `proved-model`; it is not a Rholang refinement. Subscriptions, revenue splits and
+> crowdfunding remain design.
 
 r-print treats a publication as an organisation rather than a personal brand. A masthead
 owns a charter, a roster and an editorial authority. A commission escrows money against
@@ -26,7 +27,7 @@ The design has three layers:
 |---|---|---|
 | Organisation | Publication charter, roster, roles, solo mode, arbitration | Implemented |
 | Editorial | Commission escrow, articles, reviews, corrections, editions | Implemented |
-| Scaling surfaces | r-sure policy cover; r-gen Claim/KAsset/Provenance links | Surface, opt-in |
+| Scaling surfaces | r-sure policy cover; r-gen Claim/KAsset/Provenance links | Implemented, opt-in; local sibling campaign recorded (2/2, 43 assertions) |
 
 Escrow is the baseline because it is the smallest thing that works. Escrow becomes dead
 money at scale, so a publication can attach an r-sure Policy to a commission and buy proper

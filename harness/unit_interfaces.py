@@ -16,18 +16,46 @@ def main() -> int:
     rgen = resolve_component("component:rgen-adapter")
     rsure = resolve_component("component:rsure-adapter")
 
-    expect_refusal("rgen health disabled", one(call_uri(rgen, "health")), "disabled")
-    expect_refusal("rsure health disabled", one(call_uri(rsure, "health")), "disabled")
-    expect_refusal("identity disabled",
-                   one(call_uri(rgen, "identity", '"1111address"')), "disabled")
-    expect_refusal("credential disabled",
-                   one(call_uri(rgen, "credential", '"rho:id:credential"')), "disabled")
+    rgen_health = one(call_uri(rgen, "health"))
+    rsure_health = one(call_uri(rsure, "health"))
+    if rgen_health == (False, "disabled"):
+        expect_refusal("rgen health disabled", rgen_health, "disabled")
+        expect_refusal("identity disabled",
+                       one(call_uri(rgen, "identity", '"1111address"')), "disabled")
+        expect_refusal("credential disabled",
+                       one(call_uri(rgen, "credential", '"rho:id:credential"')), "disabled")
+    else:
+        expect_ok("rgen health enabled", rgen_health)
+    if rsure_health == (False, "disabled"):
+        expect_refusal("rsure health disabled", rsure_health, "disabled")
+    else:
+        expect_ok("rsure health enabled", rsure_health)
 
-    kasset, claim, provenance = mock_knowledge()
+    claim, kasset, provenance = mock_knowledge()
     expect_ok("claim read", one(call_uri(rgen, "claim", f'"{claim}"')))
     expect_ok("kasset read", one(call_uri(rgen, "kasset", f'"{kasset}"')))
     expect_ok("provenance verify",
               one(call_uri(rgen, "provenance", f'"{provenance}", "hash"')))
+    info = one(call_uri(rgen, "provenanceInfo", f'"{provenance}"'))
+    expect_ok("provenance info", info)
+    expect("provenance asset", info[1].get("assetRef").get("uri"), kasset)
+    expect_refusal("provenance info empty uri",
+                   one(call_uri(rgen, "provenanceInfo", '""')), "uri")
+
+    slip = one("""
+new S, rs(`rho:registry:insertArbitrary`), ch, deployId(`rho:rchain:deployId`) in {
+  contract S(@"info", ret) = {
+    ret!((true, {"status": "active", "premium": 500}))
+  } |
+  rs!(bundle+{*S}, *ch) |
+  for (@u <- ch) { deployId!(u) }
+}
+""")
+    if not isinstance(slip, str):
+        raise AssertionError(f"slip mock: {slip!r}")
+    slip_info = one(call_uri(rsure, "slip", f'"{slip}"'))
+    expect("slip status", slip_info[1].get("status"), "active")
+    expect("slip premium", slip_info[1].get("premium"), 500)
     return 0
 
 

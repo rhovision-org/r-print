@@ -30,6 +30,13 @@ structure Correction where
   articleHash : Id
   deriving DecidableEq, Repr
 
+structure Attestation where
+  id : Id
+  kind : Id
+  attestor : Id
+  evidenceHash : Id
+  deriving DecidableEq, Repr
+
 structure ArticleState where
   articleId : Id
   publicationId : Id
@@ -39,6 +46,7 @@ structure ArticleState where
   kassetUri : Option Id
   requireKAsset : Bool
   corrections : List Correction
+  attestations : List Attestation
   publishedContentHash : Option Id
   deriving DecidableEq, Repr
 
@@ -82,11 +90,20 @@ theorem article_submit_rewrites_hash (s : ArticleState) (callerIsAuthor : Bool)
 def articleAttachKnowledge (s : ArticleState) (callerAuthorized : Bool)
     (kassetUri : Id) : Option ArticleState :=
   if !callerAuthorized then none
-  else if s.status = ArticleStatus.published ∨ s.status = ArticleStatus.retracted then none
-  else some { s with kassetUri := some kassetUri }
+  else if s.status = ArticleStatus.submitted ∨ s.status = ArticleStatus.approved then
+    some { s with kassetUri := some kassetUri }
+  else none
 
 theorem article_attachKnowledge_refused_after_publish (s : ArticleState)
     (callerAuthorized : Bool) (kassetUri : Id) (h : s.status = ArticleStatus.published) :
+    articleAttachKnowledge s callerAuthorized kassetUri = none := by
+  by_cases ha : callerAuthorized = true
+  · simp [articleAttachKnowledge, ha, h]
+  · have haf : callerAuthorized = false := by simpa using ha
+    simp [articleAttachKnowledge, haf]
+
+theorem article_attachKnowledge_refused_from_draft (s : ArticleState)
+    (callerAuthorized : Bool) (kassetUri : Id) (h : s.status = ArticleStatus.draft) :
     articleAttachKnowledge s callerAuthorized kassetUri = none := by
   by_cases ha : callerAuthorized = true
   · simp [articleAttachKnowledge, ha, h]
@@ -102,9 +119,70 @@ theorem article_attachKnowledge_preserves_hash (s : ArticleState)
   · simp at h
   · split at h
     · simp at h
-    · simp at h
       cases h
       rfl
+    · simp at h
+
+def articleAttest (s : ArticleState) (callerQualified : Bool)
+    (attestation : Attestation) : Option ArticleState :=
+  if !callerQualified then none
+  else if s.status = ArticleStatus.submitted ∨ s.status = ArticleStatus.approved then
+    if s.attestations.length ≥ 16 then none
+    else some { s with attestations := s.attestations ++ [attestation] }
+  else none
+
+theorem article_attest_requires_role (s : ArticleState) (callerQualified : Bool)
+    (attestation : Attestation) (h : callerQualified = false) :
+    articleAttest s callerQualified attestation = none := by
+  simp [articleAttest, h]
+
+theorem article_attest_requires_status (s : ArticleState) (callerQualified : Bool)
+    (attestation : Attestation) (h : s.status ≠ ArticleStatus.submitted)
+    (h2 : s.status ≠ ArticleStatus.approved) :
+    articleAttest s callerQualified attestation = none := by
+  by_cases hq : callerQualified = true
+  · simp [articleAttest, hq, h, h2]
+  · have hqf : callerQualified = false := by simpa using hq
+    simp [articleAttest, hqf]
+
+theorem article_attest_cap (s : ArticleState) (callerQualified : Bool)
+    (attestation : Attestation) (hq : callerQualified = true)
+    (hs : s.status = ArticleStatus.submitted ∨ s.status = ArticleStatus.approved)
+    (hcap : s.attestations.length ≥ 16) :
+    articleAttest s callerQualified attestation = none := by
+  rcases hs with hs | hs
+  · simp [articleAttest, hq, hs, hcap]
+  · simp [articleAttest, hq, hs, hcap]
+
+theorem article_attest_append_only (s : ArticleState) (callerQualified : Bool)
+    (attestation : Attestation) (s' : ArticleState)
+    (h : articleAttest s callerQualified attestation = some s') :
+    s'.attestations = s.attestations ++ [attestation] := by
+  unfold articleAttest at h
+  split at h
+  · simp at h
+  · split at h
+    · split at h
+      · simp at h
+      · simp at h
+        cases h
+        rfl
+    · simp at h
+
+theorem article_attest_preserves_hash (s : ArticleState) (callerQualified : Bool)
+    (attestation : Attestation) (s' : ArticleState)
+    (h : articleAttest s callerQualified attestation = some s') :
+    s'.contentHash = s.contentHash := by
+  unfold articleAttest at h
+  split at h
+  · simp at h
+  · split at h
+    · split at h
+      · simp at h
+      · simp at h
+        cases h
+        rfl
+    · simp at h
 
 def articleApprove (s : ArticleState) (callerIsEditor : Bool) : Option ArticleState :=
   if !callerIsEditor then none

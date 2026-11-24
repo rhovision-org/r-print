@@ -1,0 +1,565 @@
+schema_version: rprint.rigor/v1
+baseline: d9aef8b
+coverage:
+  - id: INV-I1
+    invariant: I1
+    statement: one cell, consume and repost once; a commit is all-or-none
+    status: proved
+    theorems: [RPrint.commit_all_or_none, RPrint.take_without_put_not_wf, RPrint.nested_call_rejected]
+    aliases: [I1_cell_all_or_none, I1_cell_no_lost_take, I1_cell_no_nested_call]
+    evidence: [spec/lean/RPrint/Linear/Cell.lean]
+  - id: INV-I2
+    invariant: I2
+    statement: a child record is bound to the canonical publication URI
+    status: assumption
+    evidence: [spec/lean/RPrint/Model/System.lean, contracts/src/deploy/10_publication.rho]
+    note: canonical URI binding is a boundary assumption; the factories and the static checks enforce it operationally
+  - id: INV-I3
+    invariant: I3
+    statement: member identity is the derived REV address
+    status: assumption
+    evidence: [spec/lean/RPrint/Model/System.lean, contracts/src/lib/Auth.rho]
+    note: key derivation is a platform boundary assumption
+  - id: INV-I4
+    invariant: I4
+    statement: the last active publisher cannot be removed or demoted
+    status: proved
+    theorems: [RPrint.publication_removeMember_refuses_last_publisher, RPrint.publication_setRole_refuses_last_publisher]
+    aliases: [I4_remove_last_publisher, I4_demote_last_publisher]
+    evidence: [spec/lean/RPrint/Model/Publication.lean]
+  - id: INV-I5
+    invariant: I5
+    statement: solo publication and platform quorum rules
+    status: proved
+    theorems: [RPrint.publication_solo_arbitration_platform, RPrint.publication_admin_setAdmins_requires_valid]
+    aliases: [I5_platform_quorum, I5_admin_quorum]
+    evidence: [spec/lean/RPrint/Model/Publication.lean]
+  - id: INV-I6
+    invariant: I6
+    statement: a commission is funded once, upfront, for the full total
+    status: proved
+    theorems: [RPrint.commission_fund_creates_active_escrow]
+    aliases: [I6_fund_creates_escrow]
+    evidence: [spec/lean/RPrint/Model/Commission.lean]
+  - id: INV-I7
+    invariant: I7
+    statement: release requires a prior submit and prior milestones
+    status: proved
+    theorems: [RPrint.escrow_release_requires_submitted, RPrint.escrow_release_requires_prior]
+    aliases: [I7_release_requires_submitted, I7_release_requires_prior]
+    evidence: [spec/lean/RPrint/Model/Commission.lean]
+  - id: INV-I8
+    invariant: I8
+    statement: a milestone pays at most once
+    status: proved
+    theorems: [RPrint.escrow_release_pays_once]
+    aliases: [I8_pay_once]
+    evidence: [spec/lean/RPrint/Model/Commission.lean]
+    note: the model reads the consumed milestone and its amount
+  - id: INV-I9
+    invariant: I9
+    statement: terminal escrow conservation
+    status: proved
+    theorems: [RPrint.escrow_terminal_conserved, RPrint.escrow_release_conserves, RPrint.escrow_cancel_conserves, RPrint.escrow_expire_conserves, RPrint.escrow_arbitrate_conserves]
+    aliases: [I9_terminal_conservation, I9_release_conservation, I9_cancel_conservation, I9_expire_conservation, I9_arbitrate_conservation]
+    evidence: [spec/lean/RPrint/Model/Commission.lean]
+  - id: INV-I10
+    invariant: I10
+    statement: cancel, expire and resolve refund at most the remaining balance
+    status: proved
+    theorems: [RPrint.escrow_cancel_refunds_remaining, RPrint.escrow_expire_conserves, RPrint.escrow_resolveDispute_conserves]
+    aliases: [I10_cancel_refunds, I10_expire_conserves, I10_resolve_conserves]
+    evidence: [spec/lean/RPrint/Model/Commission.lean]
+  - id: INV-I11
+    invariant: I11
+    statement: a solo publisher cannot arbitrate their own commission
+    status: assumption
+    evidence: [spec/lean/RPrint/Model/System.lean, contracts/src/deploy/11_publication_cell.rho]
+    note: the deployed arbitration fallback matches the model; the tie is the arbitrationQuorumTie boundary
+  - id: INV-I12
+    invariant: I12
+    statement: a published content hash is frozen
+    status: proved
+    theorems: [RPrint.article_publish_freezes_hash, RPrint.article_correct_preserves_hash, RPrint.article_retract_preserves_hash]
+    aliases: [I12_published_hash_frozen, I12_correct_preserves_hash, I12_retract_preserves_hash]
+    evidence: [spec/lean/RPrint/Model/Article.lean]
+  - id: INV-I13
+    invariant: I13
+    statement: corrections are append-only
+    status: proved
+    theorems: [RPrint.article_correct_append_only]
+    aliases: [I13_corrections_append]
+    evidence: [spec/lean/RPrint/Model/Article.lean]
+  - id: INV-I14
+    invariant: I14
+    statement: a retraction appends a record
+    status: proved
+    theorems: [RPrint.article_retract_appends_record]
+    aliases: [I14_retract_appends]
+    evidence: [spec/lean/RPrint/Model/Article.lean]
+  - id: INV-I15
+    invariant: I15
+    statement: an edition append requires a published article from the publication
+    status: proved
+    theorems: [RPrint.edition_append_requires_published_article, RPrint.edition_append_same_publication, RPrint.edition_append_refuses_duplicate]
+    aliases: [I15_append_published, I15_append_same_publication, I15_append_no_duplicate]
+    evidence: [spec/lean/RPrint/Model/Edition.lean]
+  - id: INV-I16
+    invariant: I16
+    statement: a sealed edition is bound and immutable
+    status: proved
+    theorems: [RPrint.edition_seal_binds_manifest, RPrint.edition_sealed_manifest_immutable]
+    aliases: [I16_seal_binds_manifest, I16_sealed_immutable]
+    evidence: [spec/lean/RPrint/Model/Edition.lean]
+  - id: INV-I17
+    invariant: I17
+    statement: BYOID DID and attestation fields are anchors, not proof
+    status: proved
+    theorems: [RPrint.publication_attest_preserves_authority]
+    aliases: [I17_anchor_not_authority]
+    evidence: [spec/lean/RPrint/Model/Publication.lean, spec/lean/RPrint/Model/System.lean]
+    note: the theorem proves the anchor does not change authority; on-chain DID verification remains an assumption
+  - id: INV-I18
+    invariant: I18
+    statement: a quantum-os coordination record is provenance, not authority
+    status: design
+    evidence: [spec/spec-only.md, spec/graph/edges.yaml]
+    note: the coordination record is design-only
+  - id: INV-I19
+    invariant: I19
+    statement: money is integer minor units; block heights carry deadlines
+    status: proved-but-narrower
+    theorems: [RPrint.shareOf_le, RPrint.escrow_release_bounded_by_purse, RPrint.escrow_submit_refuses_too_late, RPrint.escrow_expire_too_early_refused, RPrint.escrow_resolveDispute_too_early_refused]
+    evidence: [spec/lean/RPrint/Basic.lean, spec/lean/RPrint/Model/Commission.lean]
+    gap: the model uses Nat minor units and Height; it is not a type-level money proof and has no wall-clock model
+  - id: INV-I20
+    invariant: I20
+    statement: spec-only features do not change v0.1 cell semantics
+    status: design
+    evidence: [spec/spec-only.md]
+    note: subscriptions, revenue splits, crowdfunding, tips and syndication are outside v0.1
+  - id: INV-I21
+    invariant: I21
+    statement: a client write succeeds only after finalized + processedWithSuccess + a (true, ...) reply
+    status: mechanism
+    evidence: [web/src/test/live-api.test.ts, crates/rprint-sdk]
+    note: a client mechanism, not a Lean theorem
+  - id: INV-I22
+    invariant: I22
+    statement: reads use explore-deploy; writes use signed-deploy
+    status: mechanism
+    evidence: [crates/rprint-sdk/src, AGENTS.md]
+    note: enforced by the SDK term builders and the live tests
+  - id: INV-I23
+    invariant: I23
+    statement: an ambiguous submit reuses the op id and the key stays in WASM
+    status: mechanism
+    evidence: [crates/rprint-wasm, spec/acceptance.yaml]
+    note: no client export returns a plaintext secret
+  - id: INV-I24
+    invariant: I24
+    statement: an attached cover is active, insured to the treasury and asset-bound
+    status: proved
+    theorems: [RPrint.cover_attach_requires_active_policy, RPrint.cover_attach_requires_insured, RPrint.cover_attach_requires_asset, RPrint.cover_attach_single_assignment]
+    aliases: [I24_cover_active, I24_cover_insured, I24_cover_asset]
+    evidence: [spec/lean/RPrint/Model/Adapter.lean, spec/acceptance.yaml, docs/reference/verification.md]
+    note: the real-policy cover suite recorded 16 assertions on 2026-11-24
+  - id: INV-I25
+    invariant: I25
+    statement: a knowledge link requires the reciprocal authored chain
+    status: proved
+    theorems: [RPrint.knowledge_attach_requires_kasset_claim, RPrint.knowledge_attach_requires_claim_kasset, RPrint.knowledge_attach_requires_claim_status, RPrint.knowledge_attach_requires_provenance_asset, RPrint.knowledge_attach_requires_provenance_claim, RPrint.knowledge_attach_requires_provenance_hash, RPrint.knowledge_attach_requires_author, RPrint.knowledge_attach_requires_credential]
+    aliases: [I25_kasset_claim, I25_claim_kasset, I25_provenance, I25_author, I25_credential]
+    evidence: [spec/lean/RPrint/Model/Adapter.lean, spec/acceptance.yaml, docs/reference/verification.md]
+    note: the real-chain knowledge suite recorded 25 assertions on 2026-11-24
+  - id: INV-I26
+    invariant: I26
+    statement: a sibling link is single-assignment; an identical link is a replay
+    status: proved
+    theorems: [RPrint.cover_attach_single_assignment, RPrint.knowledge_attach_single_assignment]
+    aliases: [I26_cover_single, I26_knowledge_single]
+    evidence: [spec/lean/RPrint/Model/Adapter.lean]
+
+assumptions:
+  - id: ASM-001
+    statement: an ERTP purse transfer is atomic
+    boundary: ertpPurseAtomic
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-002
+    statement: a signature or key derivation is sound
+    boundary: cryptoAuthority
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-003
+    statement: a deploy commits all-or-none
+    boundary: deployAtomicity
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-004
+    statement: deadlines are block heights, not wall clocks
+    boundary: clockHeight
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-005
+    statement: the canonical hash is the deployed Codec hash
+    boundary: codecHash
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-006
+    statement: the deployed admin set and threshold are the model's
+    boundary: adminMultisig
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-007
+    statement: the node schedules fairly
+    boundary: schedulerFairness
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-008
+    statement: a child is bound to the canonical publication URI
+    boundary: canonicalUriBinding
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-009
+    statement: a member key is the derived REV address
+    boundary: memberKeyDerivation
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-010
+    statement: the deployed arbitration fallback matches the model
+    boundary: arbitrationQuorumTie
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-011
+    statement: an r-gen K-Asset is validated by the sibling root
+    boundary: rgenKassetValidation
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-012
+    statement: an r-sure Policy info read returns the stated facts
+    boundary: rsurePolicyInfo
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-013
+    statement: a K-Asset get returns the stated claim reference
+    boundary: rgenKassetInfo
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-014
+    statement: a Claim get returns the stated K-Asset reference and status
+    boundary: rgenClaimInfo
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-015
+    statement: a Provenance get returns the stated asset, claim and writers
+    boundary: rgenProvenanceInfo
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-016
+    statement: a credential get returns the stated subject, status and expiry
+    boundary: rgenCredentialVerify
+    evidence: [spec/lean/RPrint/Model/System.lean]
+  - id: ASM-017
+    statement: a client write is successful only after finality and a (true, ...) reply
+    boundary: client
+    evidence: [web/src/test/live-api.test.ts]
+  - id: ASM-018
+    statement: reads use the explore term shape and writes use the signed term shape
+    boundary: client
+    evidence: [crates/rprint-sdk/src]
+  - id: ASM-019
+    statement: an ambiguous submit is retried with the same op id
+    boundary: client
+    evidence: [crates/rprint-wasm, spec/acceptance.yaml]
+
+divergences:
+  - id: DIV-001
+    arm: 'CommissionProposal@"fund"'
+    model_decl: RPrint.commissionFund
+    deployed: contracts/src/deploy/20_commission.rho:372
+    direction: model-stricter
+    consequence: the model formerly required an editor; the deployed arm accepts any signer
+    status: resolved
+    justification: the model and the guard now accept any caller for an accepted proposal
+    closure: '-'
+  - id: DIV-002
+    arm: 'CommissionEscrow@"release"'
+    model_decl: RPrint.escrowRelease
+    deployed: contracts/src/deploy/21_commission_escrow.rho:391
+    direction: effect-omitting
+    consequence: release/release and release/arbitrate pair claims were not proved
+    status: resolved
+    justification: the model now reads the consumed milestone and its amount; both release pairs are proved
+    closure: '-'
+  - id: DIV-003
+    arm: 'CommissionEscrow@"release"'
+    model_decl: RPrint.escrowRelease
+    deployed: contracts/src/deploy/21_commission_escrow.rho:391
+    direction: effect-omitting
+    consequence: the model leaves the escrow active after the last release
+    status: justified
+    justification: completion is an effect-omitting field; conservation is unaffected
+    closure: '-'
+  - id: DIV-004
+    arm: 'Publication@"addMember"'
+    model_decl: RPrint.publicationAddMember
+    deployed: contracts/src/deploy/11_publication_cell.rho:1
+    direction: model-stricter
+    consequence: the model refuses any existing member; the deployed arm can re-admit a removed member
+    status: justified
+    justification: the model is deliberately narrower on removed-member re-admission
+    closure: '-'
+  - id: DIV-005
+    arm: 'Publication@"removeMember"'
+    model_decl: RPrint.publicationRemoveMember
+    deployed: contracts/src/deploy/11_publication_cell.rho:1
+    direction: model-permissive
+    consequence: the model permits an idempotent remove of an unknown or removed target
+    status: justified
+    justification: no authority is granted by the idempotent case
+    closure: '-'
+  - id: DIV-006
+    arm: 'Article@"attachKnowledge"'
+    model_decl: RPrint.articleAttachKnowledge
+    deployed: contracts/src/deploy/30_article.rho:321
+    direction: shape-different
+    consequence: the article model covers status and authorization; the chain is in Model/Adapter
+    status: justified
+    justification: the strict chain is modelled separately and exercised by unit_knowledge
+    closure: '-'
+  - id: DIV-007
+    arm: 'CommissionProposal@"attachCover"'
+    model_decl: RPrint.coverAttach
+    deployed: contracts/src/deploy/20_commission.rho:208
+    direction: model-permissive
+    consequence: the model formerly ignored the proposal status
+    status: resolved
+    justification: the model now requires a proposed or accepted proposal, matching the source
+    closure: '-'
+  - id: DIV-008
+    arm: 'Publication@"attestSelf"'
+    model_decl: RPrint.publicationAttestSelf
+    deployed: contracts/src/deploy/11_publication_cell.rho:1
+    direction: shape-different
+    consequence: a DID is an Id in the model, not a verified anchor
+    status: justified
+    justification: DID verification is off-chain; the theorem shows the anchor does not change authority
+    closure: '-'
+  - id: DIV-009
+    arm: 'CommissionEscrow@"arbitrate"'
+    model_decl: RPrint.escrowArbitrate
+    deployed: contracts/src/deploy/21_commission_escrow.rho:1
+    direction: shape-different
+    consequence: the model uses a boolean authorization; the deployed arm uses a signature quorum
+    status: justified
+    justification: the signature and quorum are boundary assumptions ASM-002 and ASM-010
+    closure: '-'
+  - id: DIV-010
+    arm: 'Edition@"seal"'
+    model_decl: RPrint.editionSeal
+    deployed: contracts/src/deploy/31_edition.rho:1
+    direction: shape-different
+    consequence: the model uses a boolean signature; the deployed arm verifies a digest
+    status: justified
+    justification: signature verification is boundary assumption ASM-002
+    closure: '-'
+
+roadmap:
+  - id: M13-CONFORMANCE
+    priority: P1
+    title: promote the exercised arms to proved-conformance
+    status: done
+    findings: []
+  - id: M13-RACE
+    priority: P1
+    title: prove all 28 race pairs
+    status: done
+    findings: [DIV-002]
+  - id: M14-MILESTONE
+    priority: P1
+    title: refactor submit and release to read the consumed milestone
+    status: done
+    findings: [DIV-002]
+  - id: M14-FACTORY
+    priority: P2
+    title: add shallow factory create models
+    status: proposed
+    findings: []
+  - id: M14-SCHEMAS
+    priority: P2
+    title: add spec/schemas and a schema checker
+    status: proposed
+    findings: []
+  - id: M14-LIVE-ESCROW
+    priority: P1
+    title: record a live escrow journey
+    status: proposed
+    findings: []
+  - id: M14-ADAPTER-MEMBERSHIP
+    priority: P1
+    title: adjudicate adapter factory-membership trust
+    status: proposed
+    findings: []
+  - id: M14-INDEPENDENT
+    priority: P0
+    title: complete an independent technical review
+    status: proposed
+    findings: []
+  - id: M15-COORDINATION
+    priority: P2
+    title: implement the coordination record and golden outcome
+    status: proposed
+    findings: []
+  - id: M15-COMPLETENESS
+    priority: P2
+    title: subscriptions, revenue splits and syndication
+    status: proposed
+    findings: []
+
+claims:
+  - id: CLM-001
+    source: docs/reference/formal-model.md
+    claim: theorems about the shallow Lean state machines
+    verdict: scope
+    evidence: [docs/reference/formal-model.md]
+    note: the Lean model is shallow and is not a refinement
+  - id: CLM-002
+    source: docs/reference/formal-model.md
+    claim: deployed Rholang
+    verdict: scope
+    evidence: [docs/reference/formal-model.md]
+  - id: CLM-003
+    source: docs/reference/invariants.md
+    claim: Removing or demoting the last active publisher is refused.
+    verdict: proved
+    theorems: [RPrint.publication_removeMember_refuses_last_publisher, RPrint.publication_setRole_refuses_last_publisher]
+  - id: CLM-004
+    source: docs/reference/invariants.md
+    claim: A commission is funded once, upfront, for the full total.
+    verdict: proved
+    theorems: [RPrint.commission_fund_creates_active_escrow]
+  - id: CLM-005
+    source: docs/reference/invariants.md
+    claim: A milestone pays at most once.
+    verdict: proved
+    theorems: [RPrint.escrow_release_pays_once]
+  - id: CLM-006
+    source: docs/reference/invariants.md
+    claim: Corrections are append-only.
+    verdict: proved
+    theorems: [RPrint.article_correct_append_only]
+  - id: CLM-007
+    source: docs/reference/invariants.md
+    claim: A retraction appends a retraction record; it does not erase the article.
+    verdict: proved
+    theorems: [RPrint.article_retract_appends_record]
+  - id: CLM-008
+    source: docs/reference/invariants.md
+    claim: A published article's content hash is frozen.
+    verdict: proved
+    theorems: [RPrint.article_publish_freezes_hash]
+  - id: CLM-009
+    source: docs/reference/invariants.md
+    claim: An edition append requires a published article from the same canonical publication and refuses duplicates.
+    verdict: proved
+    theorems: [RPrint.edition_append_requires_published_article, RPrint.edition_append_same_publication, RPrint.edition_append_refuses_duplicate]
+  - id: CLM-010
+    source: docs/reference/invariants.md
+    claim: A sealed edition manifest is immutable and carries an editor signature
+    verdict: proved
+    theorems: [RPrint.edition_sealed_manifest_immutable, RPrint.edition_seal_binds_manifest]
+  - id: CLM-011
+    source: docs/reference/invariants.md
+    claim: Money is integer minor units.
+    verdict: proved-but-narrower
+    theorems: [RPrint.shareOf_le]
+    gap: the model uses Nat; it is not a type-level money proof
+  - id: CLM-012
+    source: docs/reference/invariants.md
+    claim: Block heights, not wall clocks, carry deadlines.
+    verdict: proved-but-narrower
+    theorems: [RPrint.escrow_submit_refuses_too_late, RPrint.escrow_expire_too_early_refused]
+    gap: Height is a Nat in the model; there is no clock model
+  - id: CLM-013
+    source: docs/reference/invariants.md
+    claim: BYOID DID and attestation fields are anchors, not proof.
+    verdict: assumption
+    evidence: [spec/lean/RPrint/Model/System.lean]
+    note: on-chain DID verification is a boundary assumption
+  - id: CLM-014
+    source: docs/reference/invariants.md
+    claim: An attached cover is an active policy whose
+    verdict: proved
+    theorems: [RPrint.cover_attach_requires_active_policy, RPrint.cover_attach_requires_insured, RPrint.cover_attach_requires_asset]
+  - id: CLM-015
+    source: docs/reference/invariants.md
+    claim: A cover is single-assignment.
+    verdict: proved
+    theorems: [RPrint.cover_attach_single_assignment]
+  - id: CLM-016
+    source: docs/reference/invariants.md
+    claim: An attached knowledge link has reciprocal Claim ↔ KAsset references
+    verdict: proved
+    theorems: [RPrint.knowledge_attach_requires_kasset_claim, RPrint.knowledge_attach_requires_claim_kasset]
+  - id: CLM-017
+    source: docs/reference/invariants.md
+    claim: a validated or conditional claim
+    verdict: proved
+    theorems: [RPrint.knowledge_attach_requires_claim_status]
+  - id: CLM-018
+    source: docs/reference/invariants.md
+    claim: a provenance bound to that KAsset and Claim
+    verdict: proved
+    theorems: [RPrint.knowledge_attach_requires_provenance_asset, RPrint.knowledge_attach_requires_provenance_claim]
+  - id: CLM-019
+    source: docs/reference/invariants.md
+    claim: an author match
+    verdict: proved
+    theorems: [RPrint.knowledge_attach_requires_author]
+  - id: CLM-020
+    source: docs/reference/invariants.md
+    claim: an active unexpired credential when supplied
+    verdict: proved
+    theorems: [RPrint.knowledge_attach_requires_credential]
+  - id: CLM-021
+    source: docs/reference/invariants.md
+    claim: so the hash cannot change afterwards.
+    verdict: proved
+    theorems: [RPrint.knowledge_attach_refuses_draft, RPrint.knowledge_attach_refuses_published]
+  - id: CLM-022
+    source: docs/orientation/status-and-scope.md
+    claim: The r-sure cover and r-gen knowledge arms verify their full chains.
+    verdict: recorded
+    evidence: [spec/acceptance.yaml, docs/reference/verification.md]
+    note: local campaign 2026-11-24; CI dispatch pending
+  - id: CLM-023
+    source: docs/orientation/status-and-scope.md
+    claim: r-print v0.1 is devnet-only and unaudited.
+    verdict: scope
+    evidence: [spec/acceptance.yaml]
+  - id: CLM-024
+    source: docs/reference/verification.md
+    claim: No public testnet or mainnet run
+    verdict: scope
+    evidence: [docs/reference/verification.md]
+  - id: CLM-025
+    source: docs/reference/verification.md
+    claim: there is no refinement theorem tying it to the deployed Rholang
+    verdict: scope
+    evidence: [docs/reference/verification.md]
+  - id: CLM-026
+    source: AGENTS.md
+    claim: Two term shapes.
+    verdict: mechanism
+    evidence: [crates/rprint-sdk/src, web/src/test/live-api.test.ts]
+    note: enforced by the SDK term builders
+  - id: CLM-027
+    source: AGENTS.md
+    claim: Key only in WASM.
+    verdict: mechanism
+    evidence: [crates/rprint-wasm]
+    note: no export returns a plaintext secret
+  - id: CLM-028
+    source: AGENTS.md
+    claim: r-print reads them by
+    verdict: mechanism
+    evidence: [contracts/src/deploy/05_rgen.rho, contracts/src/deploy/06_rsure.rho]
+    note: the sibling roots never call back into r-print
+  - id: CLM-029
+    source: AGENTS.md
+    claim: The r-sure and r-gen adapters are disabled unless
+    verdict: mechanism
+    evidence: [configs/rsure.json, configs/rgen.json, harness/install.py]
+    note: the install opt-in fail-closes when a manifest is missing
+  - id: CLM-030
+    source: docs/reference/verification.md
+    claim: The Lean model is `proved-model`
+    verdict: scope
+    evidence: [spec/lean/RPrint/Audit.lean]
+    note: proved-model and proved-conformance are not audits

@@ -12,6 +12,8 @@
   leanprover/lean4:v4.12.0`)
 - sibling checkouts of r-cash (`../Rholphin` by default) and the rholo node
   (`../RNodeRust` by default)
+- optional sibling checkouts of r-sure (`../RSure`) and r-gen (`../RGen`) for the cover and
+  knowledge campaign; `SIBLINGS_DIR` overrides the parent directory
 
 The workspace pins r-cash at `49b441d` and `rchain-crypto` at rholo `841cb84`. The local node
 checkout used for the recorded campaign was rholo node `0.1.0` build `8fe0136` on port
@@ -30,7 +32,8 @@ make client-lint client-test client-wasm
 
 `spec-check` builds the inlined terms, measures them, checks the component graph, refuses
 `select`, refuses forbidden bundle captures, checks integer money and suite mapping, and runs
-`tools/check_graph.py`. `parse-check` renders the terms with the installer and parses them
+the graph, rigor, guard, race, conformance, client-map, capability, audit, close-out and
+HAZOP gates. `parse-check` renders the terms with the installer and parses them
 with the target node's parser.
 
 ## Devnet
@@ -38,6 +41,14 @@ with the target node's parser.
 ```sh
 make devnet-up rcash-keys rcash-bootstrap keys install
 make unit-all
+```
+
+For the optional sibling campaign, install the pinned roots and rerun the install with both
+enabled:
+
+```sh
+make siblings-venv siblings-install install-with-siblings
+make sibling-fixture sibling-suites-strict
 ```
 
 `devnet-up` delegates to the r-cash devnet. `rcash-keys` funds the deployer; `rcash-bootstrap`

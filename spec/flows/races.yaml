@@ -1,0 +1,172 @@
+schema: rprint.races/v1
+scope:
+  refinement: false
+  note: >-
+    Pair obligations over the shallow Lean model. This is not scheduler-level
+    race freedom and not a refinement of the deployed Rholang.
+cells:
+  Publication: [addMember, removeMember, pause]
+  CommissionProposal: [accept, fund]
+  CommissionEscrow: [release, cancel, expire, arbitrate]
+  Article: [submit, publish, correct]
+  Edition: [append, seal]
+pairs:
+  - cell: Publication
+    a: addMember
+    b: addMember
+    case: same-member
+    class: exclusive
+    theorem: RPrint.publication_addMember_addMember_same_never_after
+    note: the second add of an active member refuses duplicate
+  - cell: Publication
+    a: addMember
+    b: removeMember
+    class: ordered
+    theorem: RPrint.publication_addMember_removeMember_ordered
+    note: remove first leaves the member present, so add refuses duplicate
+  - cell: Publication
+    a: addMember
+    b: pause
+    class: independent
+    theorem: RPrint.publication_addMember_pause_independent
+    note: the roster write and the status write touch disjoint fields
+  - cell: Publication
+    a: removeMember
+    b: removeMember
+    class: independent
+    theorem: RPrint.publication_removeMember_removeMember_independent
+    note: the second remove of a non-publisher target succeeds
+  - cell: Publication
+    a: removeMember
+    b: pause
+    class: independent
+    theorem: RPrint.publication_removeMember_pause_independent
+    note: the roster write and the status write are independent
+  - cell: Publication
+    a: pause
+    b: pause
+    class: independent
+    theorem: RPrint.publication_pause_pause_independent
+    note: the last pause/resume writes the status
+  - cell: CommissionProposal
+    a: accept
+    b: accept
+    class: exclusive
+    theorem: RPrint.commission_accept_accept_never_after
+  - cell: CommissionProposal
+    a: accept
+    b: fund
+    class: ordered
+    theorem: RPrint.commission_accept_fund_ordered
+    note: accept then fund is admitted; fund then accept refuses
+  - cell: CommissionProposal
+    a: fund
+    b: fund
+    class: exclusive
+    theorem: RPrint.commission_fund_fund_never_after
+  - cell: CommissionEscrow
+    a: release
+    b: release
+    class: exclusive
+    theorem: RPrint.escrow_release_release_never_after
+    note: the model now reads the consumed milestone; the second release refuses
+  - cell: CommissionEscrow
+    a: release
+    b: cancel
+    class: ordered
+    theorem: RPrint.escrow_release_cancel_ordered
+    note: cancel first refuses release; release first is the normal path
+  - cell: CommissionEscrow
+    a: release
+    b: expire
+    class: ordered
+    theorem: RPrint.escrow_release_expire_ordered
+    note: expire first refuses release; release first is the normal path
+  - cell: CommissionEscrow
+    a: release
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_release_arbitrate_exclusive
+    note: arbitrate first refuses release; release alone never reaches disputed
+  - cell: CommissionEscrow
+    a: cancel
+    b: cancel
+    class: exclusive
+    theorem: RPrint.escrow_cancel_cancel_never_after
+  - cell: CommissionEscrow
+    a: cancel
+    b: expire
+    class: exclusive
+    theorem: RPrint.escrow_cancel_expire_exclusive
+  - cell: CommissionEscrow
+    a: cancel
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_cancel_arbitrate_exclusive
+  - cell: CommissionEscrow
+    a: expire
+    b: expire
+    class: exclusive
+    theorem: RPrint.escrow_expire_expire_never_after
+  - cell: CommissionEscrow
+    a: expire
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_expire_arbitrate_exclusive
+  - cell: CommissionEscrow
+    a: arbitrate
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_arbitrate_arbitrate_never_after
+  - cell: Article
+    a: submit
+    b: submit
+    class: exclusive
+    theorem: RPrint.article_submit_submit_never_after
+  - cell: Article
+    a: submit
+    b: publish
+    class: ordered
+    theorem: RPrint.article_submit_publish_ordered
+    note: publish requires approved; submit alone leaves submitted
+  - cell: Article
+    a: submit
+    b: correct
+    class: ordered
+    theorem: RPrint.article_submit_correct_ordered
+    note: submit leaves submitted, so the following correct refuses
+  - cell: Article
+    a: publish
+    b: publish
+    class: exclusive
+    theorem: RPrint.article_publish_publish_never_after
+  - cell: Article
+    a: publish
+    b: correct
+    class: ordered
+    theorem: RPrint.article_publish_correct_ordered
+    note: publish then correct is admitted; correct first leaves the status published or retracted, so publish refuses
+  - cell: Article
+    a: correct
+    b: correct
+    class: independent
+    theorem: RPrint.article_correct_correct_independent
+    note: both corrections append while the cap allows
+  - cell: Edition
+    a: append
+    b: append
+    case: same-article
+    class: exclusive
+    theorem: RPrint.edition_append_append_same_never_after
+    note: the first append puts the article id in the manifest; the second refuses duplicate
+  - cell: Edition
+    a: append
+    b: seal
+    class: ordered
+    theorem: RPrint.edition_append_seal_ordered
+    note: append then seal is admitted; seal then append refuses
+  - cell: Edition
+    a: seal
+    b: seal
+    class: exclusive
+    theorem: RPrint.edition_seal_seal_never_after

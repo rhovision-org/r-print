@@ -33,43 +33,73 @@ invariants:
   I14: {statement: "a retraction appends a record", lean: RPrint.article_retract_appends_record, lean_status: proved-model}
   I15: {statement: "an edition append requires a published article from the publication", lean: RPrint.edition_append_guards, lean_status: proved-model}
   I16: {statement: "a sealed edition is bound and immutable", lean: RPrint.edition_sealed_manifest_immutable, lean_status: proved-model}
+  I17: {statement: "BYOID DID and attestation fields are anchors, not proof", lean: RPrint.publication_attest_preserves_authority, lean_status: proved-model, note: "DID verification is off-chain; the theorem only shows attestSelf leaves authority unchanged"}
+  I18: {statement: "a quantum-os coordination record is provenance, not authority", lean_status: design, note: "spec/spec-only.md"}
+  I19: {statement: "money is integer minor units; block heights carry deadlines", lean: RPrint.shareOf_le, lean_status: proved-but-narrower, note: "Nat minor units and Height; not a type-level money proof"}
+  I20: {statement: "spec-only features do not change v0.1 cell semantics", lean_status: design, note: "spec/spec-only.md"}
+  I21: {statement: "a client write succeeds only after finalized + processedWithSuccess + a (true, ...) reply", lean_status: mechanism, note: "web/src/test/live-api.test.ts; crates/rprint-sdk"}
+  I22: {statement: "reads use explore-deploy; writes use signed-deploy", lean_status: mechanism, note: "crates/rprint-sdk/src; AGENTS.md"}
+  I23: {statement: "an ambiguous submit reuses the op id and the key stays in WASM", lean_status: mechanism, note: "crates/rprint-wasm; deployments/live-client-results.json"}
+  I24: {statement: "an attached cover is active, insured to the treasury and asset-bound", lean: RPrint.cover_attach_requires_insured, lean_status: proved-model, note: "see cover_attach_requires_active_policy and cover_attach_requires_asset"}
+  I25: {statement: "a knowledge link requires the reciprocal authored chain", lean: RPrint.knowledge_attach_requires_provenance_hash, lean_status: proved-model, note: "see the reciprocal, author and credential theorems"}
+  I26: {statement: "a sibling link is single-assignment; an identical link is a replay", lean: RPrint.cover_attach_single_assignment, lean_status: proved-model, note: "see knowledge_attach_single_assignment"}
 rules:
   - id: P-member
     arm: 'Publication@"addMember"'
     source: contracts/src/deploy/11_publication_cell.rho
+    cell: Publication
+    guard_eq: RPrint.publicationAddMember_guard_eq
+    corpus: PUB-add-nonpublisher
+    suite: harness/unit_membership_auth.py
     status: implemented
     lean: RPrint.publication_addMember_requires_publisher
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: P-remove
     arm: 'Publication@"removeMember"'
     source: contracts/src/deploy/11_publication_cell.rho
+    cell: Publication
+    guard_eq: RPrint.publicationRemoveMember_guard_eq
+    corpus: PUB-remove-last
+    suite: harness/unit_membership_auth.py
     status: implemented
     lean: RPrint.publication_removeMember_refuses_last_publisher
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: P-role
     arm: 'Publication@"setRole"'
     source: contracts/src/deploy/11_publication_cell.rho
+    cell: Publication
+    guard_eq: RPrint.publicationSetRole_guard_eq
     status: implemented
     lean: RPrint.publication_setRole_refuses_last_publisher
     lean_status: proved-model
   - id: P-attest
     arm: 'Publication@"attestSelf"'
     source: contracts/src/deploy/11_publication_cell.rho
+    cell: Publication
+    guard_eq: RPrint.publicationAttestSelf_guard_eq
     status: implemented
     lean: RPrint.publication_attestSelf_requires_member
     lean_status: proved-model
   - id: P-pause
     arm: 'Publication@"pause"'
     source: contracts/src/deploy/11_publication_cell.rho
+    cell: Publication
+    guard_eq: RPrint.publicationPause_guard_eq
+    corpus: PUB-pause-nonpublisher
+    suite: harness/unit_publication.py
     status: implemented
     lean: RPrint.publication_pause_requires_publisher
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: P-admin
     arm: 'Publication@"admin"'
     source: contracts/src/deploy/11_publication_cell.rho
+    cell: Publication
+    guard_eq: RPrint.publicationAdmin_guard_eq
+    corpus: PUB-admin-replay
+    suite: harness/unit_publication.py
     status: implemented
     lean: RPrint.publication_admin_replay_refused
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: P-arbitration
     arm: 'Publication@"arbitration"'
     source: contracts/src/deploy/11_publication_cell.rho
@@ -79,142 +109,290 @@ rules:
   - id: C-propose
     arm: 'CommissionFactory@"propose"'
     source: contracts/src/deploy/20_commission.rho
+    cell: CommissionFactory
+    guard_eq: RPrint.commissionPropose_guard_eq
+    corpus: COM-propose-ok
+    suite: harness/unit_commission.py
     status: implemented
-    lean: RPrint.commission_propose_requires_writer
-    lean_status: proved-model
+    lean: RPrint.commission_propose_initial
+    lean_status: proved-conformance
   - id: C-accept
     arm: 'CommissionProposal@"accept"'
     source: contracts/src/deploy/20_commission.rho
+    cell: CommissionProposal
+    guard_eq: RPrint.commissionAccept_guard_eq
+    corpus: COM-accept-ok
+    suite: harness/unit_commission.py
     status: implemented
-    lean: RPrint.commission_accept_requires_editor
-    lean_status: proved-model
+    lean: RPrint.commission_accept_sets_editor
+    lean_status: proved-conformance
   - id: C-fund
     arm: 'CommissionProposal@"fund"'
     source: contracts/src/deploy/20_commission.rho
+    cell: CommissionProposal
+    guard_eq: RPrint.commissionFund_guard_eq
+    corpus: COM-fund-ok
+    suite: harness/unit_commission.py
     status: implemented
     lean: RPrint.commission_fund_creates_active_escrow
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: C-cancel
     arm: 'CommissionProposal@"cancel"'
     source: contracts/src/deploy/20_commission.rho
+    cell: CommissionProposal
+    guard_eq: RPrint.commissionCancel_guard_eq
     status: implemented
     lean: RPrint.commission_cancel_requires_writer_or_editor
     lean_status: proved-model
   - id: C-cover
     arm: 'CommissionProposal@"attachCover"'
     source: contracts/src/deploy/20_commission.rho
-    status: surface
-    lean_status: owed
+    cell: CommissionProposal
+    guard_eq: RPrint.coverAttach_guard_eq
+    corpus: COV-attach-inactive
+    suite: harness/unit_cover.py
+    status: implemented
+    lean: RPrint.cover_attach_requires_active_policy
+    lean_status: proved-conformance
   - id: E-submit
     arm: 'CommissionEscrow@"submit"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowSubmit_guard_eq
     status: implemented
     lean: RPrint.escrow_submit_refuses_too_late
     lean_status: proved-model
   - id: E-release
     arm: 'CommissionEscrow@"release"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowRelease_guard_eq
+    corpus: ESC-release-double
+    suite: harness/unit_commission_refusals.py
     status: implemented
     lean: RPrint.escrow_release_conserves
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: E-cancel
     arm: 'CommissionEscrow@"cancel"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowCancel_guard_eq
+    corpus: ESC-cancel-ok
+    suite: harness/unit_conservation.py
     status: implemented
     lean: RPrint.escrow_cancel_conserves
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: E-expire
     arm: 'CommissionEscrow@"expire"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowExpire_guard_eq
+    corpus: ESC-expire-ok
+    suite: harness/unit_conservation.py
     status: implemented
     lean: RPrint.escrow_expire_conserves
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: E-dispute
     arm: 'CommissionEscrow@"dispute"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowDispute_guard_eq
     status: implemented
     lean: RPrint.escrow_dispute_requires_writer_or_funder
     lean_status: proved-model
   - id: E-arbitrate
     arm: 'CommissionEscrow@"arbitrate"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowArbitrate_guard_eq
+    corpus: ESC-arbitrate-replay
+    suite: harness/unit_commission_dispute.py
     status: implemented
     lean: RPrint.escrow_arbitrate_conserves
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: E-resolve
     arm: 'CommissionEscrow@"resolveDispute"'
     source: contracts/src/deploy/21_commission_escrow.rho
+    cell: CommissionEscrow
+    guard_eq: RPrint.escrowResolveDispute_guard_eq
     status: implemented
     lean: RPrint.escrow_resolveDispute_too_early_refused
     lean_status: proved-model
   - id: A-submit
     arm: 'Article@"submit"'
     source: contracts/src/deploy/30_article.rho
+    cell: Article
+    guard_eq: RPrint.articleSubmit_guard_eq
+    corpus: ART-submit-nonauthor
+    suite: harness/unit_article_refusals.py
     status: implemented
     lean: RPrint.article_submit_rewrites_hash
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: A-knowledge
     arm: 'Article@"attachKnowledge"'
     source: contracts/src/deploy/30_article.rho
+    cell: Article
+    guard_eq: RPrint.articleAttachKnowledge_guard_eq
+    corpus: KNO-attach-claim-status
+    suite: harness/unit_knowledge.py
     status: implemented
-    lean: RPrint.article_attachKnowledge_refused_after_publish
-    lean_status: proved-model
+    lean: RPrint.knowledge_attach_requires_claim_status
+    lean_status: proved-conformance
   - id: A-approve
     arm: 'Article@"approve"'
     source: contracts/src/deploy/30_article.rho
+    cell: Article
+    guard_eq: RPrint.articleApprove_guard_eq
     status: implemented
     lean: RPrint.article_approve_requires_kasset
     lean_status: proved-model
   - id: A-publish
     arm: 'Article@"publish"'
     source: contracts/src/deploy/30_article.rho
+    cell: Article
+    guard_eq: RPrint.articlePublish_guard_eq
+    corpus: ART-publish-unapproved
+    suite: harness/unit_article_refusals.py
     status: implemented
     lean: RPrint.article_publish_freezes_hash
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: A-correct
     arm: 'Article@"correct"'
     source: contracts/src/deploy/30_article.rho
+    cell: Article
+    guard_eq: RPrint.articleCorrect_guard_eq
+    corpus: ART-correct-append
+    suite: harness/unit_corrections.py
     status: implemented
     lean: RPrint.article_correct_append_only
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: A-retract
     arm: 'Article@"retract"'
     source: contracts/src/deploy/30_article.rho
+    cell: Article
+    guard_eq: RPrint.articleRetract_guard_eq
     status: implemented
     lean: RPrint.article_retract_appends_record
     lean_status: proved-model
   - id: D-append
     arm: 'Edition@"append"'
     source: contracts/src/deploy/31_edition.rho
+    cell: Edition
+    guard_eq: RPrint.editionAppend_guard_eq
+    corpus: ED-append-duplicate
+    suite: harness/unit_edition.py
     status: implemented
     lean: RPrint.edition_append_guards
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: D-seal
     arm: 'Edition@"seal"'
     source: contracts/src/deploy/31_edition.rho
+    cell: Edition
+    guard_eq: RPrint.editionSeal_guard_eq
+    corpus: ED-seal-ok
+    suite: harness/unit_edition.py
     status: implemented
     lean: RPrint.edition_seal_binds_manifest
-    lean_status: proved-model
+    lean_status: proved-conformance
   - id: G-claim
     arm: 'RgenAdapter@"claim"'
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean_status: modeled
+  - id: G-kasset
+    arm: 'RgenAdapter@"kasset"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
   - id: G-provenance
     arm: 'RgenAdapter@"provenance"'
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean_status: modeled
+  - id: G-provenance-info
+    arm: 'RgenAdapter@"provenanceInfo"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
+  - id: G-credential
+    arm: 'RgenAdapter@"credential"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
+  - id: G-health
+    arm: 'RgenAdapter@"health"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
   - id: S-policy
     arm: 'RsureAdapter@"policy"'
     source: contracts/src/deploy/06_rsure.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean_status: modeled
+  - id: S-health
+    arm: 'RsureAdapter@"health"'
+    source: contracts/src/deploy/06_rsure.rho
+    status: implemented
+    lean_status: modeled
   - id: Q-record
     arm: 'CoordinationRecord@"record"'
     source: spec/spec-only.md
     status: design
     lean_status: owed
+  - id: P-factory
+    arm: 'PublicationFactory@"create"'
+    source: contracts/src/deploy/10_publication.rho
+    status: implemented
+    lean_status: owed
+    cell: PublicationFactory
+    guard_eq: RPrint.factoryCreate_guard_eq
+    note: factory creation has no shallow transition
+  - id: C-escrow-factory
+    arm: 'CommissionEscrowFactory@"createFunded"'
+    source: contracts/src/deploy/21_commission_escrow.rho
+    status: implemented
+    lean_status: owed
+    cell: CommissionEscrowFactory
+    guard_eq: RPrint.factoryCreate_guard_eq
+    note: factory creation moves the purse and has no shallow transition
+  - id: A-factory
+    arm: 'ArticleFactory@"create"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+    lean_status: owed
+    cell: ArticleFactory
+    guard_eq: RPrint.factoryCreate_guard_eq
+    note: factory creation has no shallow transition
+  - id: A-attest
+    arm: 'Article@"attest"'
+    source: contracts/src/deploy/30_article.rho
+    status: implemented
+    lean: RPrint.article_attest_append_only
+    lean_status: proved-conformance
+    cell: Article
+    guard_eq: RPrint.articleAttest_guard_eq
+    corpus: ART-attest-ok
+    suite: harness/unit_article.py
+  - id: D-factory
+    arm: 'EditionFactory@"create"'
+    source: contracts/src/deploy/31_edition.rho
+    status: implemented
+    lean_status: owed
+    cell: EditionFactory
+    guard_eq: RPrint.factoryCreate_guard_eq
+    note: factory creation has no shallow transition
+  - id: G-identity
+    arm: 'RgenAdapter@"identity"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: owed
+    note: read-only identity lookup; unit_interfaces asserts the disabled default, the positive r-gen identity path needs a fixture in M14
+  - id: S-slip
+    arm: 'RsureAdapter@"slip"'
+    source: contracts/src/deploy/06_rsure.rho
+    status: implemented
+    lean_status: owed
+    note: read-only passthrough; unit_interfaces asserts a local Slip mock, a real r-sure slip fixture is M14
 core_arms:
   - 'Publication@"addMember"'
   - 'Publication@"removeMember"'

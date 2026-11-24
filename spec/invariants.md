@@ -59,3 +59,18 @@
 - **I23.** An ambiguous submit is retried with the same operation id (preferably by polling
   the deploy id or re-POSTing the same signed body), never with a fresh operation id. The key
   is held only in WASM; no client export returns a plaintext secret.
+
+## Sibling surfaces
+
+- **I24.** An attached cover is an active policy whose `insured` is the publication treasury
+  and whose asset matches the charter; a cover is single-assignment.
+- **I25.** An attached knowledge link has reciprocal Claim ↔ KAsset references, a validated or
+  conditional claim, a provenance bound to that KAsset and Claim and anchored to the article
+  content hash, an author match, and an active unexpired credential when supplied. The article
+  must be `submitted` or `approved`.
+- **I26.** A sibling link is single-assignment; an identical re-attach is a replay, a different
+  tuple is refused.
+
+The sibling model evidence is `spec/lean/RPrint/Model/Adapter.lean`; the real-sibling suites are
+`unit_cover` and `unit_knowledge`, which recorded 16 and 25 assertions on 2026-11-24 with the
+pinned roots and report `not_run` when the roots are not installed.

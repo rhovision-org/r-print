@@ -48,6 +48,26 @@
 - **I20.** Spec-only features (subscriptions, revenue splits, crowdfunding, tips,
   syndication) do not change v0.1 cell semantics.
 
+## Client
+
+- **I21.** A client write succeeds only after the deploy is finalized, processed with success,
+  and returns a `(true, …)` reply.
+- **I22.** Reads use explore-deploy and a term that replies on its first private name; writes
+  use the signed-deploy shape and a reply on `deployId`.
+- **I23.** An ambiguous submit is retried with the same operation id, never a fresh one. The
+  key is held only in WASM; no client export returns a plaintext secret.
+
+## Sibling surfaces
+
+- **I24.** An attached cover is an active policy whose `insured` is the publication treasury
+  and whose asset matches the charter. A cover is single-assignment.
+- **I25.** An attached knowledge link has reciprocal Claim ↔ KAsset references, a validated or
+  conditional claim, a provenance bound to that KAsset and Claim and anchored to the article
+  content hash, an author match, and an active unexpired credential when supplied. The article
+  must be `submitted` or `approved`, so the hash cannot change afterwards.
+- **I26.** A sibling link is single-assignment. An identical re-attach is a replay; a different
+  tuple is refused.
+
 ## Evidence map
 
 | Invariant | Suites | Lean |
@@ -60,9 +80,21 @@
 | I6–I10 | commission, commission_refusals, commission_dispute, conservation | `RPrint.escrow_release_pays_once`, `RPrint.escrow_release_conserves`, `RPrint.escrow_terminal_conserved` |
 | I11 | commission, commission_dispute | assumption: solo arbitration quorum tie |
 | I12–I16 | article, article_refusals, corrections, edition, behavior | `RPrint.article_publish_freezes_hash`, `RPrint.article_correct_append_only`, `RPrint.article_retract_appends_record`, `RPrint.edition_append_guards`, `RPrint.edition_sealed_manifest_immutable` |
-| I17–I19 | interfaces, behavior, money checks | outside the model |
-| I20 | spec review | outside the model |
+| I17 | publication, membership_auth | `RPrint.publication_attest_preserves_authority` |
+| I18 | design review | outside the model (design) |
+| I19 | commission, conservation, money checks | `RPrint.shareOf_le`, `RPrint.escrow_release_bounded_by_purse` (narrower: `Nat` and `Height`) |
+| I20 | spec review | outside the model (design) |
+| I21–I23 | live client, client tests | mechanism: no Lean theorem |
+| I24 | cover, commission | `RPrint.cover_attach_requires_insured`, `RPrint.cover_attach_requires_asset`, `RPrint.cover_attach_single_assignment` |
+| I25 | knowledge, article | `RPrint.knowledge_attach_requires_kasset_claim`, `RPrint.knowledge_attach_requires_provenance_hash`, `RPrint.knowledge_attach_requires_author`, `RPrint.knowledge_attach_requires_credential` |
+| I26 | cover, knowledge | `RPrint.cover_attach_single_assignment`, `RPrint.knowledge_attach_single_assignment` |
 
 The model evidence is `spec/lean/`; `spec/flows/core.yaml` names the carrying theorem for
-each rule. The model is shallow and does not formalise ERTP, phlo, cryptography, the node
-scheduler or deploy atomicity. See [Formal model](formal-model.md).
+each rule. `spec/proofs/rigor.yaml` carries one coverage row per invariant with its stale
+aliases, theorems, evidence and gap; `make check-rigor` keeps the two directions in step.
+`spec/guards/arms.yaml` maps the mutating arms to their guard theorems, and
+`spec/flows/races.yaml` records the core arm pairs. None of these is a refinement of the
+deployed Rholang.
+
+The model is shallow and does not formalise ERTP, phlo, cryptography, the node scheduler or
+deploy atomicity. See [Formal model](formal-model.md).

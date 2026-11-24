@@ -1,0 +1,71 @@
+schema: rprint.redteam/v1
+measured_at: '2026-11-24T11:45:00Z'
+node: 'rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)'
+expectation: internal adversarial review, not an independent audit
+results:
+  - id: RT-001
+    name: editor impersonates a publisher
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, role)'
+  - id: RT-002
+    name: last publisher removes themselves
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, last publisher)'
+  - id: RT-003
+    name: write against a paused publication
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, paused)'
+  - id: RT-004
+    name: replay a platform admin nonce
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, replay)'
+  - id: RT-005
+    name: writer accepts their own proposal
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, role)'
+  - id: RT-006
+    name: double release
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, not submitted)'
+  - id: RT-007
+    name: attach a self-consistent fake policy
+    expected: accept
+    classification: accepted
+    finding: RPA-001
+    observed: 'accepted; the adapter checks shape, not factory membership'
+  - id: RT-008
+    name: append an article from another publication
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, publication)'
+  - id: RT-009
+    name: writer seals an edition
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, role)'
+  - id: RT-010
+    name: revoked credential on a real chain
+    expected: refuse
+    classification: fixed
+    finding: RPA-007
+    observed: 'refused: (false, credential)'
+  - id: RT-011
+    name: attach a self-consistent fake knowledge chain
+    expected: accept
+    classification: accepted
+    finding: RPA-001
+    observed: 'accepted; the chain checks reciprocal shape, not sibling membership'

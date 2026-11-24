@@ -1,8 +1,9 @@
 # Integration graph
 
-> **Status:** Implemented for the r-print-owned edges; surface for the r-sure and r-gen
-> adapters (disabled by default); design for the cover-claim and coordination edges.
-> `make check-graph` validates every vertex and edge in `spec/graph/`.
+> **Status:** Implemented for the r-print-owned edges and the r-sure/r-gen links, recorded
+> locally on 2026-11-24 (2/2 sibling suites, 43 assertions; the roots remain disabled by
+> default); design for the cover-claim and coordination edges. `make check-graph` validates
+> every vertex and edge in `spec/graph/`.
 
 r-print is not a new island. It is an extension of one graph. Escrow is the baseline
 settlement rail; r-sure is the surface that lets a publication buy proper insurance when
@@ -70,7 +71,7 @@ a prose sketch.
 
 | Verb | From → To | Arms | Status |
 |---|---|---|---|
-| `covers` | policy → commission | `CommissionProposal.attachCover`, `RsureAdapter.policy` | surface |
+| `covers` | policy → commission | `CommissionProposal.attachCover`, `RsureAdapter.policy` | implemented |
 | `funds` | account → slip | `Slip.fundPremium` | surface |
 | `escrows` | slip → purse | `Slip.premium` | surface |
 | `refunds` | slip → account | `Slip.expire` | surface |
@@ -85,12 +86,12 @@ a prose sketch.
 | Verb | From → To | Arms | Status |
 |---|---|---|---|
 | `identifiedBy` | member → identity | `RgenAdapter.identity`, `IdentityDirectory.lookup` | surface |
-| `credentialedBy` | member → credential | `RgenAdapter.credential`, `CredentialFactory.verify` | surface |
+| `credentialedBy` | member → credential | `RgenAdapter.credential`, `CredentialFactory.verify` | implemented |
 | `validatesClaim` | credential → rgen_claim | `Claim.validate`, `Credential.prove` | surface |
 | `mintsKAsset` | rgen_claim → kasset | `Claim.validate → makeKAsset` | surface |
-| `asserts` | kasset → rgen_claim | `KAsset.get.claimRef` | surface |
+| `asserts` | kasset → rgen_claim | `KAsset.get.claimRef`, `RgenAdapter.kasset` | implemented |
 | `provenanceOf` | provenance → kasset | `ProvenanceFactory.createBound` | surface |
-| `anchorsHash` | provenance → article | `Provenance.anchor`, `RgenAdapter.provenance` | surface |
+| `anchorsHash` | provenance → article | `Provenance.anchor`, `RgenAdapter.provenance` | implemented |
 | `wraps` | article → kasset | `Article.attachKnowledge`, `RgenAdapter.kasset` | implemented (optional) |
 | `wrapsClaim` | article → rgen_claim | `Article.attachKnowledge`, `RgenAdapter.claim` | implemented (optional) |
 | `wrapsProvenance` | article → provenance | `Article.attachKnowledge`, `RgenAdapter.provenance` | implemented (optional) |

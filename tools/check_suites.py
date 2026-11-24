@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "harness"))
 import run_suites  # noqa: E402
 
 ALLOWED_TARGETS = {"unit_all"}
-SCAN = [ROOT / "README.md", ROOT / "docs", ROOT / "spec", ROOT / "audit"]
+SCAN = [ROOT / "README.md", ROOT / "docs", ROOT / "spec"]
 SUITE_REF = re.compile(r"`(unit[-_][a-z0-9_-]+)`")
 
 
@@ -38,6 +38,7 @@ def check_files() -> list[str]:
         "SAFE_ONLY": set(run_suites.SAFE_ONLY),
         "EXPERIMENTAL": set(run_suites.EXPERIMENTAL),
         "AUDIT": set(run_suites.AUDIT),
+        "SIBLING": set(run_suites.SIBLING),
     }
     seen: dict[str, str] = {}
     for name, group in groups.items():
@@ -61,6 +62,8 @@ def check_files() -> list[str]:
             errors.append(f"DEFAULT contains non-safe suites: {extra}")
     if groups["EXPERIMENTAL"] & set(run_suites.DEFAULT):
         errors.append("experimental suites must not be in run_suites.DEFAULT")
+    if groups["SIBLING"] & set(run_suites.DEFAULT):
+        errors.append("sibling suites must not be in run_suites.DEFAULT")
     return errors
 
 

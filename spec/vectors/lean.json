@@ -10,6 +10,22 @@
       "input": "published",
       "output": "none"
     },
+    "article.attest.cap": {
+      "input": "16",
+      "output": "none"
+    },
+    "article.attest.draft": {
+      "input": "draft",
+      "output": "none"
+    },
+    "article.attest.ok": {
+      "input": "true,submitted",
+      "output": "submitted,9,1"
+    },
+    "article.attest.role": {
+      "input": "false",
+      "output": "none"
+    },
     "article.correct.append_only": {
       "input": "published",
       "output": "published,9,1"
@@ -53,6 +69,38 @@
     "commission.fund.ok": {
       "input": "3",
       "output": "active,1000,1000"
+    },
+    "cover.attach.asset": {
+      "input": "wrong asset",
+      "output": "none"
+    },
+    "cover.attach.funded": {
+      "input": "funded",
+      "output": "none"
+    },
+    "cover.attach.inactive": {
+      "input": "inactive",
+      "output": "none"
+    },
+    "cover.attach.insured": {
+      "input": "wrong insured",
+      "output": "none"
+    },
+    "cover.attach.ok": {
+      "input": "active,insured,asset",
+      "output": "21,9,7"
+    },
+    "cover.attach.overwrite": {
+      "input": "different",
+      "output": "none"
+    },
+    "cover.attach.proposed": {
+      "input": "proposed",
+      "output": "21,9,7"
+    },
+    "cover.attach.replay": {
+      "input": "same",
+      "output": "21,none,none"
     },
     "edition.append.duplicate": {
       "input": "published,same,dup",
@@ -107,20 +155,68 @@
       "output": "expired,0,1000,0,1000"
     },
     "escrow.release.double": {
-      "input": "released,true,400",
+      "input": "released,true,m1",
       "output": "none"
     },
     "escrow.release.ok": {
-      "input": "submitted,true,400",
+      "input": "submitted,true,m1",
       "output": "active,400,0,600,1000"
     },
     "escrow.release.prior": {
-      "input": "submitted,false,400",
+      "input": "submitted,false,m1",
       "output": "none"
     },
     "escrow.submit.too_late": {
-      "input": "pending,100,10",
+      "input": "pending,deadline 100,now 101",
       "output": "none"
+    },
+    "knowledge.attach.author": {
+      "input": "not an author",
+      "output": "none"
+    },
+    "knowledge.attach.claim_kasset": {
+      "input": "wrong kasset ref",
+      "output": "none"
+    },
+    "knowledge.attach.claim_status": {
+      "input": "open",
+      "output": "none"
+    },
+    "knowledge.attach.credential": {
+      "input": "revoked",
+      "output": "none"
+    },
+    "knowledge.attach.draft": {
+      "input": "draft",
+      "output": "none"
+    },
+    "knowledge.attach.kasset_claim": {
+      "input": "wrong claim ref",
+      "output": "none"
+    },
+    "knowledge.attach.ok": {
+      "input": "validated chain",
+      "output": "submitted,11,12,13,14,50"
+    },
+    "knowledge.attach.provenance_asset": {
+      "input": "wrong asset",
+      "output": "none"
+    },
+    "knowledge.attach.provenance_claim": {
+      "input": "wrong claim",
+      "output": "none"
+    },
+    "knowledge.attach.provenance_hash": {
+      "input": "hash mismatch",
+      "output": "none"
+    },
+    "knowledge.attach.published": {
+      "input": "published",
+      "output": "none"
+    },
+    "knowledge.attach.replay": {
+      "input": "same",
+      "output": "submitted,11,12,13,14,40"
     },
     "publication.addMember.not_publisher": {
       "input": "2,editor",

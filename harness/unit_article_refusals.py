@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from article_fixture import (approve, attach_knowledge, create_article,
                              editorial_publication, mock_knowledge, publish,
                              submit)
@@ -21,21 +22,21 @@ def main() -> int:
 
     pub = editorial_publication("article-refusals")
     article = create_article(pub, "content:r1")
-    expect_refusal("non-author submit",
-                   one(call_uri(article["uri"], "submit",
-                                '*dId, "bad-submit", "content:r1"'), key="reporter2"),
-                   "not author")
+    non_author = one(call_uri(article["uri"], "submit",
+                              '*dId, "bad-submit", "content:r1"'), key="reporter2")
+    expect_refusal("non-author submit", non_author, "not author")
+    corpus.assert_row("ART-submit-nonauthor", non_author)
     submit(article)
     expect_refusal("writer cannot approve",
                    one(call_uri(article["uri"], "approve", '*dId, "writer-approve"'),
                        key="reporter1"),
                    "role")
-    expect_refusal("publish from submitted",
-                   one(call_uri(article["uri"], "publish", '*dId, "early-publish"'),
-                       key="deployer"),
-                   "status")
+    early_publish = one(call_uri(article["uri"], "publish", '*dId, "early-publish"'),
+                        key="deployer")
+    expect_refusal("publish from submitted", early_publish, "status")
+    corpus.assert_row("ART-publish-unapproved", early_publish)
 
-    kasset, claim, provenance = mock_knowledge()
+    claim, kasset, provenance = mock_knowledge()
     expect_refusal("factchecker cannot attach knowledge",
                    one(call_uri(article["uri"], "attachKnowledge",
                                 f'*dId, "bad-know", "{kasset}", "{claim}", "{provenance}", ""'),

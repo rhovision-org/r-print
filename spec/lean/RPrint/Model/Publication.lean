@@ -71,6 +71,27 @@ theorem findMember_setMember_same (xs : List (Id × Member)) (id : Id) (m : Memb
       · simp [setMember, findMember, h]
       · simp [setMember, findMember, h, ih]
 
+theorem findMember_setMember_other (xs : List (Id × Member)) (target id : Id)
+    (m : Member) (h : id ≠ target) :
+    findMember (setMember xs target m) id = findMember xs id := by
+  induction xs with
+  | nil =>
+      have hti : target ≠ id := fun hc => h hc.symm
+      simp [setMember, findMember, hti]
+  | cons kv rest ih =>
+      obtain ⟨k, v⟩ := kv
+      by_cases hk : k = target
+      · have hki : k ≠ id := by
+          intro hc
+          exact h (hc.symm.trans hk)
+        have htid : target ≠ id := by
+          intro hc
+          exact hki (hk.trans hc)
+        simp [setMember, findMember, hk, hki, htid]
+      · by_cases hki : k = id
+        · simp [setMember, findMember, hk, hki, h]
+        · simp [setMember, findMember, hk, hki, ih]
+
 def memberActive (s : PublicationState) (id : Id) : Bool :=
   match findMember s.members id with
   | some m => m.status == MemberStatus.active
@@ -80,6 +101,13 @@ def isPublisher (s : PublicationState) (id : Id) : Bool :=
   match findMember s.members id with
   | some m => isPublisherRole m.role && (m.status == MemberStatus.active)
   | none => false
+
+theorem isPublisher_setMember_other (s : PublicationState) (target id : Id)
+    (m : Member) (h : id ≠ target) :
+    isPublisher { s with members := setMember s.members target m } id =
+      isPublisher s id := by
+  unfold isPublisher
+  rw [findMember_setMember_other _ _ _ _ h]
 
 def publicationSafe (s : PublicationState) : Prop := 0 < s.publishers
 
@@ -108,6 +136,41 @@ def publicationRemoveMember (s : PublicationState) (caller target : Id) :
                      didHash := 0, attestationHash := 0 }),
       publishers := if isPublisher s target then s.publishers - 1 else s.publishers }
 
+theorem publication_addMember_result (s : PublicationState) (caller id : Id)
+    (role : Role) (didHash attestationHash : Id) (s' : PublicationState)
+    (h : publicationAddMember s caller id role didHash attestationHash = some s') :
+    s' = { s with
+      members := setMember s.members id
+        { role := role, status := MemberStatus.active, didHash := didHash,
+          attestationHash := attestationHash },
+      publishers := if isPublisherRole role then s.publishers + 1 else s.publishers } := by
+  unfold publicationAddMember at h
+  split at h
+  · simp at h
+  · split at h
+    · simp at h
+    · split at h
+      · simp at h
+      · simp at h
+        exact h.symm
+
+theorem publication_removeMember_result (s : PublicationState) (caller target : Id)
+    (s' : PublicationState) (h : publicationRemoveMember s caller target = some s') :
+    s' = { s with
+      members := setMember s.members target
+        (match findMember s.members target with
+         | some m => { m with status := MemberStatus.removed }
+         | none => { role := Role.contributor, status := MemberStatus.removed,
+                     didHash := 0, attestationHash := 0 }),
+      publishers := if isPublisher s target then s.publishers - 1 else s.publishers } := by
+  unfold publicationRemoveMember at h
+  by_cases hp : (!isPublisher s caller) = true
+  · simp [publicationRemoveMember, hp] at h
+  · by_cases hlast : (isPublisher s target && s.publishers ≤ 1) = true
+    · simp [publicationRemoveMember, hp, hlast] at h
+    · simp [publicationRemoveMember, hp, hlast] at h
+      exact h.symm
+
 def publicationSetRole (s : PublicationState) (caller target : Id) (role : Role) :
     Option PublicationState :=
   if !isPublisher s caller then none
@@ -134,6 +197,23 @@ def publicationAttestSelf (s : PublicationState) (caller didHash attestationHash
          | some m => { m with didHash := didHash, attestationHash := attestationHash }
          | none => { role := Role.contributor, status := MemberStatus.active,
                      didHash := didHash, attestationHash := attestationHash }) }
+
+/-- I17: a self-attestation anchor changes only DID fields, never authority. -/
+theorem publication_attest_preserves_authority (s : PublicationState)
+    (caller didHash attestationHash : Id) (s' : PublicationState)
+    (h : publicationAttestSelf s caller didHash attestationHash = some s') :
+    isPublisher s' caller = isPublisher s caller ∧
+      memberActive s' caller = memberActive s caller := by
+  unfold publicationAttestSelf at h
+  by_cases ha : memberActive s caller = true
+  · simp [ha] at h
+    cases h
+    unfold isPublisher memberActive
+    cases hf : findMember s.members caller with
+    | none => simp [memberActive, hf] at ha
+    | some m => simp [hf, setMember, findMember_setMember_same]
+  · have haf : memberActive s caller = false := by simpa using ha
+    simp [haf] at h
 
 def publicationPause (s : PublicationState) (caller : Id) (paused : Bool) :
     Option PublicationState :=

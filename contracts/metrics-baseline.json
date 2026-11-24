@@ -1,14 +1,14 @@
 {
   "deploy_terms": 13,
-  "bytes_total": 114211,
+  "bytes_total": 121622,
   "bytes_max": 22005,
   "depth_max": 35,
   "contracts_max": 37,
   "components": 20,
   "state_cell_types": 13,
-  "arm_declarations": 115,
-  "root_resolve_sites": 12,
-  "registry_lookup_sites": 39,
+  "arm_declarations": 117,
+  "root_resolve_sites": 11,
+  "registry_lookup_sites": 40,
   "registry_insert_sites": 22,
   "terms_detail": {
     "00_root.rho": {
@@ -32,7 +32,7 @@
       "contracts": 10
     },
     "05_rgen.rho": {
-      "bytes": 2684,
+      "bytes": 2702,
       "depth": 17,
       "contracts": 1
     },
@@ -52,9 +52,9 @@
       "contracts": 20
     },
     "20_commission.rho": {
-      "bytes": 10132,
+      "bytes": 11947,
       "depth": 30,
-      "contracts": 13
+      "contracts": 15
     },
     "21_commission_escrow.rho": {
       "bytes": 22005,
@@ -62,9 +62,9 @@
       "contracts": 37
     },
     "30_article.rho": {
-      "bytes": 15752,
+      "bytes": 21330,
       "depth": 33,
-      "contracts": 14
+      "contracts": 23
     },
     "31_edition.rho": {
       "bytes": 9648,

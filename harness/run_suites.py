@@ -37,11 +37,15 @@ SUITES: dict[str, str] = {
     "article_refusals": "unit_article_refusals.py",
     "edition": "unit_edition.py",
     "corrections": "unit_corrections.py",
+    "cover": "unit_cover.py",
+    "knowledge": "unit_knowledge.py",
+    "redteam": "redteam.py",
 }
 EXPERIMENTAL: set[str] = set()
 SAFE_ONLY: set[str] = set()
-AUDIT: set[str] = set()
-SAFE_CORE = sorted(set(SUITES) - EXPERIMENTAL - SAFE_ONLY - AUDIT)
+AUDIT: set[str] = {"redteam"}
+SIBLING: set[str] = {"cover", "knowledge"}
+SAFE_CORE = sorted(set(SUITES) - EXPERIMENTAL - SAFE_ONLY - AUDIT - SIBLING)
 DEFAULT = SAFE_CORE + sorted(SAFE_ONLY)
 
 
@@ -77,8 +81,19 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--suites", default=None,
                     help="comma-separated suite names (default: profile suites)")
+    ap.add_argument("--results", default=str(RESULTS),
+                    help="result file (default: deployments/suite-results.json)")
+    ap.add_argument("--optional", action="store_true",
+                    help="a not-run suite is not a failure")
+    ap.add_argument("--require-run", action="store_true",
+                    help="a not-run suite is a failure")
     ap.add_argument("--list", action="store_true")
     args = ap.parse_args(argv)
+
+    if args.optional and args.require_run:
+        print("run_suites: --optional and --require-run are mutually exclusive",
+              file=sys.stderr)
+        return 1
 
     if args.list:
         for name, script in SUITES.items():
@@ -99,12 +114,13 @@ def main(argv: list[str] | None = None) -> int:
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "results": results,
     }
-    RESULTS.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS.write_text(json.dumps(payload, indent=2) + "\n")
+    results_path = Path(args.results)
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    results_path.write_text(json.dumps(payload, indent=2) + "\n")
     if any(item["status"] == "fail" for item in results):
         return 1
     if any(item["status"] == "not_run" for item in results):
-        return 2
+        return 1 if args.require_run else 0 if args.optional else 2
     return 0
 
 

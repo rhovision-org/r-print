@@ -1,0 +1,701 @@
+schema_version: rprint.hazop/v1
+baseline: a6f2fb0
+guide_words:
+  - No/Not
+  - More
+  - Less
+  - As well as
+  - Part of
+  - Reverse
+  - Other than
+  - Late
+  - Early
+  - Before
+  - After
+  - Duplicate/Replay
+  - Stale
+  - Substitute/confused-deputy
+  - Partial commit
+nodes:
+  - id: publication
+    title: Publication and membership
+    intent: One cell, publisher-only roster writes, a last-publisher guard and a member cap.
+    parameters: [member, role, status, publisher-count, cap]
+    na_default: the deviation has no distinct parameter at this node
+  - id: proposal
+    title: Commission proposal
+    intent: A writer proposes; an editor accepts; any signer funds an accepted proposal once.
+    parameters: [status, writer, editor, funder, total]
+    na_default: the deviation has no distinct parameter at this node
+  - id: escrow
+    title: Commission escrow
+    intent: Submit and release in order, one payment per milestone, terminal conservation.
+    parameters: [status, milestone, amount, purse, deadline]
+    na_default: the deviation has no distinct deadline or ordering parameter at this node
+  - id: article
+    title: Article lifecycle
+    intent: Draft to submitted to approved to published; corrections append; the hash freezes.
+    parameters: [status, author, editor, contentHash, corrections]
+    na_default: the deviation has no distinct parameter at this node
+  - id: edition
+    title: Edition manifest
+    intent: Ordered, editor-sealed, same publication, no duplicates, cap 64.
+    parameters: [status, articles, editor, seal, publication]
+    na_default: the deviation has no distinct parameter at this node
+  - id: cover
+    title: r-sure cover
+    intent: Active policy, insured to the treasury, asset match, single assignment.
+    parameters: [policy, status, insured, assetId, cover]
+    na_default: the deviation has no distinct policy parameter at this node
+  - id: knowledge
+    title: r-gen knowledge chain
+    intent: Reciprocal Claim/KAsset, validated claim, bound provenance and hash, author and credential.
+    parameters: [claim, kasset, provenance, credential, hash]
+    na_default: the deviation has no distinct chain parameter at this node
+  - id: ops
+    title: Root, admin and payments
+    intent: Installer-only registration, admin quorum, nonce replay guard, owner-only payment.
+    parameters: [installer, admin, nonce, owner, payment]
+    na_default: the deviation has no distinct operator parameter at this node
+rows:
+  - id: HZ-PUB-001
+    node: publication
+    guide_word: No/Not
+    parameter: member
+    deviation: a publication created without a publisher
+    cause: an empty or malformed charter
+    consequence: no authority holder; the publication cannot write
+    safeguard: charter validation requires at least one publisher
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PUB-002
+    node: publication
+    guide_word: More
+    parameter: cap
+    deviation: the roster exceeds maxMembers
+    cause: a publisher adds beyond the cap
+    consequence: unbounded roster and gas
+    safeguard: cap check in addMember
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PUB-003
+    node: publication
+    guide_word: Duplicate/Replay
+    parameter: member
+    deviation: the same address is added twice
+    cause: a repeated add
+    consequence: ambiguous role and count
+    safeguard: duplicate check in addMember
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PUB-004
+    node: publication
+    guide_word: Substitute/confused-deputy
+    parameter: role
+    deviation: a writer writes the roster
+    cause: a caller passes a publisher dId it does not hold
+    consequence: unauthorized roster change
+    safeguard: caller role is derived from the deploy
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PROP-001
+    node: proposal
+    guide_word: No/Not
+    parameter: status
+    deviation: accept from a non-proposed state
+    cause: a repeated or out-of-order accept
+    consequence: an editor overrides a funded or cancelled proposal
+    safeguard: accept requires proposed
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PROP-002
+    node: proposal
+    guide_word: Duplicate/Replay
+    parameter: status
+    deviation: the same proposal is funded twice
+    cause: a repeated fund
+    consequence: two escrows for one proposal
+    safeguard: fund requires accepted; the status moves to funded
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PROP-003
+    node: proposal
+    guide_word: Substitute/confused-deputy
+    parameter: editor
+    deviation: a writer accepts their own proposal
+    cause: a caller passes a non-editor dId
+    consequence: self-dealing
+    safeguard: accept checks the editor role
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-PROP-004
+    node: proposal
+    guide_word: Other than
+    parameter: funder
+    deviation: an outsider funds an accepted proposal
+    cause: any signer may fund
+    consequence: the outsider becomes the funder and can dispute
+    safeguard: funding is intentionally open to any signer
+    safeguard_status: holds
+    severity: S4
+    likelihood: C
+    risk: 2
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ESC-001
+    node: escrow
+    guide_word: No/Not
+    parameter: milestone
+    deviation: a milestone is released twice
+    cause: a repeated release
+    consequence: overpayment
+    safeguard: the model reads the consumed milestone; the second release refuses
+    safeguard_status: holds
+    severity: S3
+    likelihood: B
+    risk: 6
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ESC-002
+    node: escrow
+    guide_word: Late
+    parameter: deadline
+    deviation: submit after the deadline
+    cause: a writer submits late
+    consequence: work after the funded window
+    safeguard: submit checks the deadline plus grace
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ESC-003
+    node: escrow
+    guide_word: Early
+    parameter: deadline
+    deviation: expire before the hard deadline
+    cause: an early expire call
+    consequence: the funder refunds too soon
+    safeguard: expire requires now >= hardDeadline
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ESC-004
+    node: escrow
+    guide_word: Partial commit
+    parameter: purse
+    deviation: a release and a cancel both commit
+    cause: two concurrent terminal calls
+    consequence: conservation breaks
+    safeguard: one cell, consume and repost
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ART-001
+    node: article
+    guide_word: No/Not
+    parameter: status
+    deviation: publish from submitted
+    cause: an early publish
+    consequence: an unapproved article is public
+    safeguard: publish requires approved
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ART-002
+    node: article
+    guide_word: Duplicate/Replay
+    parameter: status
+    deviation: a second submit rewrites the hash
+    cause: a repeated submit
+    consequence: the frozen hash changes
+    safeguard: submit requires draft
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ART-003
+    node: article
+    guide_word: Substitute/confused-deputy
+    parameter: author
+    deviation: a non-author submits
+    cause: a caller passes another author's dId
+    consequence: attribution theft
+    safeguard: submit checks an author
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ART-004
+    node: article
+    guide_word: Part of
+    parameter: corrections
+    deviation: a correction rewrites history
+    cause: an in-place edit
+    consequence: the correction record is lost
+    safeguard: corrections append only
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ED-001
+    node: edition
+    guide_word: No/Not
+    parameter: articles
+    deviation: seal an empty manifest
+    cause: an editor seals before appending
+    consequence: an empty edition
+    safeguard: seal requires at least one article
+    safeguard_status: holds
+    severity: S4
+    likelihood: C
+    risk: 2
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ED-002
+    node: edition
+    guide_word: Duplicate/Replay
+    parameter: articles
+    deviation: the same article is appended twice
+    cause: a repeated append
+    consequence: a duplicated manifest
+    safeguard: duplicate id check
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ED-003
+    node: edition
+    guide_word: Late
+    parameter: seal
+    deviation: append after the seal
+    cause: a late append
+    consequence: a mutable sealed manifest
+    safeguard: append requires draft
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-ED-004
+    node: edition
+    guide_word: Substitute/confused-deputy
+    parameter: editor
+    deviation: a writer seals
+    cause: a caller passes a non-editor dId
+    consequence: an unauthorized seal
+    safeguard: seal checks the editor role
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COV-001
+    node: cover
+    guide_word: No/Not
+    parameter: status
+    deviation: attach an inactive policy
+    cause: an expired policy URI
+    consequence: a cover that pays nothing
+    safeguard: attach requires an active policy
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COV-002
+    node: cover
+    guide_word: Substitute/confused-deputy
+    parameter: policy
+    deviation: attach a self-consistent fake policy
+    cause: a fake contract returns active, insured and asset
+    consequence: a false sense of cover
+    safeguard: shape and treasury checks only; no factory membership
+    safeguard_status: partial
+    severity: S2
+    likelihood: B
+    risk: 9
+    action: IMP-001
+    finding: RPA-001
+    negative: false
+    disposition: accepted
+  - id: HZ-COV-003
+    node: cover
+    guide_word: Duplicate/Replay
+    parameter: cover
+    deviation: overwrite an existing cover
+    cause: a second attach with a different URI
+    consequence: two cover references
+    safeguard: single assignment
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COV-004
+    node: cover
+    guide_word: Part of
+    parameter: insured
+    deviation: the policy insures a different treasury
+    cause: a policy from another publication
+    consequence: the cover does not bind
+    safeguard: insured equals the charter treasury
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-KNO-001
+    node: knowledge
+    guide_word: No/Not
+    parameter: claim
+    deviation: attach an open claim
+    cause: validation has not run
+    consequence: an unvalidated knowledge link
+    safeguard: claim status must be validated or conditional
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-KNO-002
+    node: knowledge
+    guide_word: Substitute/confused-deputy
+    parameter: provenance
+    deviation: attach a self-consistent fake chain
+    cause: fake Claim/KAsset/Provenance contracts
+    consequence: false provenance
+    safeguard: reciprocal shape and hash checks only; no factory membership
+    safeguard_status: partial
+    severity: S2
+    likelihood: B
+    risk: 9
+    action: IMP-001
+    finding: RPA-001
+    negative: false
+    disposition: accepted
+  - id: HZ-KNO-003
+    node: knowledge
+    guide_word: Duplicate/Replay
+    parameter: kasset
+    deviation: overwrite an existing knowledge link
+    cause: a second attach with a different tuple
+    consequence: two links
+    safeguard: single assignment
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-KNO-004
+    node: knowledge
+    guide_word: Part of
+    parameter: hash
+    deviation: the provenance anchors a different hash
+    cause: a hash-mismatched provenance
+    consequence: the article is not the anchored content
+    safeguard: provenance verify on the content hash
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-OPS-001
+    node: ops
+    guide_word: No/Not
+    parameter: installer
+    deviation: a non-installer registers a component
+    cause: a public register call
+    consequence: a fake component
+    safeguard: register checks the installer
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-OPS-002
+    node: ops
+    guide_word: More
+    parameter: admin
+    deviation: a below-threshold admin action
+    cause: too few signatures
+    consequence: a unilateral platform change
+    safeguard: admin threshold check
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-OPS-003
+    node: ops
+    guide_word: Duplicate/Replay
+    parameter: nonce
+    deviation: replay an admin payload
+    cause: a repeated nonce
+    consequence: a repeated admin action
+    safeguard: nonce must increase
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-OPS-004
+    node: ops
+    guide_word: Substitute/confused-deputy
+    parameter: owner
+    deviation: a non-owner withdraws a payment
+    cause: a caller passes another owner's dId
+    consequence: fund theft
+    safeguard: owner check on the payment
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+coverage:
+  - node: publication
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-PUB-001]
+  - node: publication
+    guide_word: More
+    status: covered
+    refs: [HZ-PUB-002]
+  - node: publication
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-PUB-003]
+  - node: publication
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-PUB-004]
+  - node: proposal
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-PROP-001]
+  - node: proposal
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-PROP-002]
+  - node: proposal
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-PROP-003]
+  - node: proposal
+    guide_word: Other than
+    status: covered
+    refs: [HZ-PROP-004]
+  - node: escrow
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-ESC-001]
+  - node: escrow
+    guide_word: Late
+    status: covered
+    refs: [HZ-ESC-002]
+  - node: escrow
+    guide_word: Early
+    status: covered
+    refs: [HZ-ESC-003]
+  - node: escrow
+    guide_word: Partial commit
+    status: covered
+    refs: [HZ-ESC-004]
+  - node: article
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-ART-001]
+  - node: article
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-ART-002]
+  - node: article
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-ART-003]
+  - node: article
+    guide_word: Part of
+    status: covered
+    refs: [HZ-ART-004]
+  - node: edition
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-ED-001]
+  - node: edition
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-ED-002]
+  - node: edition
+    guide_word: Late
+    status: covered
+    refs: [HZ-ED-003]
+  - node: edition
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-ED-004]
+  - node: cover
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-COV-001]
+  - node: cover
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-COV-002]
+  - node: cover
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-COV-003]
+  - node: cover
+    guide_word: Part of
+    status: covered
+    refs: [HZ-COV-004]
+  - node: knowledge
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-KNO-001]
+  - node: knowledge
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-KNO-002]
+  - node: knowledge
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-KNO-003]
+  - node: knowledge
+    guide_word: Part of
+    status: covered
+    refs: [HZ-KNO-004]
+  - node: ops
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-OPS-001]
+  - node: ops
+    guide_word: More
+    status: covered
+    refs: [HZ-OPS-002]
+  - node: ops
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-OPS-003]
+  - node: ops
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-OPS-004]
