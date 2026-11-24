@@ -96,7 +96,7 @@ The M13 model tranche adds four evidence layers around the state machines:
 |---|---|
 | Rigor ledger (`spec/proofs/rigor.yaml`) | **26** invariant rows, **30** claims, **19** boundary assumptions, **10** model/code divergences, **9** roadmap items |
 | Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **25** `proved`, **2** `partial` (release, attachKnowledge), **4** factory `create` arms `owed` |
-| Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; `release/release` and `release/arbitrate` are `owed` under DIV-002 |
+| Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; **15** proved, **13** `owed` (including the two release pairs under DIV-002) |
 | Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **19** `proved-conformance` arms, **19** emitted rows |
 | Client-op map (`spec/vectors/client-ops.tsv`) | **43** methods (**32** writes, **11** reads): **22** recorded, **5** fixture-only, **16** no live test |
 
@@ -176,7 +176,7 @@ counts.
 | `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph, guard bridge, race matrix, rigor, conformance, client map, capabilities, audit, close-out, HAZOP |
 | `make check-rigor` | 26 coverage rows, 30 claims, 19 assumptions, 10 divergences |
 | `make check-guard-bridge` | 31 mutating arms: 25 proved, 2 partial, 4 owed |
-| `make check-race-matrix` | 28 pairs; two owed under DIV-002 |
+| `make check-race-matrix` | 28 pairs: 15 proved, 13 owed |
 | `make check-conformance` | 19 promoted arms, 19 emitted rows |
 | `make check-client-ops` | 43 methods: 22 recorded, 5 fixture-only, 16 no live |
 | `make check-capabilities` | 28 capability rows, 21 published bundles, 3 findings |

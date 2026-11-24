@@ -124,9 +124,9 @@ Three modules sit around the four state machines:
   cornerstone arm and proves `(step …).isSome = guard …`. `spec/guards/arms.yaml`
   records 31 arms: 25 `proved`, 2 `partial` (release and attachKnowledge) and 4
   factory `create` arms `owed`. The bridge is a drift check, not an extraction.
-- `spec/flows/races.yaml` records the 28 arm pairs over five cells. Each row is
-  `exclusive`, `ordered` or `independent`, or `owed` with a note. The matrix is
-  pair-level; it is not scheduler-level race freedom.
+- `spec/flows/races.yaml` records the 28 arm pairs over five cells: 15 are
+  proved and 13 are `owed` with a note (including both release pairs under
+  DIV-002). The matrix is pair-level; it is not scheduler-level race freedom.
 - `RPrint/EmitCorpus.lean` emits `spec/vectors/core.tsv`; 19 arms are
   `proved-conformance`. The corpus is byte-identical to the emission and each
   case is asserted by a named suite.
