@@ -27,7 +27,7 @@
       "contracts": 10
     },
     "05_rgen.rho": {
-      "bytes": 2885,
+      "bytes": 2702,
       "depth": 17,
       "contracts": 1
     },
@@ -57,7 +57,7 @@
       "contracts": 37
     },
     "30_article.rho": {
-      "bytes": 21286,
+      "bytes": 21330,
       "depth": 33,
       "contracts": 23
     },

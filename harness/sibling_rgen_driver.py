@@ -102,6 +102,10 @@ def main() -> int:
         "status": "validated",
         "kassetRef": {"uri": "rho:id:other-kasset"},
     })
+    claim_kasset_kasset_stub = stub({
+        "status": "validated",
+        "claimRef": {"uri": claim_kasset_stub},
+    })
     provenance_claim_stub = stub({
         "assetRef": {"uri": kasset_uri, "claimRef": {"uri": "rho:id:other-claim"}},
         "writers": [author],
@@ -127,6 +131,7 @@ def main() -> int:
         "nonAuthorKassetUri": non_author_kasset,
         "nonAuthorProvenanceUri": non_author_prov[1]["uri"],
         "claimKassetMismatchClaimUri": claim_kasset_stub,
+        "claimKassetMismatchKassetUri": claim_kasset_kasset_stub,
         "provenanceClaimMismatchUri": provenance_claim_stub,
     }
     print("SIBLING_RESULT " + json.dumps(result, sort_keys=True))

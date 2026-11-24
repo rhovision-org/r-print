@@ -427,7 +427,7 @@ in {
 
               contract artKnowKasset(@s, @callerId, @opId, @kassetUri, @claimUri,
                                      @provenanceUri, @credentialUri, @kState, ret2) = {
-                if (kState.get("claimRef").get("uri") != claimUri) {
+                if (kState.get("claimRef").get("uri").toString() != claimUri) {
                   articleState!(s) | ret2!((false, "kasset claim"))
                 } else {
                   new aCh in {
@@ -459,7 +459,7 @@ in {
               contract artKnowClaim(@s, @callerId, @opId, @kassetUri, @claimUri,
                                     @provenanceUri, @credentialUri, @kState, @cState,
                                     ret2) = {
-                if (cState.get("kassetRef").get("uri") != kassetUri) {
+                if (cState.get("kassetRef").get("uri").toString() != kassetUri) {
                   articleState!(s) | ret2!((false, "claim kasset"))
                 } else {
                   if (cState.get("status") != "validated"
@@ -496,10 +496,10 @@ in {
               contract artKnowProvenance(@s, @callerId, @opId, @kassetUri, @claimUri,
                                          @provenanceUri, @credentialUri, @cState,
                                          @pState, ret2) = {
-                if (pState.get("assetRef").get("uri") != kassetUri) {
+                if (pState.get("assetRef").get("uri").toString() != kassetUri) {
                   articleState!(s) | ret2!((false, "provenance asset"))
                 } else {
-                  if (pState.get("assetRef").get("claimRef").get("uri") != claimUri) {
+                  if (pState.get("assetRef").get("claimRef").get("uri").toString() != claimUri) {
                     articleState!(s) | ret2!((false, "provenance claim"))
                   } else {
                     new mCh in {

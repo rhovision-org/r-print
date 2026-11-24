@@ -27,7 +27,7 @@ The design has three layers:
 |---|---|---|
 | Organisation | Publication charter, roster, roles, solo mode, arbitration | Implemented |
 | Editorial | Commission escrow, articles, reviews, corrections, editions | Implemented |
-| Scaling surfaces | r-sure policy cover; r-gen Claim/KAsset/Provenance links | Implemented, opt-in, sibling campaign pending |
+| Scaling surfaces | r-sure policy cover; r-gen Claim/KAsset/Provenance links | Implemented, opt-in; local sibling campaign recorded (2/2, 41 assertions) |
 
 Escrow is the baseline because it is the smallest thing that works. Escrow becomes dead
 money at scale, so a publication can attach an r-sure Policy to a commission and buy proper

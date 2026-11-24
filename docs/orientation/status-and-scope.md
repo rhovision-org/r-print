@@ -14,8 +14,10 @@ browser fixture suite covers every route and write form with the node and WASM b
 live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the local
 devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 suites,
 11/11 live-client steps and the same 13-step browser journey on the pinned node build
-`e2d073d`. The r-sure cover and r-gen knowledge arms now verify their full chains, and the
-sibling suites and CLI live test are implemented; the recorded sibling campaign is pending.
+`e2d073d`. The r-sure cover and r-gen knowledge arms verify their full chains. On 2026-11-24 a
+fresh local 40403 devnet recorded 18/18 suites (211 assertions), 2/2 real-sibling suites (41
+assertions), the CLI cover + knowledge journey and a 12-step web live smoke; the CI dispatch is
+pending because the commits are unpushed.
 A Lean 4.12 model builds 131 theorems with 131 axiom audits, 56 vectors and 15 `proved-model`
 core arms, with no proof escapes; the model covers publication authority, commission escrow,
 article lifecycle, edition seal and the two sibling ties. All are local or CI Docker results,
@@ -44,8 +46,8 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Commission proposal, escrow, milestones, cancel, expire, dispute | `commission`, `commission_refusals`, `commission_dispute`, `conservation` |
 | Article lifecycle, reviews, corrections, retraction | `article`, `article_refusals`, `corrections` |
 | Edition manifest and editor signature | `edition`, `behavior` |
-| r-sure cover chain | `CommissionProposal.attachCover` verifies active status, insured and asset; `unit_cover` is the real-sibling suite |
-| r-gen knowledge chain | `Article.attachKnowledge` verifies reciprocal Claim/KAsset refs, provenance binding, hash, author and credential; `unit_knowledge` is the real-sibling suite |
+| r-sure cover chain | `CommissionProposal.attachCover` verifies active status, insured and asset; `unit_cover` recorded 16 assertions against a real Policy (2026-11-24) |
+| r-gen knowledge chain | `Article.attachKnowledge` verifies reciprocal Claim/KAsset refs, provenance binding, hash, author and credential; `unit_knowledge` recorded 25 assertions against a real chain (2026-11-24) |
 | Pause scope | `pause_scope` |
 | Named integration graph | `make check-graph` |
 | Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
@@ -57,9 +59,12 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 The r-sure adapter (`configs/rsure.json`) and r-gen adapter (`configs/rgen.json`) are
 `enabled: false` by default. `health` returns `(false, "disabled")`. The cover and knowledge
 arms still read the entity by URI, so a publication can attach a policy or a K-Asset without a
-configured sibling root; a credential, however, is verified through the r-gen root and is
-refused when the root is disabled. `make install-with-siblings` enables both roots and fails
-closed if a manifest is missing. The full broker/underwriting/claim flow is not enabled.
+configured sibling root; a credential is read from `Credential("get")` and the arm is refused
+when the r-gen root is disabled. `make install-with-siblings` enables both roots and fails
+closed if a manifest is missing. The recorded local campaign installed both roots and passed
+2/2 sibling suites; r-gen state URIs are normalised with `.toString()` before comparison, and
+r-gen's root `resolve` takes `(key, ret)` while r-sure's takes `(key, minVersion, ret)`. The
+full broker/underwriting/claim flow is not enabled.
 
 ## What is design
 
@@ -88,6 +93,11 @@ make cli-live
 make web-e2e-install
 make web-e2e-fixture
 make web-e2e-live NODE=http://127.0.0.1:40403
+# optional sibling surfaces:
+make siblings-venv siblings-install install-with-siblings
+make sibling-suites-strict
+make client-live RPRINT_SIBLINGS=1
+make cli-live RPRINT_SIBLINGS=1
 ```
 
 A suite that cannot reach a healthy devnet reports `not_run`, never a pass. A live-client

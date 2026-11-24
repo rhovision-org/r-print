@@ -87,21 +87,36 @@ machines, not a refinement of the deployed Rholang. ERTP purse atomicity, phlo, 
 node scheduling, deploy atomicity and the cross-contract ties are explicit boundary assumptions
 in `spec/lean/RPrint/Model/System.lean`.
 
-## Sibling surfaces — campaign pending
+## Sibling surfaces — recorded local campaign
 
-The cover and knowledge arms now enforce the strict chains described in
-[Formal model](formal-model.md). `unit_cover` and `unit_knowledge` are real-sibling suites;
-`unit-all` keeps its 18 safe suites, and the sibling suites run separately with
-`make sibling-suites-strict`. The CI dispatch devnet job installs the pinned r-sure
-(`0da5d04`) and r-gen (`bcc840c`) roots and runs both. The local and CI runs have **not yet
-been recorded**; until they are, the sibling suites report `not_run` and this page does not
-claim a pass.
+On 2026-11-24 a fresh local 40403 devnet (rholo node build `5b9685e`) installed the pinned
+r-sure `0da5d04` and r-gen `bcc840c` roots, then recorded:
+
+| Check | Result |
+|---|---|
+| Safe behavioural suites | **18/18**, 211 assertions |
+| `cover` real-sibling suite | **pass**, 16 assertions against a real r-sure Policy |
+| `knowledge` real-sibling suite | **pass**, 25 assertions against a real r-gen Claim → KAsset → Provenance chain |
+| CLI live | **2/2**, including the cover + knowledge journey |
+| Web live smoke | **12 steps**, cover attached; knowledge `not_covered` |
+
+The campaign found three real integration defects that the mock-only suites missed: r-gen
+state URIs are Rholang `Uri` values and must be normalized with `.toString()` before
+comparison; r-gen's root `resolve` is `(key, ret)` while r-sure's is
+`(key, minVersion, ret)`; and the credential lifecycle is read from `Credential("get")`, not
+the factory's issue record. All three are fixed and covered by `unit_knowledge`. The local
+records are `deployments/sibling-suite-results.json`, `deployments/sibling-fixture.json` and
+`deployments/cli-live-results.json`. The CI dispatch for this campaign is pending because the
+M12 commits are not pushed.
 
 The `cli-live` sibling test creates a publication with the policy-insured treasury, attaches
 the real cover, attaches the real knowledge chain and asserts the overwrite refusal. The web
 live smoke attaches the cover only: its fresh WASM wallet cannot sign the r-gen claimant, and
 the WASM facade has no raw-secret import. That omission is recorded in
 `deployments/live-client-results.json`.
+
+The roots remain disabled by default; enabling them is the explicit
+`make install-with-siblings` opt-in.
 
 ## CI devnet campaign
 
@@ -165,8 +180,9 @@ counts.
   network, not a public network.
 - No audit and no penetration test. The Lean model is `proved-model`; there is no refinement
   theorem tying it to the deployed Rholang.
-- The strict cover and knowledge chains are implemented and unit-tested with mocks, but the
-  real-sibling campaign is not yet recorded; the earlier campaign ran with the roots disabled.
+- The strict cover and knowledge chains are recorded locally against real r-sure and r-gen
+  roots; the CI dispatch for that campaign is pending because the commits are unpushed. There
+  is no independent audit.
 - No multi-validator finality campaign.
 - The live browser journey covers a representative path, not all 32 writes; the remaining
   writes have fake-transport unit coverage and fixture browser rendering.

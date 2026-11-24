@@ -1,9 +1,9 @@
 # Integration graph
 
-> **Status:** Implemented for the r-print-owned edges and the exercised r-sure/r-gen links
-> (the roots remain disabled by default and the recorded sibling campaign is pending); design
-> for the cover-claim and coordination edges. `make check-graph` validates every vertex and
-> edge in `spec/graph/`.
+> **Status:** Implemented for the r-print-owned edges and the r-sure/r-gen links, recorded
+> locally on 2026-11-24 (2/2 sibling suites, 41 assertions; the roots remain disabled by
+> default); design for the cover-claim and coordination edges. `make check-graph` validates
+> every vertex and edge in `spec/graph/`.
 
 r-print is not a new island. It is an extension of one graph. Escrow is the baseline
 settlement rail; r-sure is the surface that lets a publication buy proper insurance when

@@ -72,4 +72,5 @@
   tuple is refused.
 
 The sibling model evidence is `spec/lean/RPrint/Model/Adapter.lean`; the real-sibling suites are
-`unit_cover` and `unit_knowledge`, which report `not_run` until the pinned roots are installed.
+`unit_cover` and `unit_knowledge`, which recorded 16 and 25 assertions on 2026-11-24 with the
+pinned roots and report `not_run` when the roots are not installed.

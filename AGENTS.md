@@ -85,9 +85,17 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
   and claim binding, the anchored content hash, the author match, and an active unexpired
   credential when supplied. It is single-assignment. `provenanceInfo` returns the provenance
   state; an empty URI refuses `"uri"`.
+- **Two root APIs.** r-gen's root `resolve` is `(key, ret)`; r-sure's is
+  `(key, minVersion, ret)`. Do not copy one adapter's call shape into the other.
+- **r-gen values are `Uri`.** A KAsset/Claim/Provenance state field is a Rholang `Uri`, not a
+  String. Normalise with `.toString()` before comparing it to a client-supplied `rho:id:`
+  string; otherwise the comparison is always false.
+- **Credential lifecycle.** Read `Credential("get")` for `status` and `expiresAt`. The
+  factory `verify` arm returns the issuance record, which carries neither field.
 - **Subprocess fixtures.** Never import a sibling harness in-process; `actors`, `deploy` and
   `preflight` collide. Run `sibling_rsure_driver.py` and `sibling_rgen_driver.py` in a
-  subprocess and cache the result in `deployments/sibling-fixture.json`.
+  subprocess and cache the result in `deployments/sibling-fixture.json`. The 2026-11-24 local
+  campaign recorded 2/2 suites and 41 assertions; the CI artifact is pending.
 - **No fake live knowledge.** The fresh WASM wallet cannot sign the r-gen claimant. The web
   live smoke covers `attachCover` only; the CLI live test covers both. Do not weaken the author
   check to make a browser demo pass.

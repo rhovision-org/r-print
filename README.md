@@ -7,8 +7,9 @@ chain, settled through [r-cash](https://github.com/rhovision-org/r-cash). A publ
 organisation, a commission is escrowed work with milestones, an article is an editorial record
 over a content hash, an edition is an ordered manifest, and corrections are append-only.
 
-> **Status:** Devnet-only, unaudited. 18 behavioural suites pass on a fresh local devnet;
-> `make spec-check`, `make parse-check`, `make docs-check` and the Rust client gates pass.
+> **Status:** Devnet-only, unaudited. 18 behavioural suites (211 assertions) pass on a fresh
+> local devnet; `make spec-check`, `make parse-check`, `make docs-check` and the Rust client
+> gates pass.
 > Escrow is the baseline settlement rail. r-sure cover and r-gen K-Assets are optional
 > surfaces, disabled by default. The client layer is live in opt-in live mode: every
 > `RprintApi` method is implemented, the key stays in WASM, and writes require finality.
@@ -22,8 +23,10 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > journey on the pinned node `e2d073d`, alongside 18/18 suites. The r-sure cover and r-gen
 > knowledge surfaces now verify their full chains: an active policy insured to the publication
 > treasury and asset, and a reciprocal Claim/KAsset/Provenance/credential link authored by the
-> article author. The sibling suites and the CLI live test are implemented; the recorded
-> sibling campaign is still pending. A Lean 4.12 model covers publication authority, commission
+> article author. A 2026-11-24 fresh local 40403 devnet recorded 18/18 suites, 2/2
+> real-sibling suites (41 assertions), the CLI cover + knowledge journey and a 12-step web
+> live smoke; the CI dispatch is pending because the commits are unpushed.
+> A Lean 4.12 model covers publication authority, commission
 > escrow, article lifecycle, edition seal and the two sibling ties: 131 machine-checked
 > theorems, 56 vectors and 15 core arms, zero proof escapes. It is not a Rholang refinement.
 > Subscriptions, revenue splits, crowdfunding, reader tips, syndication and the
@@ -49,8 +52,8 @@ r-print supplies that missing business logic as small, auditable primitives.
 | Escrow | Baseline release, cancel, expire, dispute and arbitration |
 | Article | Content-hash lifecycle, review attestations and append-only corrections |
 | Edition | Ordered, editor-signed manifest of published articles |
-| r-sure surface | Optional Policy cover attached to a commission; escrow at scale becomes dead money |
-| r-gen surface | Optional Claim → KAsset → Provenance link on an article; not a gate |
+| r-sure surface | Optional Policy cover attached to a commission; a real-policy sibling suite recorded 16 assertions |
+| r-gen surface | Optional Claim → KAsset → Provenance link on an article; a real-chain sibling suite recorded 25 assertions |
 | Integration graph | Named vertices and edges across r-print, r-sure, r-gen, r-cash, BYOID and quantum-os |
 | Live client | Opt-in browser and CLI operation over a node, with WASM-held keys, finality and multisig |
 
@@ -89,6 +92,8 @@ make client-check      # fmt, clippy, tests, wasm32, wasm-pack, wasm smoke, web 
 # Optional sibling surfaces, after installing the pinned r-sure and r-gen roots:
 make siblings-venv siblings-install install-with-siblings
 make sibling-suites-strict
+make cli-live RPRINT_SIBLINGS=1
+make client-live RPRINT_SIBLINGS=1
 make web-e2e-install   # one-time Chromium download
 make web-e2e-fixture   # browser fixture suite; no node and no WASM
 ```

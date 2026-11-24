@@ -1,15 +1,31 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
-status: foundation+live-client+browser-e2e+formal-model
+status: foundation+live-client+browser-e2e+formal-model+sibling-surfaces
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
 local_rerun:
-  date: 2026-11-23
+  date: 2026-11-24
   node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
-  devnet: "local 40403, single validator, fresh"
+  devnet: "local 40403, single validator, fresh; r-sure and r-gen roots installed"
   suites_total: 18
   suites_passing: 18
+  assertions_total: 211
+  siblings_installed: true
+sibling_campaign:
+  recorded: 2026-11-24
+  node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+  devnet: "local 40403, single validator, fresh"
+  pinned:
+    rsure: "0da5d0436e5f33eec3de20adb887ece4b1edcad3"
+    rgen: "bcc840c25e334048bef390823a21aaf7e209d15b"
+  suites: [cover, knowledge]
+  suites_total: 2
+  suites_passing: 2
+  assertions: {cover: 16, knowledge: 25, total: 41}
+  cli_live: "2 tests pass (publication journey; cover + knowledge journey)"
+  web_live: "12 steps; sibling cover attached; knowledge not covered (fresh WASM wallet cannot sign the r-gen claim)"
+  ci: "pending: the M12 commits are not pushed"
 ci_campaign:
   run: 45250733118
   url: "https://github.com/rhovision-org/r-print/actions/runs/45250733118"
@@ -94,9 +110,17 @@ milestones:
     evidence:
       ["make siblings-venv siblings-install install-with-siblings",
        "make sibling-suites-strict", "make cli-live RPRINT_SIBLINGS=1",
+       "deployments/sibling-suite-results.json",
+       "deployments/sibling-fixture.json", "deployments/cli-live-results.json",
        "spec/lean/RPrint/Model/Adapter.lean"]
-    status: in_progress
-    note: "strict chains, real-sibling suites, CLI test and CI wiring landed; the local and CI campaigns are pending"
+    recorded: 2026-11-24
+    node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
+    suites: [cover, knowledge]
+    sibling_suites_total: 2
+    sibling_suites_passing: 2
+    assertions: 41
+    status: passing
+    note: "real-sibling campaign recorded locally; CI dispatch pending because the commits are unpushed"
 suites_total: 18
 suites_passing: 18
 live_client:

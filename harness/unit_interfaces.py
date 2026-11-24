@@ -16,12 +16,20 @@ def main() -> int:
     rgen = resolve_component("component:rgen-adapter")
     rsure = resolve_component("component:rsure-adapter")
 
-    expect_refusal("rgen health disabled", one(call_uri(rgen, "health")), "disabled")
-    expect_refusal("rsure health disabled", one(call_uri(rsure, "health")), "disabled")
-    expect_refusal("identity disabled",
-                   one(call_uri(rgen, "identity", '"1111address"')), "disabled")
-    expect_refusal("credential disabled",
-                   one(call_uri(rgen, "credential", '"rho:id:credential"')), "disabled")
+    rgen_health = one(call_uri(rgen, "health"))
+    rsure_health = one(call_uri(rsure, "health"))
+    if rgen_health == (False, "disabled"):
+        expect_refusal("rgen health disabled", rgen_health, "disabled")
+        expect_refusal("identity disabled",
+                       one(call_uri(rgen, "identity", '"1111address"')), "disabled")
+        expect_refusal("credential disabled",
+                       one(call_uri(rgen, "credential", '"rho:id:credential"')), "disabled")
+    else:
+        expect_ok("rgen health enabled", rgen_health)
+    if rsure_health == (False, "disabled"):
+        expect_refusal("rsure health disabled", rsure_health, "disabled")
+    else:
+        expect_ok("rsure health enabled", rsure_health)
 
     claim, kasset, provenance = mock_knowledge()
     expect_ok("claim read", one(call_uri(rgen, "claim", f'"{claim}"')))

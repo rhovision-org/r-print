@@ -38,7 +38,7 @@ def main() -> int:
     content_hash = rgen["contentHash"]
 
     pub = editorial_publication("knowledge")
-    article = create_article(pub, content_hash, author="reporter1")
+    article = create_article(pub, content_hash)
     submit(article)
 
     expect_refusal("empty kasset", attach(article, "", claim, provenance), "kasset")
@@ -48,8 +48,8 @@ def main() -> int:
                    attach(article, kasset, rgen["secondClaimUri"], provenance),
                    "kasset claim")
     expect_refusal("claim kasset mismatch",
-                   attach(article, kasset, rgen["claimKassetMismatchClaimUri"],
-                          provenance),
+                   attach(article, rgen["claimKassetMismatchKassetUri"],
+                          rgen["claimKassetMismatchClaimUri"], provenance),
                    "claim kasset")
     expect_refusal("claim status",
                    attach(article, rgen["rejectedKassetUri"],
@@ -93,14 +93,14 @@ def main() -> int:
               attach(article, kasset, claim, provenance, credential))
     expect_refusal("knowledge overwrite",
                    attach(article, rgen["secondKassetUri"], rgen["secondClaimUri"],
-                          rgen["wrongAssetProvenanceUri"]),
+                          rgen["wrongAssetProvenanceUri"], op="knowledge-2"),
                    "knowledge")
 
-    draft = create_article(pub, content_hash, author="reporter1", label="draft")
+    draft = create_article(pub, content_hash, label="draft")
     expect_refusal("draft article", attach(draft, kasset, claim, provenance, credential),
                    "status")
 
-    published = create_article(pub, content_hash, author="reporter1", label="published")
+    published = create_article(pub, content_hash, label="published")
     submit(published)
     approve(published)
     publish(published)
