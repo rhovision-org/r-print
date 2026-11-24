@@ -33,6 +33,16 @@ invariants:
   I14: {statement: "a retraction appends a record", lean: RPrint.article_retract_appends_record, lean_status: proved-model}
   I15: {statement: "an edition append requires a published article from the publication", lean: RPrint.edition_append_guards, lean_status: proved-model}
   I16: {statement: "a sealed edition is bound and immutable", lean: RPrint.edition_sealed_manifest_immutable, lean_status: proved-model}
+  I17: {statement: "BYOID DID and attestation fields are anchors, not proof", lean: RPrint.publication_attest_preserves_authority, lean_status: proved-model, note: "DID verification is off-chain; the theorem only shows attestSelf leaves authority unchanged"}
+  I18: {statement: "a quantum-os coordination record is provenance, not authority", lean_status: design, note: "spec/spec-only.md"}
+  I19: {statement: "money is integer minor units; block heights carry deadlines", lean: RPrint.shareOf_le, lean_status: proved-but-narrower, note: "Nat minor units and Height; not a type-level money proof"}
+  I20: {statement: "spec-only features do not change v0.1 cell semantics", lean_status: design, note: "spec/spec-only.md"}
+  I21: {statement: "a client write succeeds only after finalized + processedWithSuccess + a (true, ...) reply", lean_status: mechanism, note: "web/src/test/live-api.test.ts; crates/rprint-sdk"}
+  I22: {statement: "reads use explore-deploy; writes use signed-deploy", lean_status: mechanism, note: "crates/rprint-sdk/src; AGENTS.md"}
+  I23: {statement: "an ambiguous submit reuses the op id and the key stays in WASM", lean_status: mechanism, note: "crates/rprint-wasm; deployments/live-client-results.json"}
+  I24: {statement: "an attached cover is active, insured to the treasury and asset-bound", lean: RPrint.cover_attach_requires_insured, lean_status: proved-model, note: "see cover_attach_requires_active_policy and cover_attach_requires_asset"}
+  I25: {statement: "a knowledge link requires the reciprocal authored chain", lean: RPrint.knowledge_attach_requires_provenance_hash, lean_status: proved-model, note: "see the reciprocal, author and credential theorems"}
+  I26: {statement: "a sibling link is single-assignment; an identical link is a replay", lean: RPrint.cover_attach_single_assignment, lean_status: proved-model, note: "see knowledge_attach_single_assignment"}
 rules:
   - id: P-member
     arm: 'Publication@"addMember"'

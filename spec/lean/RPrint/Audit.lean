@@ -100,6 +100,7 @@ namespace RPrint
 #print axioms RPrint.publication_arbitration_prefers_arbitrators
 #print axioms RPrint.publication_attestSelf_requires_member
 #print axioms RPrint.publication_attestSelf_safe
+#print axioms RPrint.publication_attest_preserves_authority
 #print axioms RPrint.publication_pause_requires_publisher
 #print axioms RPrint.publication_pause_resumes
 #print axioms RPrint.publication_pause_safe

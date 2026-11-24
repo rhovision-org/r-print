@@ -135,6 +135,23 @@ def publicationAttestSelf (s : PublicationState) (caller didHash attestationHash
          | none => { role := Role.contributor, status := MemberStatus.active,
                      didHash := didHash, attestationHash := attestationHash }) }
 
+/-- I17: a self-attestation anchor changes only DID fields, never authority. -/
+theorem publication_attest_preserves_authority (s : PublicationState)
+    (caller didHash attestationHash : Id) (s' : PublicationState)
+    (h : publicationAttestSelf s caller didHash attestationHash = some s') :
+    isPublisher s' caller = isPublisher s caller ∧
+      memberActive s' caller = memberActive s caller := by
+  unfold publicationAttestSelf at h
+  by_cases ha : memberActive s caller = true
+  · simp [ha] at h
+    cases h
+    unfold isPublisher memberActive
+    cases hf : findMember s.members caller with
+    | none => simp [memberActive, hf] at ha
+    | some m => simp [hf, setMember, findMember_setMember_same]
+  · have haf : memberActive s caller = false := by simpa using ha
+    simp [haf] at h
+
 def publicationPause (s : PublicationState) (caller : Id) (paused : Bool) :
     Option PublicationState :=
   if !isPublisher s caller then none

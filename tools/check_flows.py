@@ -21,8 +21,9 @@ ROOT = Path(__file__).resolve().parent.parent
 FLOWS = ROOT / "spec" / "flows"
 LEAN = ROOT / "spec" / "lean"
 STATUSES = {"implemented", "surface", "design", "owed"}
-LEAN_STATUSES = {"proved-model", "proved-model-bounded", "modeled", "assumption",
-                 "proved-tied", "owed"}
+LEAN_STATUSES = {"proved-model", "proved-conformance", "proved-model-bounded",
+                 "proved-but-narrower", "modeled", "mechanism", "assumption",
+                 "design", "proved-tied", "owed", "open"}
 ARM_RE = re.compile(r"^(?P<contract>[A-Za-z0-9_]+)@\"(?P<arm>[^\"]+)\"$")
 DECL_RE = re.compile(
     r"^[ \t]*(?:@\[[^\]]*\][ \t]*)*(theorem|lemma|def|inductive|structure)[ \t]+"

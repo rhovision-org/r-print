@@ -25,6 +25,10 @@ def I1_cell_no_nested_call := @nested_call_rejected
 def I4_remove_last_publisher := @publication_removeMember_refuses_last_publisher
 def I4_demote_last_publisher := @publication_setRole_refuses_last_publisher
 
+/-- I5 — solo publication and platform quorum rules. -/
+def I5_platform_quorum := @publication_solo_arbitration_platform
+def I5_admin_quorum := @publication_admin_setAdmins_requires_valid
+
 /-- I6 — funding creates an active escrow for the full total. -/
 def I6_fund_creates_escrow := @commission_fund_creates_active_escrow
 
@@ -66,6 +70,9 @@ def I15_append_no_duplicate := @edition_append_refuses_duplicate
 /-- I16 — a sealed manifest is bound and immutable. -/
 def I16_seal_binds_manifest := @edition_seal_binds_manifest
 def I16_sealed_immutable := @edition_sealed_manifest_immutable
+
+/-- I17 — a DID anchor is data, not authority. -/
+def I17_anchor_not_authority := @publication_attest_preserves_authority
 
 /-- I24 — an r-sure cover is active, insured to the treasury and asset-bound. -/
 def I24_cover_active := @cover_attach_requires_active_policy
