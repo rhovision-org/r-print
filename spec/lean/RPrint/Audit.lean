@@ -235,5 +235,24 @@ namespace RPrint
 #print axioms RPrint.edition_append_append_same_never_after
 #print axioms RPrint.edition_seal_seal_never_after
 #print axioms RPrint.edition_append_seal_ordered
+#print axioms RPrint.coordination_record_preserves_publication
+#print axioms RPrint.coordination_record_requires_authorized
+#print axioms RPrint.coordination_record_requires_id
+#print axioms RPrint.coordination_record_requires_poll
+#print axioms RPrint.coordination_record_requires_outcome
+#print axioms RPrint.coordination_record_requires_sig_count
+#print axioms RPrint.coordination_record_requires_signers
+#print axioms RPrint.coordination_record_requires_signature
+#print axioms RPrint.coordination_record_requires_verifier
+#print axioms RPrint.coordination_record_requires_codec
+#print axioms RPrint.coordination_record_requires_clock
+#print axioms RPrint.coordination_record_result
+#print axioms RPrint.coordination_record_binds_outcome
+#print axioms RPrint.coordination_record_preserves_room
+#print axioms RPrint.coordination_record_replay
+#print axioms RPrint.coordination_record_record_conflict_refused
+#print axioms RPrint.coordination_factory_create_refuses_reuse
+#print axioms RPrint.coordinationRecord_guard_eq
+#print axioms RPrint.coordinationFactoryCreate_guard_eq
 
 end RPrint

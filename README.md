@@ -27,13 +27,12 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > real-sibling suites (43 assertions), the CLI cover + knowledge journey and a 12-step web
 > live smoke; the CI dispatch is pending because the commits are unpushed.
 > A Lean 4.12 model covers publication authority, commission
-> escrow, article lifecycle, edition seal and the two sibling ties. M13 adds a 26-invariant
-> rigor ledger, a 31-arm guard bridge, a 28-pair race matrix, a 19-arm `proved-conformance`
-> bundle and an internal adversarial audit: 10 findings, 11 red-team probes (9 fixed, 2
-> accepted) and 32 HAZOP rows. The audit is not independent and the model is not a Rholang
-> refinement.
-> Subscriptions, revenue splits, crowdfunding, reader tips, syndication and the
-> coordination-record contract remain design.
+> escrow, article lifecycle, edition seal, coordination records and the two sibling ties.
+> M15 adds a 26-invariant rigor ledger, a 33-arm guard bridge, a 29-pair race matrix, a
+> 20-arm `proved-conformance` bundle and an internal adversarial audit: 10 findings, 14
+> red-team probes (13 fixed, 1 accepted) and 47 HAZOP rows. The audit is not independent and
+> the model is not a Rholang refinement.
+> Subscriptions, revenue splits, crowdfunding, reader tips and syndication remain design.
 
 ## Why
 

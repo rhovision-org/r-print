@@ -22,6 +22,6 @@ component_versions:
   Article: 1
   EditionFactory: 1
   Edition: 1
-  # Design only in v0.1
-  CoordinationFactory: 0
-  CoordinationRecord: 0
+  CoordinationFactory: 1
+  CoordinationCellFactory: 1
+  CoordinationRecord: 1

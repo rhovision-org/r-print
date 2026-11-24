@@ -70,15 +70,29 @@ and an optional credential, and fills the four URI fields and `knowledgeAtHeight
   createdAtHeight, ops, schemaVersion }
 ```
 
+## coordinationState
+
+```
+{ coordinationId, publicationId, publicationUri,
+  subjectRef: { kind, id, uri }, roomIdHash, pollIdHash, outcomeHash,
+  signers, signatures: [{ by, sig, atHeight }], status,
+  createdBy, createdAtHeight, recordedAtHeight, ops, schemaVersion }
+```
+
+`pollIdHash` and `outcomeHash` are empty until the first successful record; `signatures` is
+ordered like `signers` and each entry is `{by, sig, atHeight}`. The record is provenance,
+not authority: the publication cell is never written by `record`.
+
 ## factoryState
 
 ```
 { ids: { entityId -> uri }, ops: { callerId:opId -> reply }, schemaVersion }
 ```
 
-`ops` is optional: the publication, commission, article and edition factories carry it; the
-escrow factory records `ids` and `schemaVersion`. The commission, article and edition
-factories also have a `proposal`/`article`/`edition` state cell per entity.
+`ops` is optional: the publication, commission, article, edition and coordination factories
+carry it; the escrow factory records `ids` and `schemaVersion`. The commission, article,
+edition and coordination factories also have a `proposal`/`article`/`edition`/coordination
+state cell per entity.
 
 ## Caps
 
@@ -92,6 +106,7 @@ factories also have a `proposal`/`article`/`edition` state cell per entity.
 | Article authors | 16 |
 | Article attestations | 16 |
 | Article corrections | 32 |
+| Coordination signers | 16 |
 | Edition articles | 64 |
 | Ops per cell | 128 (convention; the state map is bounded by use) |
 

@@ -25,10 +25,11 @@ The design edge `recordsOutcome` anchors a room/poll outcome:
   signers: [memberId], signatures: [...] }
 ```
 
-A signer would sign the canonical text `rprint:coord:v1|<id>|<pollIdHash>|<outcomeHash>`
-and the record would verify the signature with `Verifier("sigOk")`. The record is
+A signer signs the canonical text `rprint:coord:v1|<id>|<pollIdHash>|<outcomeHash>` and
+`CoordinationRecord("record")` verifies the signature with `Verifier("sigOk")` after
+checking that the supplied public key derives the signer's member id. The record is
 provenance, not authority. Editorial authority remains the publication admin set. The
-coordination record is **design** in v0.1; the named edge is in
+coordination record is implemented; the named edge is in
 [the integration graph](integration-graph.md).
 
 ## Why interface-only

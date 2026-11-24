@@ -144,7 +144,7 @@ test.describe("fixture routes", () => {
     }
   });
 
-  test("coordination renders the design-only record", async ({ page }) => {
+  test("coordination renders the provenance record and form", async ({ page }) => {
     await page.goto(`/#/coordination/${enc(FIXTURES.coordination)}`);
     await expect(
       page.getByRole("heading", { name: "coord:kindling:water-room" }),
@@ -153,8 +153,11 @@ test.describe("fixture routes", () => {
       "data-status",
       "recorded",
     );
-    await expect(page.getByText(/Design only/)).toBeVisible();
+    await expect(
+      page.getByText("This is a provenance anchor for a quantum-os room outcome"),
+    ).toBeVisible();
     await expect(page.getByText("Room and poll")).toBeVisible();
+    await expect(page.getByTestId("form-recordCoordination")).toBeVisible();
   });
 
   test("keystore is locked and read-only in fixture mode", async ({ page }) => {

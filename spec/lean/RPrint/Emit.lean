@@ -78,6 +78,16 @@ def optId : Option Id → String
   | none => "none"
   | some x => toString x
 
+def coordinationStatusName : CoordinationStatus → String
+  | CoordinationStatus.open => "open"
+  | CoordinationStatus.recorded => "recorded"
+
+def coordinationLine (o : Option CoordinationState) : String :=
+  match o with
+  | none => "none"
+  | some s =>
+      s!"{coordinationStatusName s.status},{optId s.pollIdHash},{optId s.outcomeHash},{s.signatures.length}"
+
 def coverLine (o : Option CoverState) : String :=
   match o with
   | none => "none"
@@ -158,6 +168,16 @@ def editionDraft : EditionState :=
 
 def entry : ManifestEntry :=
   { articleId := 1, articleUri := 1, contentHash := 9 }
+
+def coordinationOpen : CoordinationState :=
+  { coordinationId := 1, publicationId := 1, status := CoordinationStatus.open,
+    roomIdHash := 2, pollIdHash := none, outcomeHash := none,
+    signers := [1, 2], signatures := [] }
+
+def coordinationRecorded : CoordinationState :=
+  { coordinationId := 1, publicationId := 1, status := CoordinationStatus.recorded,
+    roomIdHash := 2, pollIdHash := some 3, outcomeHash := some 4,
+    signers := [1, 2], signatures := [1, 2] }
 
 def coverBase : CoverState :=
   { proposalId := 1, proposalStatus := ProposalStatus.accepted, treasury := 9,
@@ -314,6 +334,18 @@ def main : IO Unit := do
   emit "factory.edition.duplicate" "none"
     (factoryLine (editionFactoryCreate ({ issued := [5] } : FactoryState)
       5 true true true))
+  emit "factory.coordination.ok" "id:5"
+    (factoryLine (coordinationFactoryCreate ({ issued := [] } : FactoryState)
+      5 true true true true true true true true true true))
+  emit "factory.coordination.not_owner" "none"
+    (factoryLine (coordinationFactoryCreate ({ issued := [] } : FactoryState)
+      5 false true true true true true true true true true))
+  emit "factory.coordination.id" "none"
+    (factoryLine (coordinationFactoryCreate ({ issued := [] } : FactoryState)
+      5 true false true true true true true true true true))
+  emit "factory.coordination.duplicate" "none"
+    (factoryLine (coordinationFactoryCreate ({ issued := [5] } : FactoryState)
+      5 true true true true true true true true true true))
   emit "article.attest.ok" "true,submitted"
     (articleAttestLine (articleAttest articleSubmitted true attestation1))
   emit "article.attest.role" "false"
@@ -409,6 +441,34 @@ def main : IO Unit := do
   emit "edition.sealed.append" "sealed"
     (editionLine (editionAppend { editionDraft with status := EditionStatus.sealed } true
       1 ArticleStatus.published 1 1 9))
+
+  emit "coordination.record.ok" "true,3,4,true,true,2"
+    (coordinationLine (coordinationRecord coordinationOpen
+      true true true true true true true 3 4 2))
+  emit "coordination.record.not_owner" "false"
+    (coordinationLine (coordinationRecord coordinationOpen
+      false true true true true true true 3 4 2))
+  emit "coordination.record.poll" "0"
+    (coordinationLine (coordinationRecord coordinationOpen
+      true true true true true true true 0 4 2))
+  emit "coordination.record.outcome" "3,0"
+    (coordinationLine (coordinationRecord coordinationOpen
+      true true true true true true true 3 0 2))
+  emit "coordination.record.sig_count" "1"
+    (coordinationLine (coordinationRecord coordinationOpen
+      true true true true true true true 3 4 1))
+  emit "coordination.record.signer" "false"
+    (coordinationLine (coordinationRecord coordinationOpen
+      true true true true true false true 3 4 2))
+  emit "coordination.record.signature" "false"
+    (coordinationLine (coordinationRecord coordinationOpen
+      true true true true true true false 3 4 2))
+  emit "coordination.record.replay" "3,4"
+    (coordinationLine (coordinationRecord coordinationRecorded
+      true true true true true true true 3 4 2))
+  emit "coordination.record.conflict" "3,5"
+    (coordinationLine (coordinationRecord coordinationRecorded
+      true true true true true true true 3 5 2))
 
 end Emit
 end RPrint

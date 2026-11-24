@@ -148,7 +148,7 @@ findings:
     disposition: fixed
     note: The factory verify record has no status or expiry; the adapter now reads Credential("get").
   - id: RPA-008
-    title: Eight of thirty-two client writes have no live test
+    title: Eleven of thirty-four client writes have no live test
     severity: S3
     likelihood: B
     risk: 6
@@ -163,10 +163,11 @@ findings:
     actions: [IMP-003]
     disposition: accept-risk
     note: >-
-      The map records 29 recorded, 5 fixture-only and 9 no-live methods; the live
+      The map records 29 recorded, 5 fixture-only and 11 no-live methods; the live
       escrow journey covers fund, submit, release, cancel, dispute, resolve,
       expire and arbitrate. Membership changes, pause, proposal cancel, article
-      attest/correct/retract, coordinationInfo and browser escrow remain no-live.
+      attest/correct/retract, coordinationInfo, createCoordination,
+      recordCoordination and browser escrow remain no-live.
   - id: RPA-009
     title: Independent technical review is outstanding
     severity: S2

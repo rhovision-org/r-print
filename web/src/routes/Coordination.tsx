@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { AsyncBlock } from "../components/AsyncBlock";
+import { FormFor } from "../components/forms";
 import { Hash } from "../components/Hash";
 import { SurfaceChecklist } from "../components/SurfaceChecklist";
 import { useApi } from "../lib/api-context";
@@ -17,8 +18,8 @@ export function Coordination() {
         <Link to="/">Catalogue</Link> / coordination record
       </p>
       <p className="muted">
-        Design only: the coordination-record contract is not deployed. Fixture mode shows the
-        intended shape; live mode returns a design refusal.
+        An editor or publisher records a quantum-os room/poll outcome. The record is
+        provenance, not authority: it never writes the publication cell.
       </p>
       <AsyncBlock state={record}>
         {(value) => (
@@ -85,7 +86,20 @@ export function Coordination() {
               </div>
             </section>
 
-            <SurfaceChecklist title="Surface on this screen" methods={["coordinationInfo"]} />
+            <div className="panel">
+              <h2>Record the outcome</h2>
+              <p className="muted">
+                {value.status === "recorded"
+                  ? "The first outcome is terminal; a different poll or outcome is refused."
+                  : "Each signer entry signs the canonical text for this record."}
+              </p>
+              <FormFor method="recordCoordination" uri={uri} onDone={record.reload} />
+            </div>
+
+            <SurfaceChecklist
+              title="Surface on this screen"
+              methods={["coordinationInfo", "recordCoordination"]}
+            />
           </>
         )}
       </AsyncBlock>

@@ -19,7 +19,7 @@ Live is selected by `VITE_RPRINT_MODE=live` or the Network settings screen. A li
 
 ## The API interface
 
-`web/src/lib/api.ts` declares one `RprintApi` interface with 43 methods (11 reads, 32
+`web/src/lib/api.ts` declares one `RprintApi` interface with 45 methods (11 reads, 34
 writes). Every method maps to a public arm:
 
 | Group | Methods |
@@ -29,11 +29,13 @@ writes). Every method maps to a public arm:
 | Escrow | info, submit, release, cancel, dispute, arbitrate, resolveDispute, expire |
 | Article | create, info, submit, attachKnowledge, attest, approve, publish, correct, retract |
 | Edition | create, info, append, seal |
+| Coordination | create, info, record |
 | Keystore | create, unlock |
 | Network | status, component resolve |
 
-Reads are explore-deploys; writes are signed deploys. `coordinationInfo` is design-only and
-returns a refusal in live mode.
+Reads are explore-deploys; writes are signed deploys. `coordinationInfo` reads the record and
+`createCoordination`/`recordCoordination` build the signed writes; the coordination writes are
+not live-tested in this slice.
 
 ## The implementations
 
@@ -109,5 +111,5 @@ gate; live mode runs in the devnet job and writes
 Live mode is devnet-only. Reads are at the node's tip and are not finality-checked. Writes
 require a funded native REV vault; commission funding assumes an r-cash-funded account. The
 client does not fetch or host content. The live browser journey is a representative path, not
-all 32 writes; the rest have fake-transport unit coverage and fixture browser rendering. No
+all 34 writes; the rest have fake-transport unit coverage and fixture browser rendering. No
 public testnet run and no audit.

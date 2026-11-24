@@ -7,8 +7,8 @@
 | `entitles: subscription → article` | `article.access`, publication treasury | Reader billing and entitlement are a business model, not a primitive |
 | `splitsRevenue: publication → member` | `charter.revenueSplit` bps | Needs a revenue ledger and a payment source |
 | `licenses: syndication → kasset` | KAsset URI and split | Needs a rights model and a buyer |
-| `coordinates: publication → room` | coordination record | quantum-os is POC-stage |
-| `recordsOutcome: coordination_record → room` | room/poll hashes | Same |
+| `coordinates: publication → room` | coordination record | Implemented: `CoordinationFactory.create` |
+| `recordsOutcome: coordination_record → room` | room/poll hashes | Implemented: `CoordinationRecord.record`; provenance, not authority |
 | `claimsLoss: policy → sure_claim` | r-sure `Policy("openClaim")` | Needs the policy token holder and a breach definition |
 | `settles: line → account` | r-sure `Line("pay")`/`Policy("settleClaim")` | Needs an agreed cover claim |
 | `anchorsDID: member → did` | member row | BYOID verification is off-chain |
@@ -36,6 +36,7 @@ KAsset for inclusion, but it must be a policy flag, not a change to the article 
 
 ## Coordination
 
-The coordination record is design. When implemented, it should anchor a room id hash, a poll
-id hash, an outcome hash and a signer set, and verify each signer's signature over the
-canonical text. It must remain provenance, not authority.
+The coordination record is implemented. It anchors a room id hash, a poll id hash, an
+outcome hash and an ordered signer set, and verifies each signer's address-bound signature
+over `rprint:coord:v1|<id>|<poll>|<outcome>`. It remains provenance, not authority: the
+publication cell is never written by `record`.

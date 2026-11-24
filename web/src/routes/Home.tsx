@@ -53,7 +53,10 @@ export function Home() {
         <FormFor method="createPublication" />
         <FormFor method="proposeCommission" />
       </section>
-      <FormFor method="createArticle" />
+      <section className="grid">
+        <FormFor method="createArticle" />
+        <FormFor method="createCoordination" />
+      </section>
     </div>
   );
 }

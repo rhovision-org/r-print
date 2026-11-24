@@ -108,3 +108,21 @@ items:
       - path: spec/lean/RPrint/ArmGuards.lean
         function: articleAttachKnowledgeChain
         lines: '350-460'
+  - id: IMP-008
+    priority: P2
+    title: Implement the coordination record and golden outcome
+    finding: '-'
+    status: fixed
+    compatibility: new deploy terms; publication, commission, article and edition semantics are unchanged
+    tests: 19/19 suites and 259 assertions; 14 red-team probes; golden coordination outcome
+    action: add CoordinationFactory and CoordinationRecord, the coordinationState schema, guard/race/conformance coverage and the web route
+    files:
+      - path: contracts/src/deploy/32_coordination.rho
+        function: CoordinationFactory
+        lines: '1-390'
+      - path: contracts/src/deploy/33_coordination_cell.rho
+        function: CoordinationRecord
+        lines: '1-390'
+      - path: harness/unit_coordination.py
+        function: main
+        lines: '1-240'

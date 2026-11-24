@@ -121,6 +121,7 @@ const CONFIG: LiveConfig = {
     "component:commission-factory": "rho:id:commission-factory",
     "component:article-factory": "rho:id:article-factory",
     "component:edition-factory": "rho:id:edition-factory",
+    "component:coordination-factory": "rho:id:coordination-factory",
   },
 };
 
@@ -194,15 +195,36 @@ describe("LiveApi reads", () => {
     expect(info.value.members["1111m"]?.status).toBe("active");
   });
 
-  it("maps arbitration and the design-only coordination refusal", async () => {
+  it("maps arbitration and a coordination record", async () => {
     const { api, transport } = setup();
     transport.exploredReply = { ok: true, values: ["platform", ["04aa", "04bb"], 2] };
     expect(await api.publicationArbitration("rho:id:p")).toEqual({
       ok: true,
       value: { kind: "platform", keys: ["04aa", "04bb"], threshold: 2 },
     });
+    transport.exploredReply = {
+      ok: true,
+      values: [{
+        coordinationId: "coord:1",
+        publicationId: "pub:1",
+        publicationUri: "rho:id:p",
+        subjectRef: { kind: "publication", id: "pub:1", uri: "rho:id:p" },
+        roomIdHash: "room",
+        pollIdHash: "poll",
+        outcomeHash: "outcome",
+        signers: ["1111a"],
+        signatures: [{ by: "1111a", sig: "00", atHeight: 2 }],
+        status: "recorded",
+        createdBy: "1111a",
+        createdAtHeight: 1,
+        recordedAtHeight: 2,
+      }],
+    };
     const coordination = await api.coordinationInfo("rho:id:c");
-    expect(coordination.ok).toBe(false);
+    expect(coordination.ok).toBe(true);
+    if (!coordination.ok) return;
+    expect(coordination.value.status).toBe("recorded");
+    expect(coordination.value.signatures).toHaveLength(1);
   });
 
   it("treats an empty explore result as a decode error", async () => {
@@ -318,6 +340,34 @@ describe("LiveApi writes", () => {
     ["createEdition", (api) => api.createEdition({ editionId: "ed", opId: "op", publicationId: "pub:1", publicationUri: "rho:id:p", number: 1, titleHash: "t", coverHash: "c" }), "createEdition"],
     ["appendEditionArticle", (api) => api.appendEditionArticle("rho:id:ed", { opId: "op", articleUri: "rho:id:a" }), "appendEditionArticle"],
     ["sealEdition", (api) => api.sealEdition("rho:id:ed", { opId: "op", editorSig: "aa" }), "sealEdition"],
+    [
+      "createCoordination",
+      (api) =>
+        api.createCoordination({
+          opId: "op",
+          coordinationId: "coord:1",
+          publicationId: "pub:1",
+          publicationUri: "rho:id:p",
+          subjectKind: "publication",
+          subjectId: "pub:1",
+          subjectUri: "rho:id:p",
+          roomIdHash: "room",
+          signerIds: ["1111a"],
+        }),
+      "createCoordination",
+    ],
+    [
+      "recordCoordination",
+      (api) =>
+        api.recordCoordination("rho:id:c", {
+          opId: "op",
+          coordinationId: "coord:1",
+          pollIdHash: "poll",
+          outcomeHash: "outcome",
+          signatures: [{ memberId: "1111a", pubKey: "02aa", sig: "3044" }],
+        }),
+      "recordCoordination",
+    ],
   ];
 
   it.each(writes)("%s signs, submits and requires finality", async (_label, call, op) => {

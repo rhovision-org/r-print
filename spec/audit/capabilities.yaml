@@ -5,9 +5,9 @@ scope: >-
   a source-to-register drift check, not a Rholang semantics proof. Name
   unforgeability is an assumption, not a result.
 summary:
-  published_bundles: 21
+  published_bundles: 24
   ambient_channels: 3
-  capability_rows: 28
+  capability_rows: 31
 capabilities:
   - id: CAP-001
     name: registry-lookup
@@ -486,3 +486,54 @@ capabilities:
     hazard: claim and KAsset membership are verified through the pinned claim factory; provenance membership remains a documented residual
     disposition: finding
     evidence: contracts/src/deploy/05_rgen.rho:128
+  - id: CAP-029
+    name: CoordinationFactory
+    kind: published-contract
+    source: contracts/src/deploy/32_coordination.rho:1
+    source_atom: 'bundle+{*CoordinationFactory}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:coordination-factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: role
+    arms: [create]
+    delegation: [CoordinationCellFactory, CoordinationRecord]
+    revocation: root rotate
+    forge_path: publish a look-alike factory
+    hazard: create is editor/publisher-only, binds the canonical publication URI and checks the signer set is active membership
+    disposition: holds
+    evidence: contracts/src/deploy/32_coordination.rho
+  - id: CAP-030
+    name: CoordinationCellFactory
+    kind: published-contract
+    source: contracts/src/deploy/33_coordination_cell.rho:1
+    source_atom: 'bundle+{*CoordinationCellFactory}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:coordination-cell-factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [spawn]
+    delegation: [CoordinationRecord]
+    revocation: root rotate
+    forge_path: publish a look-alike cell factory, or call the registered spawn directly
+    hazard: spawn is callable by any deploy that resolves the component; the record's role and signer checks do not depend on factory issuance, and a cell origin is a designation, not an endorsement
+    disposition: holds
+    evidence: contracts/src/deploy/33_coordination_cell.rho
+  - id: CAP-031
+    name: CoordinationRecord
+    kind: published-contract
+    source: contracts/src/deploy/33_coordination_cell.rho:1
+    source_atom: 'bundle+{*CoordinationRecord}'
+    creator: CoordinationCellFactory
+    holders: every deploy that resolves the record URI
+    exposure: registry-uri
+    attenuation: none
+    authority_check: role
+    arms: [info, status, record]
+    delegation: []
+    revocation: none
+    forge_path: publish a look-alike record
+    hazard: record is editor/publisher-only, requires one address-bound signature per fixed signer and is terminal; room and poll facts stay off-chain
+    disposition: holds
+    evidence: contracts/src/deploy/33_coordination_cell.rho

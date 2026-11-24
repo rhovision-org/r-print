@@ -10,6 +10,7 @@ import {
 import { ApiProvider } from "../lib/api-context";
 import {
   FIXTURE_ARTICLE_URI,
+  FIXTURE_COORDINATION_URI,
   FIXTURE_EDITION_URI,
   FIXTURE_ESCROW_URI,
   FIXTURE_PROPOSAL_URI,
@@ -40,6 +41,9 @@ function uriFor(method: ApiMethod): string {
   }
   if (method.includes("Edition") || method === "sealEdition" || method === "appendEditionArticle") {
     return FIXTURE_EDITION_URI;
+  }
+  if (method.includes("Coordination")) {
+    return FIXTURE_COORDINATION_URI;
   }
   return FIXTURE_PUBLICATION_URI;
 }

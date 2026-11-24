@@ -10,14 +10,14 @@ use serde_json::Value;
 
 use crate::{
     article_approve_term, article_attach_knowledge_term, article_attest_term, article_correct_term,
-    article_publish_term, article_retract_term, article_submit_term, create_article_term,
-    create_edition_term, create_publication_term, edition_append_term, edition_seal_term,
-    escrow_arbitrate_term, escrow_cancel_term, escrow_dispute_term, escrow_expire_term,
-    escrow_release_term, escrow_resolve_dispute_term, escrow_submit_term, explore_call_term,
-    json_to_rho, proposal_accept_term, proposal_attach_cover_term, proposal_cancel_term,
-    proposal_fund_term, propose_commission_term, publication_add_member_term,
-    publication_admin_term, publication_attest_self_term, publication_pause_term,
-    publication_remove_member_term, publication_set_role_term,
+    article_publish_term, article_retract_term, article_submit_term, coordination_record_term,
+    create_article_term, create_coordination_term, create_edition_term, create_publication_term,
+    edition_append_term, edition_seal_term, escrow_arbitrate_term, escrow_cancel_term,
+    escrow_dispute_term, escrow_expire_term, escrow_release_term, escrow_resolve_dispute_term,
+    escrow_submit_term, explore_call_term, json_to_rho, proposal_accept_term,
+    proposal_attach_cover_term, proposal_cancel_term, proposal_fund_term, propose_commission_term,
+    publication_add_member_term, publication_admin_term, publication_attest_self_term,
+    publication_pause_term, publication_remove_member_term, publication_set_role_term,
 };
 
 /// One client operation. The `op` tag is camelCase; fields are camelCase.
@@ -190,6 +190,20 @@ pub enum TermRequest {
         edition_uri: String,
         op_id: String,
         editor_sig: String,
+    },
+    CreateCoordination {
+        factory_uri: String,
+        op_id: String,
+        coordination_id: String,
+        data: Value,
+    },
+    RecordCoordination {
+        record_uri: String,
+        op_id: String,
+        coordination_id: String,
+        poll_id_hash: String,
+        outcome_hash: String,
+        signatures: Value,
     },
     /// An explore-deploy read. `args` are JSON values rendered as Rholang literals.
     Read {
@@ -391,6 +405,27 @@ pub fn build(request: &TermRequest) -> String {
             op_id,
             editor_sig,
         } => edition_seal_term(edition_uri, op_id, editor_sig),
+        TermRequest::CreateCoordination {
+            factory_uri,
+            op_id,
+            coordination_id,
+            data,
+        } => create_coordination_term(factory_uri, op_id, coordination_id, data),
+        TermRequest::RecordCoordination {
+            record_uri,
+            op_id,
+            coordination_id,
+            poll_id_hash,
+            outcome_hash,
+            signatures,
+        } => coordination_record_term(
+            record_uri,
+            op_id,
+            coordination_id,
+            poll_id_hash,
+            outcome_hash,
+            signatures,
+        ),
         TermRequest::Read { uri, binding, args } => {
             let rendered = args.as_ref().map(|items| {
                 items
@@ -766,6 +801,32 @@ mod tests {
                     ]),
                 ),
                 "C!(\"seal\"",
+            ),
+            (
+                json(
+                    "createCoordination",
+                    serde_json::Map::from_iter([
+                        ("factoryUri".into(), field("rho:id:fac")),
+                        ("opId".into(), field("op1")),
+                        ("coordinationId".into(), field("coord:1")),
+                        ("data".into(), Value::Object(serde_json::Map::new())),
+                    ]),
+                ),
+                "C!(\"create\"",
+            ),
+            (
+                json(
+                    "recordCoordination",
+                    serde_json::Map::from_iter([
+                        ("recordUri".into(), field("rho:id:c")),
+                        ("opId".into(), field("op1")),
+                        ("coordinationId".into(), field("coord:1")),
+                        ("pollIdHash".into(), field("poll")),
+                        ("outcomeHash".into(), field("outcome")),
+                        ("signatures".into(), Value::Array(vec![])),
+                    ]),
+                ),
+                "C!(\"record\"",
             ),
         ];
         for (request, arm) in cases {

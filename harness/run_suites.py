@@ -37,6 +37,7 @@ SUITES: dict[str, str] = {
     "article_refusals": "unit_article_refusals.py",
     "edition": "unit_edition.py",
     "corrections": "unit_corrections.py",
+    "coordination": "unit_coordination.py",
     "cover": "unit_cover.py",
     "knowledge": "unit_knowledge.py",
     "redteam": "redteam.py",

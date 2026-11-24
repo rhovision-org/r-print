@@ -17,6 +17,10 @@ Proposal: `proposed`, `accepted`, `funded`, `cancelled`. Escrow: `active`, `comp
 Article: `draft`, `submitted`, `approved`, `published`, `retracted`.
 Edition: `draft`, `sealed`.
 
+## Coordination
+
+Coordination record: `open`, `recorded`. The first recorded poll/outcome is terminal.
+
 ## Roles
 
 `publisher`, `editor`, `writer`, `factchecker`, `treasurer`, `contributor`.
@@ -45,7 +49,8 @@ Attestation: `factcheck`, `legal`, `editor`.
 `kasset`, `rgen adapter`, `claim`, `provenance`, `rsure adapter`, `not owner`, `cover`,
 `policy`, `policy status`, `insured`, `kasset claim`, `claim kasset`, `claim status`,
 `provenance asset`, `provenance claim`, `provenance hash`, `author`, `credential`,
-`knowledge`, `uri`.
+`knowledge`, `uri`, `coordination`, `subject`, `room`, `signers`, `poll`, `outcome`,
+`recorded`, `cell factory`.
 
 ## Formal-model status
 

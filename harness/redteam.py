@@ -14,12 +14,12 @@ import sys
 import time
 from pathlib import Path
 
-from actors import address
+from actors import address, public
 from article_fixture import (approve, create_article, edition_data,
                              editorial_publication, publish, submit)
 from assertions import one
 from commission_fixture import accept, fund, propose, release, submit as escrow_submit
-from helpers import call_uri, resolve_component
+from helpers import call_uri, resolve_component, sign_digest
 from preflight import require_devnet
 from publication_fixture import create_publication, quoted
 
@@ -253,6 +253,64 @@ def main() -> int:
                             "classification": "not_run", "finding": "RPA-001",
                             "observed": "no sibling fixture"})
             print(f"  {pid}: not_run (no sibling fixture)")
+
+    keys = node.load_keys()
+    coord_factory = resolve_component("component:coordination-factory")
+    codec = resolve_component("component:codec")
+
+    def coord_digest(cid: str, poll: str, outcome: str) -> bytes:
+        reply = one(call_uri(
+            codec, "hash",
+            f'"rprint:coord:v1", [{quoted(cid)}, {quoted(poll)}, {quoted(outcome)}]'))
+        if not (isinstance(reply, tuple) and reply and reply[0] is True
+                and isinstance(reply[1], bytes)):
+            raise AssertionError(f"coordination digest: {reply!r}")
+        return reply[1]
+
+    def coord_entry(name: str, digest: bytes, signer: str | None = None) -> str:
+        signer = signer or name
+        return ('{"memberId": ' + quoted(address(name))
+                + ', "pubKey": "' + public(name) + '".hexToBytes()'
+                + ', "sig": ' + sign_digest(keys, signer, digest) + '}')
+
+    def new_coordination(cid: str, signer_names: list[str]) -> str:
+        signers = ", ".join(quoted(address(name)) for name in signer_names)
+        data = ('{"publicationId": ' + quoted(pub["publication_id"])
+                + ', "publicationUri": ' + quoted(pub["uri"])
+                + ', "subjectRef": {"kind": "publication", "id": '
+                + quoted(pub["publication_id"]) + ', "uri": ' + quoted(pub["uri"]) + '}'
+                + ', "roomIdHash": "room:redteam", "signerIds": [' + signers + ']}')
+        reply = one(call_uri(
+            coord_factory, "create",
+            f'*dId, "create:{cid}", {quoted(cid)}, {data}'), key="deployer")
+        if not (isinstance(reply, tuple) and reply and reply[0] is True):
+            raise AssertionError(f"coordination create: {reply!r}")
+        return reply[1]
+
+    cid13 = f"coord:rt13:{node.height()}"
+    uri13 = new_coordination(cid13, ["deployer", "reporter1"])
+    poll13, outcome13 = "poll:rt13", "outcome:rt13"
+    good13 = coord_digest(cid13, poll13, outcome13)
+    wrong13 = coord_digest(cid13, poll13, "outcome:forged")
+    sigs13 = ("[" + coord_entry("deployer", good13) + ", "
+              + coord_entry("reporter1", wrong13) + "]")
+    record("RT-013", "forge a signer signature over a different outcome", "refuse",
+           lambda: one(call_uri(
+               uri13, "record",
+               f'*dId, "rt13", {quoted(cid13)}, {quoted(poll13)}, '
+               f'{quoted(outcome13)}, {sigs13}')))
+
+    cid14 = f"coord:rt14:{node.height()}"
+    uri14 = new_coordination(cid14, ["deployer", "reporter1"])
+    poll14, outcome14 = "poll:rt14", "outcome:rt14"
+    good14 = coord_digest(cid14, poll14, outcome14)
+    sigs14 = ("[" + coord_entry("deployer", good14) + ", "
+              + coord_entry("reporter3", good14) + "]")
+    record("RT-014", "substitute a member outside the fixed signer set", "refuse",
+           lambda: one(call_uri(
+               uri14, "record",
+               f'*dId, "rt14", {quoted(cid14)}, {quoted(poll14)}, '
+               f'{quoted(outcome14)}, {sigs14}')))
 
     payload = {
         "node": node.NODE,

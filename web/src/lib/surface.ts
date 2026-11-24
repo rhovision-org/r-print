@@ -53,6 +53,8 @@ export const SURFACE: SurfaceEntry[] = [
   { method: "sealEdition", screen: "Edition", route: "/edition/:uri", note: "Seal the ordered manifest with an editor signature." },
   { method: "editionInfo", screen: "Edition", route: "/edition/:uri", note: "Manifest, manifest hash and seal height." },
   { method: "coordinationInfo", screen: "Coordination record", route: "/coordination/:uri", note: "Quantum-os room/poll anchor." },
+  { method: "createCoordination", screen: "Home / coordination record", route: "/", note: "Bind a publication, room and fixed signer set." },
+  { method: "recordCoordination", screen: "Coordination record", route: "/coordination/:uri", note: "Anchor the first signed poll outcome." },
   { method: "keystoreCreate", screen: "Keystore", route: "/keystore", note: "Create an encrypted Web3 v3 keystore." },
   { method: "keystoreUnlock", screen: "Keystore", route: "/keystore", note: "Unlock a saved keystore in WASM." },
 ];

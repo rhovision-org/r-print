@@ -27,7 +27,7 @@ function enc(uri: string): string {
 export const FORM_ROUTES: FormRoute[] = [
   {
     path: "/",
-    methods: ["createPublication", "proposeCommission", "createArticle"],
+    methods: ["createPublication", "proposeCommission", "createArticle", "createCoordination"],
   },
   {
     path: `/publication/${enc(FIXTURES.publication)}`,
@@ -68,6 +68,10 @@ export const FORM_ROUTES: FormRoute[] = [
   {
     path: `/edition/${enc(FIXTURES.edition)}`,
     methods: ["createEdition", "appendEditionArticle", "sealEdition"],
+  },
+  {
+    path: `/coordination/${enc(FIXTURES.coordination)}`,
+    methods: ["recordCoordination"],
   },
   {
     path: "/keystore",

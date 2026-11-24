@@ -22,6 +22,7 @@ import type {
   CoordinationState,
   CorrectionInput,
   CreateArticleInput,
+  CreateCoordinationInput,
   CreateEditionInput,
   CreatePublicationInput,
   EditionState,
@@ -36,6 +37,7 @@ import type {
   ProposeCommissionInput,
   ProposalState,
   PublicationState,
+  RecordCoordinationInput,
   Reply,
   ResolveDisputeInput,
   ResolveResult,
@@ -129,8 +131,12 @@ export interface RprintApi {
   /** `Edition("info")`. Reply `(true, editionState)`. */
   editionInfo(uri: string): Promise<Reply<EditionState>>;
 
-  /** `CoordinationRecord("info")` (design surface). Reply `(true, coordinationState)`. */
+  /** `CoordinationRecord("info")`. Reply `(true, coordinationState)`. */
   coordinationInfo(uri: string): Promise<Reply<CoordinationState>>;
+  /** `CoordinationFactory("create", dId, opId, coordinationId, data)`. Reply `(true, uri)`; refuses `coordination`, `publication`, `subject`, `room`, `signers`, `role`, `paused`, `duplicate`. */
+  createCoordination(input: CreateCoordinationInput): Promise<Reply<{ uri: string }>>;
+  /** `CoordinationRecord("record", dId, opId, coordinationId, poll, outcome, sigs)`. Reply `(true, Nil)`; refuses `poll`, `outcome`, `not signer`, `signature`, `verifier`, `codec`, `recorded`, `role`. */
+  recordCoordination(uri: string, input: RecordCoordinationInput): Promise<Reply<null>>;
 
   /** Encrypt a secret with the Web3 v3 keystore in `rprint-wasm`. Reply `(true, {address, document})`; the plaintext key never reaches JS. */
   keystoreCreate(input: KeystoreInput): Promise<Reply<KeystoreResult>>;
@@ -181,6 +187,8 @@ export const API_METHODS = [
   "sealEdition",
   "editionInfo",
   "coordinationInfo",
+  "createCoordination",
+  "recordCoordination",
   "keystoreCreate",
   "keystoreUnlock",
 ] as const;
@@ -234,6 +242,8 @@ export const WRITE_METHODS = [
   "createEdition",
   "appendEditionArticle",
   "sealEdition",
+  "createCoordination",
+  "recordCoordination",
   "keystoreCreate",
   "keystoreUnlock",
 ] as const satisfies readonly ApiMethod[];

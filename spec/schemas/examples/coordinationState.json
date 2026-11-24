@@ -1,0 +1,18 @@
+{
+  "coordinationId": "coord-1",
+  "publicationId": "pub-1",
+  "publicationUri": "rho:id:pub-1",
+  "subjectRef": {"kind": "publication", "id": "pub-1", "uri": "rho:id:pub-1"},
+  "roomIdHash": "room-1",
+  "pollIdHash": "poll-1",
+  "outcomeHash": "outcome-1",
+  "signers": ["member-1", "member-2"],
+  "signatures": [{"by": "member-1", "sig": "00", "atHeight": 2},
+                 {"by": "member-2", "sig": "00", "atHeight": 2}],
+  "status": "recorded",
+  "createdBy": "member-1",
+  "createdAtHeight": 1,
+  "recordedAtHeight": 2,
+  "ops": {},
+  "schemaVersion": 1
+}

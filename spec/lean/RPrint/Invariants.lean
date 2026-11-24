@@ -4,6 +4,7 @@ import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
 import RPrint.Model.Adapter
+import RPrint.Model.Coordination
 
 /-!
 # Invariant aliases
@@ -50,6 +51,9 @@ def I9_arbitrate_conservation := @escrow_arbitrate_conserves
 def I10_cancel_refunds := @escrow_cancel_refunds_remaining
 def I10_expire_conserves := @escrow_expire_conserves
 def I10_resolve_conserves := @escrow_resolveDispute_conserves
+
+/-- I18 — a coordination record is provenance, not authority. -/
+def I18_provenance_not_authority := @coordination_record_preserves_publication
 
 /-- I12 — a published content hash is frozen. -/
 def I12_published_hash_frozen := @article_publish_freezes_hash

@@ -122,9 +122,11 @@ coverage:
   - id: INV-I18
     invariant: I18
     statement: a quantum-os coordination record is provenance, not authority
-    status: design
-    evidence: [spec/spec-only.md, spec/graph/edges.yaml]
-    note: the coordination record is design-only
+    status: proved
+    theorems: [RPrint.coordination_record_preserves_publication]
+    aliases: [I18_provenance_not_authority]
+    evidence: [spec/lean/RPrint/Model/Coordination.lean, spec/lean/RPrint/Model/System.lean, harness/unit_coordination.py]
+    note: the record transition returns the publication unchanged; room and poll facts stay off-chain
   - id: INV-I19
     invariant: I19
     statement: money is integer minor units; block heights carry deadlines
@@ -277,6 +279,10 @@ assumptions:
     statement: an r-sure Slip info read returns the stated status and premium
     boundary: rsureSlipInfo
     evidence: [spec/lean/RPrint/Model/System.lean, harness/unit_interfaces.py]
+  - id: ASM-025
+    statement: the quantum-os room, poll and outcome exist only off-chain and their hashes are caller-supplied anchors
+    boundary: quantumRoomOffchain
+    evidence: [spec/lean/RPrint/Model/System.lean, docs/reference/byoid-quantum-os-adapter.md]
 
 divergences:
   - id: DIV-001
@@ -394,7 +400,7 @@ roadmap:
   - id: M14-SCHEMAS
     priority: P2
     title: add spec/schemas and a schema checker
-    status: proposed
+    status: done
     findings: []
   - id: M14-LIVE-ESCROW
     priority: P1
@@ -404,7 +410,7 @@ roadmap:
   - id: M14-ADAPTER-MEMBERSHIP
     priority: P1
     title: adjudicate adapter factory-membership trust
-    status: proposed
+    status: partial
     findings: []
   - id: M14-INDEPENDENT
     priority: P0
@@ -414,7 +420,7 @@ roadmap:
   - id: M15-COORDINATION
     priority: P2
     title: implement the coordination record and golden outcome
-    status: proposed
+    status: done
     findings: []
   - id: M15-COMPLETENESS
     priority: P2

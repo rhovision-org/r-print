@@ -14,6 +14,8 @@ source_globs:
   - contracts/src/deploy/21_commission_escrow.rho
   - contracts/src/deploy/30_article.rho
   - contracts/src/deploy/31_edition.rho
+  - contracts/src/deploy/32_coordination.rho
+  - contracts/src/deploy/33_coordination_cell.rho
   - contracts/src/deploy/05_rgen.rho
   - contracts/src/deploy/06_rsure.rho
 invariants:
@@ -34,7 +36,7 @@ invariants:
   I15: {statement: "an edition append requires a published article from the publication", lean: RPrint.edition_append_guards, lean_status: proved-model}
   I16: {statement: "a sealed edition is bound and immutable", lean: RPrint.edition_sealed_manifest_immutable, lean_status: proved-model}
   I17: {statement: "BYOID DID and attestation fields are anchors, not proof", lean: RPrint.publication_attest_preserves_authority, lean_status: proved-model, note: "DID verification is off-chain; the theorem only shows attestSelf leaves authority unchanged"}
-  I18: {statement: "a quantum-os coordination record is provenance, not authority", lean_status: design, note: "spec/spec-only.md"}
+  I18: {statement: "a quantum-os coordination record is provenance, not authority", lean: RPrint.coordination_record_preserves_publication, lean_status: proved-model, note: "the record transition returns the publication unchanged; room and poll facts remain off-chain"}
   I19: {statement: "money is integer minor units; block heights carry deadlines", lean: RPrint.shareOf_le, lean_status: proved-but-narrower, note: "Nat minor units and Height; not a type-level money proof"}
   I20: {statement: "spec-only features do not change v0.1 cell semantics", lean_status: design, note: "spec/spec-only.md"}
   I21: {statement: "a client write succeeds only after finalized + processedWithSuccess + a (true, ...) reply", lean_status: mechanism, note: "web/src/test/live-api.test.ts; crates/rprint-sdk"}
@@ -348,9 +350,24 @@ rules:
     note: policy membership is a boundary read over the pinned r-sure policy book
   - id: Q-record
     arm: 'CoordinationRecord@"record"'
-    source: spec/spec-only.md
-    status: design
-    lean_status: owed
+    source: contracts/src/deploy/33_coordination_cell.rho
+    status: implemented
+    lean: RPrint.coordination_record_record_conflict_refused
+    lean_status: proved-conformance
+    cell: CoordinationRecord
+    guard_eq: RPrint.coordinationRecord_guard_eq
+    corpus: COORD-record-conflict
+    suite: harness/unit_coordination.py
+    note: the first outcome is terminal; identical replay succeeds, a different outcome refuses
+  - id: Q-factory
+    arm: 'CoordinationFactory@"create"'
+    source: contracts/src/deploy/32_coordination.rho
+    status: implemented
+    lean: RPrint.coordination_factory_create_refuses_reuse
+    lean_status: proved-model
+    cell: CoordinationFactory
+    guard_eq: RPrint.coordinationFactoryCreate_guard_eq
+    note: shallow factory guard; canonical, signer, role and status checks are Bool atoms
   - id: P-factory
     arm: 'PublicationFactory@"create"'
     source: contracts/src/deploy/10_publication.rho
@@ -425,3 +442,4 @@ core_arms:
   - 'Article@"correct"'
   - 'Edition@"append"'
   - 'Edition@"seal"'
+  - 'CoordinationRecord@"record"'

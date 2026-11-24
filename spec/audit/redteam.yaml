@@ -75,3 +75,15 @@ results:
     classification: accepted
     finding: RPA-001
     observed: 'accepted; provenance has no membership query in the pinned r-gen rev'
+  - id: RT-013
+    name: forge a signer signature over a different outcome
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, signature)'
+  - id: RT-014
+    name: substitute a member outside the fixed signer set
+    expected: refuse
+    classification: fixed
+    finding: '-'
+    observed: 'refused: (false, not signer)'

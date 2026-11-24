@@ -304,3 +304,15 @@ rows:
     kind: read
     source: contracts/src/deploy/01_kernel.rho
     evidence: docs/reference/arm-reference.md
+  - arm: 'CoordinationCellFactory@"spawn"'
+    kind: read
+    source: contracts/src/deploy/33_coordination_cell.rho
+    evidence: docs/reference/arm-reference.md
+  - arm: 'CoordinationRecord@"info"'
+    kind: read
+    source: contracts/src/deploy/33_coordination_cell.rho
+    evidence: docs/reference/arm-reference.md
+  - arm: 'CoordinationRecord@"status"'
+    kind: read
+    source: contracts/src/deploy/33_coordination_cell.rho
+    evidence: docs/reference/arm-reference.md

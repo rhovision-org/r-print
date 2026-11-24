@@ -12,6 +12,7 @@ import type {
   CancelProposalInput,
   CorrectionInput,
   CreateArticleInput,
+  CreateCoordinationInput,
   CreateEditionInput,
   CreatePublicationInput,
   KeystoreInput,
@@ -20,6 +21,7 @@ import type {
   MemberInput,
   MilestoneActionInput,
   ProposeCommissionInput,
+  RecordCoordinationInput,
   Reply,
   ResolveDisputeInput,
   SealEditionInput,
@@ -189,6 +191,15 @@ export class StubApi {
   }
   coordinationInfo(_uri: string): Promise<Reply<any>> {
     return fail("coordinationInfo");
+  }
+  createCoordination(_input: CreateCoordinationInput): Promise<Reply<any>> {
+    return fail("createCoordination");
+  }
+  recordCoordination(
+    _uri: string,
+    _input: RecordCoordinationInput,
+  ): Promise<Reply<any>> {
+    return fail("recordCoordination");
   }
   keystoreCreate(_input: KeystoreInput): Promise<Reply<any>> {
     return fail("keystoreCreate");

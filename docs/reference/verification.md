@@ -4,12 +4,12 @@
 
 ## The recorded campaign
 
-On the local 50403 devnet, the full **18/18** behavioural suites passed in one run:
+On the local 50403 devnet, the full **19/19** behavioural suites passed in one run:
 
 ```
 admin, admin_keys, article, article_refusals, behavior, commission,
-commission_dispute, commission_refusals, conservation, corrections, edition,
-interfaces, membership_auth, pause_scope, payments, publication, root, schema
+commission_dispute, commission_refusals, conservation, coordination, corrections,
+edition, interfaces, membership_auth, pause_scope, payments, publication, root, schema
 ```
 
 The node reported `rholo node 0.1.0` build `8fe0136`. The r-cash components were installed
@@ -75,15 +75,15 @@ measured result is:
 
 | Check | Result |
 |---|---|
-| Lean build and axiom audit | **220 source theorems**, 220 axiom audits |
+| Lean build and axiom audit | **239 source theorems**, 239 axiom audits |
 | Proof escapes | 0 `sorry`/`admit`/`axiom`/`native_decide`; only `propext`, `Classical.choice`, `Quot.sound` |
-| Vectors | **77** deterministic vectors in `spec/vectors/lean.json` |
-| Conformance corpus | **19** rows in `spec/vectors/core.tsv`, emitted by `RPrint/EmitCorpus.lean` |
-| Flow manifest | **45 rules**, **15 core arms** `proved-conformance`, **19** `proved-conformance` rules, **13** `proved-model` rules, 0 proof-quality warnings |
+| Vectors | **90** deterministic vectors in `spec/vectors/lean.json` |
+| Conformance corpus | **20** rows in `spec/vectors/core.tsv`, emitted by `RPrint/EmitCorpus.lean` |
+| Flow manifest | **46 rules**, **16 core arms** `proved-conformance`, **20** `proved-conformance` rules, **14** `proved-model` rules, 0 proof-quality warnings |
 
 The model covers publication authority and membership, commission proposal and escrow,
-article lifecycle, edition seal, and the r-sure cover and r-gen knowledge ties, plus the shared
-linear-cell and protocol layer. It is `proved-model`: theorems about the shallow Lean state
+article lifecycle, edition seal, coordination records, and the r-sure cover and r-gen
+knowledge ties, plus the shared linear-cell and protocol layer. It is `proved-model`: theorems about the shallow Lean state
 machines, not a refinement of the deployed Rholang. ERTP purse atomicity, phlo, cryptography,
 node scheduling, deploy atomicity and the cross-contract ties are explicit boundary assumptions
 in `spec/lean/RPrint/Model/System.lean`.
@@ -94,11 +94,11 @@ The M13 model tranche adds four evidence layers around the state machines:
 
 | Layer | Measured result |
 |---|---|
-| Rigor ledger (`spec/proofs/rigor.yaml`) | **26** invariant rows, **30** claims, **19** boundary assumptions, **10** model/code divergences, **10** roadmap items |
-| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **31** `proved`, **0** `partial`, **0** `owed` |
-| Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; **28** proved, **0** `owed` |
-| Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **19** `proved-conformance` arms, **19** emitted rows |
-| Client-op map (`spec/vectors/client-ops.tsv`) | **43** methods (**32** writes, **11** reads): **29** recorded, **5** fixture-only, **9** no live test |
+| Rigor ledger (`spec/proofs/rigor.yaml`) | **26** invariant rows, **30** claims, **25** boundary assumptions, **10** model/code divergences, **10** roadmap items |
+| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **33** mutating cornerstone arms: **33** `proved`, **0** `partial`, **0** `owed` |
+| Race matrix (`spec/flows/races.yaml`) | **29** arm pairs over six cells; **29** proved, **0** `owed` |
+| Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **20** `proved-conformance` arms, **20** emitted rows |
+| Client-op map (`spec/vectors/client-ops.tsv`) | **45** methods (**34** writes, **11** reads): **29** recorded, **5** fixture-only, **11** no live test |
 
 The guard bridge is a drift check, not a semantics-preserving extraction. The race matrix is
 pair-level, not scheduler-level race freedom. `proved-conformance` is a finite bundle of a
@@ -127,7 +127,7 @@ r-sure `0da5d04` and r-gen `bcc840c` roots, then recorded:
 
 | Check | Result |
 |---|---|
-| Safe behavioural suites | **18/18**, 232 assertions |
+| Safe behavioural suites | **19/19**, 259 assertions |
 | `cover` real-sibling suite | **pass**, 17 assertions against a real r-sure Policy |
 | `knowledge` real-sibling suite | **pass**, 26 assertions against a real r-gen Claim → KAsset → Provenance chain |
 | CLI live | **2/2**, including the cover + knowledge journey |
@@ -175,20 +175,20 @@ counts.
 | Gate | Result |
 |---|---|
 | `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph, guard bridge, race matrix, rigor, conformance, client map, capabilities, audit, close-out, HAZOP |
-| `make check-rigor` | 26 coverage rows, 30 claims, 24 assumptions, 10 divergences |
-| `make check-guard-bridge` | 31 mutating arms: 31 proved, 0 partial, 0 owed |
-| `make check-race-matrix` | 28 pairs: 28 proved, 0 owed |
-| `make check-conformance` | 19 promoted arms, 19 emitted rows |
-| `make check-client-ops` | 43 methods: 29 recorded, 5 fixture-only, 9 no live |
-| `make check-capabilities` | 28 capability rows, 21 published bundles, 3 findings |
-| `make check-schemas` | 6 state schemas, 6 examples, doc and source field sets agree |
-| `make check-arm-inventory` | 119 deployed arms: 31 guard, 44 flow, 75 inventory |
-| `make check-audit check-closeout check-hazop` | 10 findings, 6 close-out rows, 32 HAZOP rows |
+| `make check-rigor` | 26 coverage rows, 30 claims, 25 assumptions, 10 divergences |
+| `make check-guard-bridge` | 33 mutating arms: 33 proved, 0 partial, 0 owed |
+| `make check-race-matrix` | 29 pairs: 29 proved, 0 owed |
+| `make check-conformance` | 20 promoted arms, 20 emitted rows |
+| `make check-client-ops` | 45 methods: 29 recorded, 5 fixture-only, 11 no live |
+| `make check-capabilities` | 31 capability rows, 24 published bundles, 3 findings |
+| `make check-schemas` | 7 state schemas, 7 examples, doc and source field sets agree |
+| `make check-arm-inventory` | 124 deployed arms: 33 guard, 46 flow, 78 inventory |
+| `make check-audit check-closeout check-hazop` | 10 findings, 6 close-out rows, 47 HAZOP rows |
 | `make parse-check` | every built and rendered term parses with the target node parser |
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build (57 chapters) |
 | `make formal-check` | Lean build, axiom audit, vector corpora, strict flow traceability |
 | `make client-check` | Rust fmt/clippy/tests, wasm32 check, wasm-pack web build, WASM smoke, web typecheck/test/build |
-| `make check-graph` | 25 vertices, 36 edges (18 implemented, 10 surface, 8 design) |
+| `make check-graph` | 25 vertices, 36 edges (20 implemented, 10 surface, 6 design) |
 
 ## What the suites actually assert
 
@@ -203,6 +203,10 @@ counts.
   retraction.
 - **edition / behavior**: ordered append, duplicate/draft refusals, editor-signed seal,
   post-seal refusal, and the small-newsroom golden transcript.
+- **coordination**: publication-bound create, active-member signer set, ordered
+  address-bound signatures, the golden recorded outcome, identical replay, different-outcome
+  refusal, bad-signature/wrong-order/non-member refusals, duplicate id, writer-only create and
+  paused-publication create; the publication state is byte-identical before and after a record.
 - **interfaces / pause_scope**: adapters disabled by default, mock Claim/KAsset/Provenance
   reads including `provenanceInfo`, publication pause blocking new work while existing escrow
   releases continue.
@@ -234,7 +238,7 @@ counts.
   roots; the CI dispatch for that campaign is pending because the commits are unpushed. There
   is no independent audit.
 - No multi-validator finality campaign.
-- The live browser journey covers a representative path, not all 32 writes; the remaining
+- The live browser journey covers a representative path, not all 34 writes; the remaining
   writes have fake-transport unit coverage and fixture browser rendering.
 - The live browser journey does not fund a commission (that needs an r-cash-funded account);
   the escrow is covered by the 18-suite campaign and the fake-transport client tests.

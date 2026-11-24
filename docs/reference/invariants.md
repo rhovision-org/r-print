@@ -81,7 +81,7 @@
 | I11 | commission, commission_dispute | assumption: solo arbitration quorum tie |
 | I12–I16 | article, article_refusals, corrections, edition, behavior | `RPrint.article_publish_freezes_hash`, `RPrint.article_correct_append_only`, `RPrint.article_retract_appends_record`, `RPrint.edition_append_guards`, `RPrint.edition_sealed_manifest_immutable` |
 | I17 | publication, membership_auth | `RPrint.publication_attest_preserves_authority` |
-| I18 | design review | outside the model (design) |
+| I18 | coordination | `RPrint.coordination_record_preserves_publication` |
 | I19 | commission, conservation, money checks | `RPrint.shareOf_le`, `RPrint.escrow_release_bounded_by_purse` (narrower: `Nat` and `Height`) |
 | I20 | spec review | outside the model (design) |
 | I21–I23 | live client, client tests | mechanism: no Lean theorem |

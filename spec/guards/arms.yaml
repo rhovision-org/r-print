@@ -407,3 +407,27 @@ arms:
     atoms: [not owner, role, signature, status, verifier]
     modeled_atoms: [not owner, role, signature, status, verifier]
     unmodelled_atoms: []
+
+  - id: coordination.factory.create
+    source: contracts/src/deploy/32_coordination.rho
+    contract: CoordinationFactory
+    arm: create
+    cell: CoordinationFactory
+    status: proved
+    guard_eq: RPrint.coordinationFactoryCreate_guard_eq
+    atoms: [cell factory, clock, coordination, duplicate, not owner, not signer, paused, publication, role, room, signers, subject]
+    modeled_atoms: [cell factory, clock, coordination, duplicate, not owner, not signer, paused, publication, role, room, signers, subject]
+    unmodelled_atoms: []
+    note: the factory guard folds canonical binding, subject, room, signer membership, role, publication status, clock and cell resolution into Bool atoms, plus id reuse
+
+  - id: coordination.record
+    source: contracts/src/deploy/33_coordination_cell.rho
+    contract: CoordinationRecord
+    arm: record
+    cell: CoordinationRecord
+    status: proved
+    guard_eq: RPrint.coordinationRecord_guard_eq
+    atoms: [clock, codec, coordination, not owner, not signer, outcome, poll, recorded, role, signature, verifier]
+    modeled_atoms: [clock, codec, coordination, role, not owner, not signer, outcome, poll, recorded, signature, verifier]
+    unmodelled_atoms: []
+    note: the guard models the ordered signer set, address-bound signature checks and the terminal first-outcome rule; room and poll facts stay off-chain

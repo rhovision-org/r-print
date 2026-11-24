@@ -10,6 +10,7 @@ cells:
   CommissionEscrow: [release, cancel, expire, arbitrate]
   Article: [submit, publish, correct]
   Edition: [append, seal]
+  CoordinationRecord: [record]
 pairs:
   - cell: Publication
     a: addMember
@@ -170,3 +171,10 @@ pairs:
     b: seal
     class: exclusive
     theorem: RPrint.edition_seal_seal_never_after
+  - cell: CoordinationRecord
+    a: record
+    b: record
+    case: different-outcome
+    class: exclusive
+    theorem: RPrint.coordination_record_record_conflict_refused
+    note: a recorded outcome replays unchanged; a different poll or outcome refuses

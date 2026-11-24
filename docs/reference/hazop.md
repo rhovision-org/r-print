@@ -27,10 +27,10 @@ explicit coverage table records every covered cell.
 
 | Check | Result |
 |---|---|
-| Nodes | 8 |
+| Nodes | 9 |
 | Guide words | 15 |
-| Rows | 32 |
-| Negative rows (safeguard holds) | 30 |
+| Rows | 47 |
+| Negative rows (safeguard holds) | 45 |
 | Accepted risks | 2 (cover and knowledge fake chains, RPA-001) |
 | Open action | 0; the milestone-binding action (RPA-002 → IMP-002) is fixed |
 

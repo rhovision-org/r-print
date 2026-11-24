@@ -3,6 +3,7 @@ import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
 import RPrint.Model.Adapter
+import RPrint.Model.Coordination
 
 /-!
 # Arm-level conformance corpus
@@ -99,6 +100,16 @@ def provenanceFact : ProvenanceFact :=
 def credentialFact : Option CredentialFact :=
   some { uri := 14, subject := 3, status := CredentialFactStatus.active, expiresAt := 0 }
 
+def coordinationOpen : CoordinationState :=
+  { coordinationId := 1, publicationId := 1, status := CoordinationStatus.open,
+    roomIdHash := 2, pollIdHash := none, outcomeHash := none,
+    signers := [1, 2], signatures := [] }
+
+def coordinationRecorded : CoordinationState :=
+  { coordinationId := 1, publicationId := 1, status := CoordinationStatus.recorded,
+    roomIdHash := 2, pollIdHash := some 3, outcomeHash := some 4,
+    signers := [1, 2], signatures := [1, 2] }
+
 def outcome {α : Type} (o : Option α) : String :=
   if o.isSome then "some" else "reject"
 
@@ -176,7 +187,12 @@ def rows : List VectorRow := [
     (outcome (knowledgeAttach knowledgeBase 11 12 13 14
       kassetFact { claimFact with status := ClaimFactStatus.open }
       provenanceFact credentialFact 50))
-    "RPrint.knowledge_attach_requires_claim_status"
+    "RPrint.knowledge_attach_requires_claim_status",
+  row "COORD-record-conflict" "CoordinationRecord" "record"
+    "recorded, different outcome"
+    (outcome (coordinationRecord coordinationRecorded
+      true true true true true true true 3 5 2))
+    "RPrint.coordination_record_record_conflict_refused"
 ]
 
 def header : String :=
