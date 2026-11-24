@@ -90,5 +90,11 @@
 | I26 | cover, knowledge | `RPrint.cover_attach_single_assignment`, `RPrint.knowledge_attach_single_assignment` |
 
 The model evidence is `spec/lean/`; `spec/flows/core.yaml` names the carrying theorem for
-each rule. The model is shallow and does not formalise ERTP, phlo, cryptography, the node
-scheduler or deploy atomicity. See [Formal model](formal-model.md).
+each rule. `spec/proofs/rigor.yaml` carries one coverage row per invariant with its stale
+aliases, theorems, evidence and gap; `make check-rigor` keeps the two directions in step.
+`spec/guards/arms.yaml` maps the mutating arms to their guard theorems, and
+`spec/flows/races.yaml` records the core arm pairs. None of these is a refinement of the
+deployed Rholang.
+
+The model is shallow and does not formalise ERTP, phlo, cryptography, the node scheduler or
+deploy atomicity. See [Formal model](formal-model.md).

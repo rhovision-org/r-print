@@ -7,7 +7,7 @@ chain, settled through [r-cash](https://github.com/rhovision-org/r-cash). A publ
 organisation, a commission is escrowed work with milestones, an article is an editorial record
 over a content hash, an edition is an ordered manifest, and corrections are append-only.
 
-> **Status:** Devnet-only, unaudited. 18 behavioural suites (211 assertions) pass on a fresh
+> **Status:** Devnet-only, unaudited. 18 behavioural suites (232 assertions) pass on a fresh
 > local devnet; `make spec-check`, `make parse-check`, `make docs-check` and the Rust client
 > gates pass.
 > Escrow is the baseline settlement rail. r-sure cover and r-gen K-Assets are optional
@@ -24,11 +24,14 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > knowledge surfaces now verify their full chains: an active policy insured to the publication
 > treasury and asset, and a reciprocal Claim/KAsset/Provenance/credential link authored by the
 > article author. A 2026-11-24 fresh local 40403 devnet recorded 18/18 suites, 2/2
-> real-sibling suites (41 assertions), the CLI cover + knowledge journey and a 12-step web
+> real-sibling suites (43 assertions), the CLI cover + knowledge journey and a 12-step web
 > live smoke; the CI dispatch is pending because the commits are unpushed.
 > A Lean 4.12 model covers publication authority, commission
-> escrow, article lifecycle, edition seal and the two sibling ties: 131 machine-checked
-> theorems, 56 vectors and 15 core arms, zero proof escapes. It is not a Rholang refinement.
+> escrow, article lifecycle, edition seal and the two sibling ties. M13 adds a 26-invariant
+> rigor ledger, a 31-arm guard bridge, a 28-pair race matrix, a 19-arm `proved-conformance`
+> bundle and an internal adversarial audit: 10 findings, 11 red-team probes (9 fixed, 2
+> accepted) and 32 HAZOP rows. The audit is not independent and the model is not a Rholang
+> refinement.
 > Subscriptions, revenue splits, crowdfunding, reader tips, syndication and the
 > coordination-record contract remain design.
 
@@ -71,14 +74,18 @@ hashes, authority records and optional sibling URIs.
 |---|---|
 | `contracts/src/deploy/` | 13 numbered deploy terms |
 | `contracts/src/lib/` | build-time fragments |
-| `harness/` | installer, fixtures, 18 behavioural suites |
+| `harness/` | installer, fixtures, 18 behavioural suites, 2 sibling suites and the red-team probes |
 | `spec/graph/` | the named integration graph (`make check-graph`) |
-| `spec/lean/` | Lean 4.12 model, axiom audit, vectors and flow traceability |
-| `spec/` | invariants, acceptance, flows, vectors and design-only surfaces |
+| `spec/lean/` | Lean 4.12 model, guard bridge, race pair theorems, axiom audit and both vector emitters |
+| `spec/proofs/` | the rigor ledger: invariants, claims, assumptions and divergences |
+| `spec/guards/` | the mutating-arm guard bridge |
+| `spec/audit/` | findings, close-out, improvement plan, capabilities and red-team results |
+| `spec/hazop/` | the guide-word worksheet |
+| `spec/` | invariants, acceptance, flows, race matrix, vectors and design-only surfaces |
 | `crates/` | `rprint-core`, `rprint-keystore`, `rprint-sdk`, `rprint-wallet`, `rprint-cli`, `rprint-wasm` |
 | `web/` | React/Vite/TS live client with typed forms for every write and a fixture default |
 | `web/e2e/` | Playwright fixture and live browser journeys |
-| `docs/` | the 53-chapter mdBook source |
+| `docs/` | the 57-chapter mdBook source |
 
 ## Quickstart
 

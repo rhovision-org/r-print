@@ -19,7 +19,11 @@ export RPRINT_SIBLINGS_DIR := $(abspath $(SIBLINGS_DIR))
 
 .PHONY: venv build build-check measure measure-check metrics metrics-compare \
         metrics-baseline check-arch check-captures check-select check-placeholders \
-        check-money check-suites check-graph check-flows check-vectors check spec-check parse-check \
+        check-money check-suites check-graph check-flows check-vectors \
+        check-guard-bridge check-race-matrix check-rigor check-conformance \
+        check-core-vectors gen-core-vectors check-client-ops check-capabilities \
+        check-audit check-closeout check-hazop check-redteam-results redteam \
+        check spec-check parse-check \
         lean-build lean-check lean-vectors lean-vectors-write check-flows-strict formal-check \
         docs docs-serve docs-check devnet devnet-up devnet-wait down status rcash-install \
         rcash-keys rcash-bootstrap keys install setup unit-all check-all ci clean \
@@ -79,6 +83,46 @@ check-flows:
 check-vectors:
 	$(PY) tools/check_vectors.py
 
+check-guard-bridge:
+	$(PY) tools/check_guard_bridge.py
+
+check-race-matrix:
+	$(PY) tools/check_race_matrix.py
+
+check-rigor:
+	$(PY) tools/check_rigor.py
+
+check-conformance:
+	$(PY) tools/check_conformance.py
+
+check-core-vectors:
+	$(PY) tools/check_core_vectors.py
+
+gen-core-vectors:
+	$(PY) tools/gen_core_vectors.py --write
+
+check-client-ops:
+	$(PY) tools/check_client_ops.py
+
+check-capabilities:
+	$(PY) tools/check_capabilities.py
+
+check-audit:
+	$(PY) tools/check_audit.py
+
+check-closeout:
+	$(PY) tools/check_closeout.py
+
+check-hazop:
+	$(PY) tools/check_hazop.py
+
+check-redteam-results:
+	$(PY) tools/check_redteam_results.py
+
+redteam:
+	$(PY) harness/run_suites.py --suites redteam \
+		--results deployments/redteam-suite-results.json --require-run
+
 lean-build:
 	cd spec/lean && lake build
 
@@ -94,13 +138,15 @@ lean-vectors:
 check-flows-strict:
 	$(PY) tools/check_flows.py --strict
 
-formal-check: lean-check lean-vectors check-flows check-flows-strict
+formal-check: lean-check lean-vectors check-core-vectors check-flows check-flows-strict
 
 check-graph:
 	$(PY) tools/check_graph.py
 
 spec-check: build-check measure-check metrics-compare check-arch check-captures check-select \
-            check-placeholders check-money check-suites check-graph check-flows check-vectors
+            check-placeholders check-money check-suites check-graph check-flows check-vectors \
+            check-guard-bridge check-race-matrix check-rigor check-conformance \
+            check-client-ops check-capabilities check-audit check-closeout check-hazop
 
 parse-check:
 	$(PY) harness/install.py --dry-run --profile safe

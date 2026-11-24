@@ -146,8 +146,23 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
 - **Boundary assumptions are explicit.** ERTP purse atomicity, phlo, cryptography, node
   scheduling, deploy atomicity and the cross-contract ties live in
   `RPrint/Model/System.lean`; they are not theorems.
+- **Guard bridge.** Every mutating cornerstone arm needs a row in
+  `spec/guards/arms.yaml` and a `guard_eq` theorem (or `owed` with a note). The bridge
+  checks source atoms, the atom partition and the flow entry; it is a drift check, not an
+  extraction.
+- **Race matrix.** Every core arm pair needs a row in `spec/flows/races.yaml`. Use `owed` with
+  a note when the shallow model cannot support the claim; never write a false pair theorem.
+  The matrix is pair-level, not scheduler-level race freedom.
+- **Conformance bundle.** `proved-conformance` requires all three legs: a theorem, a
+  Lean-emitted `spec/vectors/core.tsv` row and a suite assertion for the same case id. Promote
+  an arm only when all three exist. `make check-conformance` rejects a partial bundle.
+- **Rigor ledger.** Every invariant, boundary assumption, material divergence and public
+  claim needs a row in `spec/proofs/rigor.yaml`. `proved` needs a theorem; narrower/partial
+  needs a gap; mechanism/assumption/design needs evidence and a note. A material divergence
+  needs a roadmap closure.
 - **No inflated claim.** Never write "verified", "audited", "proved about the deployed
-  Rholang" or "proved-tied" for this model.
+  Rholang" or "proved-tied" for this model. The audit ledgers are an internal maintainer
+  review, not an independent audit.
 
 ## Commands
 
@@ -161,7 +176,11 @@ make lean-check      # build, proof-escape scan and axiom audit
 make lean-vectors    # compare spec/vectors/lean.json with a fresh emission
 make lean-vectors-write # regenerate the Lean vector corpus
 make check-flows-strict # every core arm names a proved-model theorem
-make formal-check    # lean-check, lean-vectors, check-flows and strict
+make formal-check    # lean-check, lean-vectors, core-vectors, check-flows and strict
+make check-guard-bridge check-race-matrix check-rigor check-conformance
+make check-core-vectors check-client-ops check-capabilities
+make check-audit check-closeout check-hazop check-redteam-results
+make redteam         # adversarial probes; writes deployments/redteam-results.json
 make devnet-up       # r-cash devnet via RCASH_DIR/RHOLO_DIR
 make rcash-keys      # generate and faucet r-cash keys
 make rcash-bootstrap # install the r-cash components r-print needs
@@ -231,3 +250,8 @@ make check-graph     # named integration vertices and edges
 - `proved-model` is reported as `proved-model`, never as an audit or a refinement.
 - A sibling-surface claim needs `deployments/sibling-suite-results.json` (or the CI artifact)
   from a healthy devnet with the pinned roots installed. `not_run` is not a pass.
+- A guard, race or conformance claim needs the matching ledger and gate. An `owed` or
+  `partial` row is a first-class result; a `proved` claim without the theorem and evidence is
+  not.
+- An audit claim needs `spec/audit/findings.yaml`, its close-out row and the red-team result.
+  Never call the internal review an audit or an independent sign-off.

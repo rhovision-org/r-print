@@ -102,23 +102,47 @@ never theorems.
 | Label | Meaning |
 |---|---|
 | `proved-model` | Machine-checked about the Lean model; no node tie. |
+| `proved-conformance` | The theorem plus an emitted `core.tsv` row plus a deployed suite assertion. |
 | `proved-model-bounded` | Machine-checked over a stated finite bound. |
+| `proved-but-narrower` | A theorem with a recorded narrower scope or gap. |
 | `modeled` | A transition exists; no safety theorem. |
+| `mechanism` | A client mechanism with test evidence; no Lean theorem. |
 | `assumption` | An explicit boundary assumption; not proved. |
 | `owed` | An arm outside the current model. |
 | `open` | Not yet analysed. |
 
 `spec/flows/core.yaml` names the carrying theorem for every model rule. `tools/check_flows.py
---strict` rejects a `proved-model` target that is a definition or constructor. The invariant
-aliases in `RPrint/Invariants.lean` are for the docs; the flow manifest names the theorem.
+--strict` rejects a `proved-model` or `proved-conformance` target that is a definition or
+constructor. The invariant aliases in `RPrint/Invariants.lean` are for the docs; the flow
+manifest names the theorem.
+
+## Guard bridge, race matrix and conformance corpus
+
+Three modules sit around the four state machines:
+
+- `RPrint/ArmGuards.lean` defines a positive `Bool` guard for every mutating
+  cornerstone arm and proves `(step …).isSome = guard …`. `spec/guards/arms.yaml`
+  records 31 arms: 25 `proved`, 2 `partial` (release and attachKnowledge) and 4
+  factory `create` arms `owed`. The bridge is a drift check, not an extraction.
+- `spec/flows/races.yaml` records the 28 arm pairs over five cells. Each row is
+  `exclusive`, `ordered` or `independent`, or `owed` with a note. The matrix is
+  pair-level; it is not scheduler-level race freedom.
+- `RPrint/EmitCorpus.lean` emits `spec/vectors/core.tsv`; 19 arms are
+  `proved-conformance`. The corpus is byte-identical to the emission and each
+  case is asserted by a named suite.
+
+The rigor ledger `spec/proofs/rigor.yaml` maps all 26 invariants, 19 boundary
+assumptions, 10 model/code divergences and the claim ledger. `make check-rigor`
+rejects an unstatused gap.
 
 ## Audit baseline
 
-The project builds 131 source theorems with 131 axiom audits, no `sorry`/`admit`/`axiom`/
+The project builds 188 source theorems with 188 axiom audits, no `sorry`/`admit`/`axiom`/
 `native_decide`, and only `propext`, `Classical.choice` and `Quot.sound`. `spec/flows/core.yaml`
-has 36 rules over 36 arms, 15 core arms are `proved-model`, 27 rules are `proved-model`, and
-`make check-flows-strict` reports zero proof-quality warnings. `RPrint/Emit.lean` emits 56
-deterministic vectors; `spec/vectors/lean.json` is generated from them and never hand-edited.
+has 43 rules over 43 arms, 15 core arms are `proved-conformance`, 19 rules are
+`proved-conformance`, 9 are `proved-model`, and `make check-flows-strict` reports zero
+proof-quality warnings. `RPrint/Emit.lean` emits 62 deterministic vectors; `RPrint/EmitCorpus.lean`
+emits 19 arm-conformance rows. Both corpora are generated and never hand-edited.
 
 ## Run it
 
@@ -127,8 +151,10 @@ make lean-build          # lake build
 make lean-check          # build, escape scan and axiom audit
 make lean-vectors        # compare spec/vectors/lean.json with a fresh emission
 make lean-vectors-write  # regenerate after an intentional transition change
+make gen-core-vectors    # regenerate the arm conformance corpus
 make check-flows-strict  # every core arm names a theorem
-make formal-check        # all of the above
+make check-guard-bridge check-race-matrix check-conformance
+make formal-check        # lean-check, vectors, core vectors and strict flows
 ```
 
 > **Where to go deeper.** [Verification](verification.md) is the behavioural and live record.

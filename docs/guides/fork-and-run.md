@@ -32,7 +32,8 @@ make client-lint client-test client-wasm
 
 `spec-check` builds the inlined terms, measures them, checks the component graph, refuses
 `select`, refuses forbidden bundle captures, checks integer money and suite mapping, and runs
-`tools/check_graph.py`. `parse-check` renders the terms with the installer and parses them
+the graph, rigor, guard, race, conformance, client-map, capability, audit, close-out and
+HAZOP gates. `parse-check` renders the terms with the installer and parses them
 with the target node's parser.
 
 ## Devnet

@@ -1,7 +1,7 @@
 # Integration graph
 
 > **Status:** Implemented for the r-print-owned edges and the r-sure/r-gen links, recorded
-> locally on 2026-11-24 (2/2 sibling suites, 41 assertions; the roots remain disabled by
+> locally on 2026-11-24 (2/2 sibling suites, 43 assertions; the roots remain disabled by
 > default); design for the cover-claim and coordination edges. `make check-graph` validates
 > every vertex and edge in `spec/graph/`.
 

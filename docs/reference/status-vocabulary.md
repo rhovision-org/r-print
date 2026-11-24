@@ -54,11 +54,18 @@ These labels describe the Lean model, not the deployed contract:
 | Label | Meaning |
 |---|---|
 | `proved-model` | Machine-checked about the Lean model; no node tie. |
+| `proved-conformance` | The theorem, an emitted `spec/vectors/core.tsv` row and a deployed suite assertion. A finite evidence bundle, not a refinement. |
 | `proved-model-bounded` | Machine-checked over a stated finite bound. |
+| `proved-but-narrower` | A theorem with a recorded narrower scope or gap; see `spec/proofs/rigor.yaml`. |
 | `modeled` | A transition exists; no safety theorem. |
+| `mechanism` | A client mechanism with test or live evidence; no Lean theorem. |
 | `assumption` | An explicit boundary assumption; not proved. |
 | `owed` | An arm outside the current model. |
 | `open` | Not yet analysed. |
+
+`measured` and `recorded` are ledger verdicts for a count or a campaign, not a
+proof. A `proved-conformance` claim is rejected unless all three legs are
+present; `make check-conformance` enforces the bundle.
 
 `proved-model` never means a Rholang refinement, an audit or a deployed-contract proof. The
 flow manifest in `spec/flows/core.yaml` carries the per-arm label.

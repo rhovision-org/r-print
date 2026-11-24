@@ -13,7 +13,12 @@
 | Money | `make check-money` | Integer money only |
 | Suites | `make check-suites` | Every harness suite is mapped |
 | Graph | `make check-graph` | Every vertex and edge is named and sourced |
-| Formal model | `make formal-check` | Lean build, axiom audit, vectors and strict flow traceability |
+| Rigor ledger | `make check-rigor` | Every invariant, assumption, divergence and claim is statused |
+| Guard bridge | `make check-guard-bridge` | Every mutating cornerstone arm has a guard row and theorem |
+| Race matrix | `make check-race-matrix` | Every core arm pair is classed or `owed` with a note |
+| Conformance | `make check-conformance` | Theorem + emitted row + suite assertion for every promoted arm |
+| Audit | `make check-audit check-closeout check-hazop check-redteam-results` | Findings, close-out, HAZOP and red-team evidence |
+| Formal model | `make formal-check` | Lean build, axiom audit, vector corpora and strict flow traceability |
 | Parser | `make parse-check` | The target node parses every rendered term |
 | Behaviour | `make unit-all` | The devnet campaign |
 | Browser fixture | `make web-e2e-fixture` | Every route and write form in Chromium with no node or WASM |

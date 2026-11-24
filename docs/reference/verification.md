@@ -75,10 +75,11 @@ measured result is:
 
 | Check | Result |
 |---|---|
-| Lean build and axiom audit | **131 source theorems**, 131 axiom audits |
+| Lean build and axiom audit | **188 source theorems**, 188 axiom audits |
 | Proof escapes | 0 `sorry`/`admit`/`axiom`/`native_decide`; only `propext`, `Classical.choice`, `Quot.sound` |
-| Vectors | **56** deterministic vectors in `spec/vectors/lean.json` |
-| Flow manifest | **36 rules**, **15 core arms** `proved-model`, **27** `proved-model` rules, 0 proof-quality warnings |
+| Vectors | **62** deterministic vectors in `spec/vectors/lean.json` |
+| Conformance corpus | **19** rows in `spec/vectors/core.tsv`, emitted by `RPrint/EmitCorpus.lean` |
+| Flow manifest | **43 rules**, **15 core arms** `proved-conformance`, **19** `proved-conformance` rules, **9** `proved-model` rules, 0 proof-quality warnings |
 
 The model covers publication authority and membership, commission proposal and escrow,
 article lifecycle, edition seal, and the r-sure cover and r-gen knowledge ties, plus the shared
@@ -87,6 +88,37 @@ machines, not a refinement of the deployed Rholang. ERTP purse atomicity, phlo, 
 node scheduling, deploy atomicity and the cross-contract ties are explicit boundary assumptions
 in `spec/lean/RPrint/Model/System.lean`.
 
+## Rigor ledger, guard bridge, race matrix and conformance
+
+The M13 model tranche adds four evidence layers around the state machines:
+
+| Layer | Measured result |
+|---|---|
+| Rigor ledger (`spec/proofs/rigor.yaml`) | **26** invariant rows, **30** claims, **19** boundary assumptions, **10** model/code divergences, **9** roadmap items |
+| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **25** `proved`, **2** `partial` (release, attachKnowledge), **4** factory `create` arms `owed` |
+| Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; `release/release` and `release/arbitrate` are `owed` under DIV-002 |
+| Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **19** `proved-conformance` arms, **19** emitted rows |
+| Client-op map (`spec/vectors/client-ops.tsv`) | **43** methods (**32** writes, **11** reads): **22** recorded, **5** fixture-only, **16** no live test |
+
+The guard bridge is a drift check, not a semantics-preserving extraction. The race matrix is
+pair-level, not scheduler-level race freedom. `proved-conformance` is a finite bundle of a
+theorem, a Lean-emitted vector row and a suite assertion; it is not a refinement of the
+deployed Rholang.
+
+## Internal adversarial audit
+
+The audit is an internal maintainer review, not an independent audit. The records are
+`spec/audit/findings.yaml` (**10** findings), `spec/audit/closeout.yaml` (**6** terminal
+decisions), `spec/audit/improvement-plan.yaml` (**7** items), `spec/audit/redteam.yaml`
+(**11** probes: **9** `fixed`, **2** `accepted`), `spec/hazop/worksheet.yaml` (**8** nodes,
+**32** rows, **29** negative) and `spec/audit/capabilities.yaml` (**28** rows over **21**
+published bundles, **3** capability findings).
+
+The two accepted red-team probes attach a self-consistent fake policy and a self-consistent
+fake knowledge chain. That is RPA-001: the adapters check shape, not sibling factory
+membership. The risk is accepted until M14 and expires on 2027-02-28. Independent review
+remains outstanding (RPA-009).
+
 ## Sibling surfaces — recorded local campaign
 
 On 2026-11-24 a fresh local 40403 devnet (rholo node build `5b9685e`) installed the pinned
@@ -94,9 +126,9 @@ r-sure `0da5d04` and r-gen `bcc840c` roots, then recorded:
 
 | Check | Result |
 |---|---|
-| Safe behavioural suites | **18/18**, 211 assertions |
-| `cover` real-sibling suite | **pass**, 16 assertions against a real r-sure Policy |
-| `knowledge` real-sibling suite | **pass**, 25 assertions against a real r-gen Claim → KAsset → Provenance chain |
+| Safe behavioural suites | **18/18**, 232 assertions |
+| `cover` real-sibling suite | **pass**, 17 assertions against a real r-sure Policy |
+| `knowledge` real-sibling suite | **pass**, 26 assertions against a real r-gen Claim → KAsset → Provenance chain |
 | CLI live | **2/2**, including the cover + knowledge journey |
 | Web live smoke | **12 steps**, cover attached; knowledge `not_covered` |
 
@@ -141,10 +173,17 @@ counts.
 
 | Gate | Result |
 |---|---|
-| `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph |
+| `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph, guard bridge, race matrix, rigor, conformance, client map, capabilities, audit, close-out, HAZOP |
+| `make check-rigor` | 26 coverage rows, 30 claims, 19 assumptions, 10 divergences |
+| `make check-guard-bridge` | 31 mutating arms: 25 proved, 2 partial, 4 owed |
+| `make check-race-matrix` | 28 pairs; two owed under DIV-002 |
+| `make check-conformance` | 19 promoted arms, 19 emitted rows |
+| `make check-client-ops` | 43 methods: 22 recorded, 5 fixture-only, 16 no live |
+| `make check-capabilities` | 28 capability rows, 21 published bundles, 3 findings |
+| `make check-audit check-closeout check-hazop` | 10 findings, 6 close-out rows, 32 HAZOP rows |
 | `make parse-check` | every built and rendered term parses with the target node parser |
-| `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build |
-| `make formal-check` | Lean build, axiom audit, vector corpus, strict flow traceability |
+| `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build (57 chapters) |
+| `make formal-check` | Lean build, axiom audit, vector corpora, strict flow traceability |
 | `make client-check` | Rust fmt/clippy/tests, wasm32 check, wasm-pack web build, WASM smoke, web typecheck/test/build |
 | `make check-graph` | 25 vertices, 36 edges (18 implemented, 10 surface, 8 design) |
 
@@ -179,7 +218,13 @@ counts.
 - No public testnet or mainnet run; the CI devnet is a local single-validator Docker
   network, not a public network.
 - No audit and no penetration test. The Lean model is `proved-model`; there is no refinement
-  theorem tying it to the deployed Rholang.
+  theorem tying it to the deployed Rholang. The guard bridge is a drift check; the race
+  matrix is pair-level, not scheduler-level race freedom.
+- The sibling adapters check chain shape, not sibling factory membership. A self-consistent
+  fake policy or fake Claim/KAsset/Provenance set is accepted. RPA-001 is risk-accepted until
+  M14; red-team probes RT-007 and RT-011 are the evidence.
+- Sixteen of the 32 client writes have no live test. The client-op map records them; this is
+  not a claim that they are live-tested.
 - The strict cover and knowledge chains are recorded locally against real r-sure and r-gen
   roots; the CI dispatch for that campaign is pending because the commits are unpushed. There
   is no independent audit.
@@ -212,6 +257,8 @@ make siblings-venv siblings-install install-with-siblings
 make sibling-suites-strict
 make client-live RPRINT_SIBLINGS=1
 make cli-live RPRINT_SIBLINGS=1
+make redteam
+make check-redteam-results
 ```
 
 A suite that cannot reach a healthy devnet reports `not_run`, never a pass. Report the actual

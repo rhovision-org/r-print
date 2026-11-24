@@ -1,6 +1,6 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
-status: foundation+live-client+browser-e2e+formal-model+sibling-surfaces
+status: foundation+live-client+browser-e2e+formal-model+sibling-surfaces+rigor+audit
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
@@ -10,7 +10,7 @@ local_rerun:
   devnet: "local 40403, single validator, fresh; r-sure and r-gen roots installed"
   suites_total: 18
   suites_passing: 18
-  assertions_total: 211
+  assertions_total: 232
   siblings_installed: true
 sibling_campaign:
   recorded: 2026-11-24
@@ -22,7 +22,7 @@ sibling_campaign:
   suites: [cover, knowledge]
   suites_total: 2
   suites_passing: 2
-  assertions: {cover: 16, knowledge: 25, total: 41}
+  assertions: {cover: 17, knowledge: 26, total: 43}
   cli_live: "2 tests pass (publication journey; cover + knowledge journey)"
   web_live: "12 steps; sibling cover attached; knowledge not covered (fresh WASM wallet cannot sign the r-gen claim)"
   ci: "pending: the M12 commits are not pushed"
@@ -118,9 +118,39 @@ milestones:
     suites: [cover, knowledge]
     sibling_suites_total: 2
     sibling_suites_passing: 2
-    assertions: 41
+    assertions: 43
     status: passing
     note: "real-sibling campaign recorded locally; CI dispatch pending because the commits are unpushed"
+  M13:
+    title: rigor ledger, conformance bundle and adversarial audit
+    evidence:
+      ["make check-rigor", "make check-guard-bridge", "make check-race-matrix",
+       "make check-conformance", "make check-core-vectors", "make check-client-ops",
+       "make check-capabilities", "make check-audit", "make check-closeout",
+       "make check-hazop", "make redteam", "spec/proofs/rigor.yaml",
+       "spec/audit/findings.yaml"]
+    status: passing
+    invariants: 26
+    claims: 30
+    assumptions: 19
+    divergences: 10
+    theorems: 188
+    axiom_audits: 188
+    vectors: 62
+    flow_rules: 43
+    guard_arms: {proved: 25, partial: 2, owed: 4}
+    race_pairs: 28
+    race_pairs_proved: 15
+    race_pairs_owed: 13
+    conformance_arms: 19
+    findings: 10
+    closeout_rows: 6
+    improvement_items: 7
+    redteam: {probes: 11, fixed: 9, accepted: 2}
+    hazop: {nodes: 8, rows: 32, negative: 29}
+    capabilities: {rows: 28, published_bundles: 21, findings: 3}
+    client_ops: {methods: 43, writes: 32, reads: 11, recorded: 22, fixture_only: 5, no_live: 16}
+    note: "race proofs cover the exclusive pairs and the two clean ordered pairs; thirteen pairs are explicitly owed"
 suites_total: 18
 suites_passing: 18
 live_client:
@@ -156,18 +186,24 @@ browser_e2e:
 formal_model:
   toolchain: "leanprover/lean4:v4.12.0"
   project: "spec/lean"
-  modules: 13
-  theorems: 131
-  axiom_audits: 131
-  vectors: 56
-  flow_rules: 36
+  modules: 15
+  theorems: 188
+  axiom_audits: 188
+  vectors: 62
+  conformance_rows: 19
+  flow_rules: 43
   core_arms_proved: 15
-  proved_model_rules: 27
+  proved_model_rules: 9
+  proved_conformance_rules: 19
+  guard_arms: {proved: 25, partial: 2, owed: 4}
+  race_pairs: 28
+  race_pairs_proved: 15
+  race_pairs_owed: 13
   proof_quality_warnings: 0
   escapes: 0
   allowed_axioms: ["propext", "Classical.choice", "Quot.sound"]
-  scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, r-sure cover, r-gen knowledge chain, linear cell and protocol layer"
-  not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions"
+  scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, r-sure cover, r-gen knowledge chain, guard bridge, race pairs, linear cell and protocol layer"
+  not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions; 13 race pairs and the four factory create guards are owed"
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover verifies active status, insured and asset; single-assignment; disabled by default"
   r_gen_kasset: "Article.attachKnowledge verifies the reciprocal chain, provenance hash, author and credential; optional, not a publication gate; disabled root refuses credentials"

@@ -15,13 +15,15 @@ live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the
 devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 suites,
 11/11 live-client steps and the same 13-step browser journey on the pinned node build
 `e2d073d`. The r-sure cover and r-gen knowledge arms verify their full chains. On 2026-11-24 a
-fresh local 40403 devnet recorded 18/18 suites (211 assertions), 2/2 real-sibling suites (41
+fresh local 40403 devnet recorded 18/18 suites (232 assertions), 2/2 real-sibling suites (43
 assertions), the CLI cover + knowledge journey and a 12-step web live smoke; the CI dispatch is
 pending because the commits are unpushed.
-A Lean 4.12 model builds 131 theorems with 131 axiom audits, 56 vectors and 15 `proved-model`
-core arms, with no proof escapes; the model covers publication authority, commission escrow,
-article lifecycle, edition seal and the two sibling ties. All are local or CI Docker results,
-not a public testnet or mainnet claim.
+A Lean 4.12 model covers publication authority, commission escrow, article lifecycle, edition
+seal and the two sibling ties. M13 adds a 26-invariant rigor ledger, a 31-arm guard bridge, a
+28-pair race matrix, a 19-arm `proved-conformance` bundle and an internal adversarial audit
+(10 findings, 11 red-team probes, 32 HAZOP rows, 28 capability rows). The audit is an internal
+maintainer review, not an independent audit. All are local or CI Docker results, not a public
+testnet or mainnet claim.
 
 ## Labels
 
@@ -52,7 +54,9 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Named integration graph | `make check-graph` |
 | Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
 | Browser e2e layer | `make web-e2e-fixture`; `make web-e2e-live`; recorded `deployments/browser-e2e-results.json` |
-| Lean 4 formal model | `make formal-check`; 131 theorems, 56 vectors, 36 flow rules, 27 `proved-model` rules, 15 core arms; `spec/lean/RPrint/Audit.lean` |
+| Lean 4 formal model | `make formal-check`; 188 theorems, 62 vectors, 43 flow rules, 19 `proved-conformance` rules, 15 core arms; `spec/lean/RPrint/Audit.lean` |
+| Rigor ledger and guard bridge | `make check-rigor`, `make check-guard-bridge`, `make check-race-matrix`, `make check-conformance`; 26 invariants, 31 guard arms, 28 pairs, 19 conformance arms |
+| Internal adversarial audit | `make check-audit check-closeout check-hazop check-redteam-results`; 10 findings, 6 close-out rows, 11 probes, 32 HAZOP rows |
 
 ## What is surface
 
