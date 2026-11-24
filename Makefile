@@ -9,6 +9,7 @@ RGEN_DIR ?= $(abspath $(SIBLINGS_DIR)/RGen)
 RSURE_DIR ?= $(abspath $(SIBLINGS_DIR)/RSure)
 KEYFILE ?= $(abspath .devnet/keys.json)
 SIBLING_SUITES = cover,knowledge
+RPRINT_SIBLINGS ?= 0
 
 # Make every recipe and its Python children use the same absolute checkout. CI sets
 # RCASH_DIR to its `rholo` checkout, so no sibling named Rholphin exists there.
@@ -210,11 +211,13 @@ client-wasm-smoke: client-wasm-node
 
 # Live smoke: real WASM signing + real HTTP against a healthy devnet.
 client-live: client-wasm-node
-	RPRINT_NODE=$(NODE) npm --prefix web exec -- tsx web/tests/live-client.ts
+	RPRINT_NODE=$(NODE) RPRINT_SIBLINGS=$(RPRINT_SIBLINGS) \
+		npm --prefix web exec -- tsx web/tests/live-client.ts
 
 # CLI live read/submit smoke, same devnet.
 cli-live:
-	RPRINT_NODE=$(NODE) cargo test -p rprint-cli --test devnet_live -- \
+	RPRINT_NODE=$(NODE) RPRINT_SIBLINGS=$(RPRINT_SIBLINGS) \
+		cargo test -p rprint-cli --test devnet_live -- \
 		--ignored --test-threads=1
 
 # Browser end-to-end. Fixture has no node or WASM dependency; live needs a devnet.

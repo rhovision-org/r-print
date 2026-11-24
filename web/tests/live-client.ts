@@ -37,6 +37,17 @@ function rootUri(): string {
   return manifest.root_uri;
 }
 
+interface SiblingFixture {
+  rsure?: { policyUri?: string; insured?: string; assetId?: string };
+}
+
+function siblingFixture(): SiblingFixture | null {
+  if (process.env.RPRINT_SIBLINGS !== "1") return null;
+  const path = process.env.RPRINT_SIBLING_FIXTURE
+    ?? resolve(repo, "deployments/sibling-fixture.json");
+  return JSON.parse(readFileSync(path, "utf8")) as SiblingFixture;
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 }
@@ -61,6 +72,8 @@ async function main() {
   const nodeName =
     (status as { version?: { node?: string } }).version?.node ?? "unknown";
   const startHeight = await transport.height();
+  const fixture = siblingFixture();
+  const policy = fixture?.rsure;
   const config: LiveConfig = {
     nodeUrl,
     rootUri: rootUri(),
@@ -97,7 +110,7 @@ async function main() {
         mastheadHash: `mast:${suffix}`,
         taglineHash: `tag:${suffix}`,
         foundedAtHeight: 0,
-        treasuryAccountId: wallet.address,
+        treasuryAccountId: policy?.insured ?? wallet.address,
         assetId: "REV",
         revenueSplit: [],
         admins: [wallet.publicKey, signer.publicKey],
@@ -164,6 +177,17 @@ async function main() {
     const proposalRead = await api.commissionProposalInfo(proposalUri);
     assert.ok(proposalRead.ok && proposalRead.value.status === "proposed");
     steps.push({ step: "propose-commission", uri: proposalUri });
+
+    if (policy?.policyUri) {
+      const covered = await api.attachCover(proposalUri, {
+        opId: `cover:${suffix}`,
+        coverUri: policy.policyUri,
+      });
+      assert.ok(covered.ok, `attach cover: ${JSON.stringify(covered)}`);
+      const coveredRead = await api.commissionProposalInfo(proposalUri);
+      assert.ok(coveredRead.ok && coveredRead.value.coverStatus === "active");
+      steps.push({ step: "attach-cover", policyUri: policy.policyUri });
+    }
 
     const articleId = `article:live-${suffix}`;
     const article = await api.createArticle({
@@ -284,6 +308,8 @@ async function main() {
       nodeBuild: nodeName,
       startHeight,
       endHeight: await transport.height(),
+      siblingCover: Boolean(policy?.policyUri),
+      knowledge: "not_covered: the fresh WASM wallet cannot sign the r-gen claim",
       steps,
       deploys: log.list(),
     };

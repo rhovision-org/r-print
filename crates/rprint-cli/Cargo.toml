@@ -22,3 +22,6 @@ rcash-chain = { workspace = true, features = ["native"] }
 serde_json.workspace = true
 clap.workspace = true
 tokio.workspace = true
+
+[dev-dependencies]
+rprint-keystore.workspace = true

@@ -105,6 +105,10 @@ export interface ProposalState {
   requireFactCheck: boolean;
   coverUri?: string;
   coverStatus?: string;
+  coverAssetId?: string;
+  coverPerClaimLimit?: number;
+  coverAggregateRemaining?: number;
+  coverInsured?: string;
   status: ProposalStatus;
   escrowUri: string;
   createdAtHeight: number;
