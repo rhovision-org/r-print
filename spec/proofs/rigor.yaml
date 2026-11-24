@@ -51,11 +51,11 @@ coverage:
   - id: INV-I8
     invariant: I8
     statement: a milestone pays at most once
-    status: proved-but-narrower
+    status: proved
     theorems: [RPrint.escrow_release_pays_once]
     aliases: [I8_pay_once]
     evidence: [spec/lean/RPrint/Model/Commission.lean]
-    gap: DIV-002; the model takes milestone status and amount as parameters, the deployed arm reads the consumed milestone
+    note: the model reads the consumed milestone and its amount
   - id: INV-I9
     invariant: I9
     statement: terminal escrow conservation
@@ -273,10 +273,10 @@ divergences:
     model_decl: RPrint.escrowRelease
     deployed: contracts/src/deploy/21_commission_escrow.rho:391
     direction: effect-omitting
-    consequence: release/release and release/arbitrate pair claims are not proved
-    status: material
-    justification: the model takes milestone status and amount as parameters; the deployed arm reads the consumed milestone
-    closure: M14-MILESTONE
+    consequence: release/release and release/arbitrate pair claims were not proved
+    status: resolved
+    justification: the model now reads the consumed milestone and its amount; both release pairs are proved
+    closure: '-'
   - id: DIV-003
     arm: 'CommissionEscrow@"release"'
     model_decl: RPrint.escrowRelease
@@ -358,13 +358,13 @@ roadmap:
     findings: []
   - id: M13-RACE
     priority: P1
-    title: prove the remaining 13 race pairs
-    status: partial
+    title: prove all 28 race pairs
+    status: done
     findings: [DIV-002]
   - id: M14-MILESTONE
     priority: P1
     title: refactor submit and release to read the consumed milestone
-    status: proposed
+    status: done
     findings: [DIV-002]
   - id: M14-FACTORY
     priority: P2
@@ -427,9 +427,8 @@ claims:
   - id: CLM-005
     source: docs/reference/invariants.md
     claim: A milestone pays at most once.
-    verdict: proved-but-narrower
+    verdict: proved
     theorems: [RPrint.escrow_release_pays_once]
-    gap: DIV-002
   - id: CLM-006
     source: docs/reference/invariants.md
     claim: Corrections are append-only.

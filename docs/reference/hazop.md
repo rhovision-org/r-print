@@ -30,9 +30,9 @@ explicit coverage table records every covered cell.
 | Nodes | 8 |
 | Guide words | 15 |
 | Rows | 32 |
-| Negative rows (safeguard holds) | 29 |
+| Negative rows (safeguard holds) | 30 |
 | Accepted risks | 2 (cover and knowledge fake chains, RPA-001) |
-| Open action | 1 (milestone binding, RPA-002 → IMP-002) |
+| Open action | 0; the milestone-binding action (RPA-002 → IMP-002) is fixed |
 
 The two accepted risks are the same capability boundary recorded in
 [Object capabilities](object-capabilities.md). The milestone row is `partial`

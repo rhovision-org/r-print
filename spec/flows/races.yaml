@@ -16,38 +16,38 @@ pairs:
     b: addMember
     case: same-member
     class: exclusive
-    theorem: owed
-    note: not proved in M13; the roster pair obligations are recorded for M14
+    theorem: RPrint.publication_addMember_addMember_same_never_after
+    note: the second add of an active member refuses duplicate
   - cell: Publication
     a: addMember
     b: removeMember
     class: ordered
-    theorem: owed
-    note: not proved in M13; the roster pair obligations are recorded for M14
+    theorem: RPrint.publication_addMember_removeMember_ordered
+    note: remove first leaves the member present, so add refuses duplicate
   - cell: Publication
     a: addMember
     b: pause
     class: independent
-    theorem: owed
-    note: not proved in M13; the roster pair obligations are recorded for M14
+    theorem: RPrint.publication_addMember_pause_independent
+    note: the roster write and the status write touch disjoint fields
   - cell: Publication
     a: removeMember
     b: removeMember
     class: independent
-    theorem: owed
-    note: not proved in M13; the roster pair obligations are recorded for M14
+    theorem: RPrint.publication_removeMember_removeMember_independent
+    note: the second remove of a non-publisher target succeeds
   - cell: Publication
     a: removeMember
     b: pause
     class: independent
-    theorem: owed
-    note: not proved in M13; the roster pair obligations are recorded for M14
+    theorem: RPrint.publication_removeMember_pause_independent
+    note: the roster write and the status write are independent
   - cell: Publication
     a: pause
     b: pause
     class: independent
-    theorem: owed
-    note: not proved in M13; the roster pair obligations are recorded for M14
+    theorem: RPrint.publication_pause_pause_independent
+    note: the last pause/resume writes the status
   - cell: CommissionProposal
     a: accept
     b: accept
@@ -68,26 +68,26 @@ pairs:
     a: release
     b: release
     class: exclusive
-    theorem: owed
-    note: DIV-002; the model takes milestone status and amount as parameters
+    theorem: RPrint.escrow_release_release_never_after
+    note: the model now reads the consumed milestone; the second release refuses
   - cell: CommissionEscrow
     a: release
     b: cancel
     class: ordered
-    theorem: owed
-    note: DIV-002; the release model parameterises the milestone, so the pair is M14
+    theorem: RPrint.escrow_release_cancel_ordered
+    note: cancel first refuses release; release first is the normal path
   - cell: CommissionEscrow
     a: release
     b: expire
     class: ordered
-    theorem: owed
-    note: DIV-002; the release model parameterises the milestone, so the pair is M14
+    theorem: RPrint.escrow_release_expire_ordered
+    note: expire first refuses release; release first is the normal path
   - cell: CommissionEscrow
     a: release
     b: arbitrate
-    class: ordered
-    theorem: owed
-    note: requires a dispute interleaving; not a direct pair obligation
+    class: exclusive
+    theorem: RPrint.escrow_release_arbitrate_exclusive
+    note: arbitrate first refuses release; release alone never reaches disputed
   - cell: CommissionEscrow
     a: cancel
     b: cancel
@@ -144,21 +144,21 @@ pairs:
     a: publish
     b: correct
     class: ordered
-    theorem: owed
-    note: not proved in M13; the article pair obligations are recorded for M14
+    theorem: RPrint.article_publish_correct_ordered
+    note: publish then correct is admitted; correct first leaves the status published or retracted, so publish refuses
   - cell: Article
     a: correct
     b: correct
     class: independent
-    theorem: owed
-    note: not proved in M13; the article pair obligations are recorded for M14
+    theorem: RPrint.article_correct_correct_independent
+    note: both corrections append while the cap allows
   - cell: Edition
     a: append
     b: append
     case: same-article
     class: exclusive
-    theorem: owed
-    note: not proved in M13; the duplicate-append pair is recorded for M14
+    theorem: RPrint.edition_append_append_same_never_after
+    note: the first append puts the article id in the manifest; the second refuses duplicate
   - cell: Edition
     a: append
     b: seal

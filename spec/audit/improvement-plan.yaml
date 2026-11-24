@@ -19,7 +19,7 @@ items:
     priority: P1
     title: Bind submit and release to the consumed milestone
     finding: RPA-002
-    status: proposed
+    status: fixed
     compatibility: model-only; contracts already read the milestone
     tests: prove release/release and release/arbitrate after the refactor
     action: change escrowSubmit/escrowRelease to read the milestone list

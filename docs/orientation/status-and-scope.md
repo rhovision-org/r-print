@@ -54,7 +54,7 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Named integration graph | `make check-graph` |
 | Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
 | Browser e2e layer | `make web-e2e-fixture`; `make web-e2e-live`; recorded `deployments/browser-e2e-results.json` |
-| Lean 4 formal model | `make formal-check`; 188 theorems, 62 vectors, 43 flow rules, 19 `proved-conformance` rules, 15 core arms; `spec/lean/RPrint/Audit.lean` |
+| Lean 4 formal model | `make formal-check`; 215 theorems, 62 vectors, 43 flow rules, 19 `proved-conformance` rules, 15 core arms; `spec/lean/RPrint/Audit.lean` |
 | Rigor ledger and guard bridge | `make check-rigor`, `make check-guard-bridge`, `make check-race-matrix`, `make check-conformance`; 26 invariants, 31 guard arms, 28 pairs, 19 conformance arms |
 | Internal adversarial audit | `make check-audit check-closeout check-hazop check-redteam-results`; 10 findings, 6 close-out rows, 11 probes, 32 HAZOP rows |
 

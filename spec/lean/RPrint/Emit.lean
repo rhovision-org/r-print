@@ -102,10 +102,21 @@ def proposalProposed : ProposalState :=
 def proposalAccepted : ProposalState :=
   { proposalProposed with status := ProposalStatus.accepted }
 
+def milestonePending : Milestone :=
+  { milestoneId := 1, amount := 400, status := MilestoneStatus.pending,
+    deadline := 100, evidenceHash := 0 }
+
 def escrowActive : EscrowState :=
   { escrowId := 1, status := EscrowStatus.active, total := 1000, paidWriter := 0,
-    refundedFunder := 0, purse := 1000, milestones := [], graceBlocks := 0,
-    disputeWindowBlocks := 0, hardDeadline := 100, disputeAt := none, nonce := 0 }
+    refundedFunder := 0, purse := 1000, milestones := [milestonePending],
+    graceBlocks := 0, disputeWindowBlocks := 0, hardDeadline := 100,
+    disputeAt := none, nonce := 0 }
+
+def escrowSubmitted : EscrowState :=
+  { escrowActive with milestones := [{ milestonePending with status := MilestoneStatus.submitted }] }
+
+def escrowReleased : EscrowState :=
+  { escrowSubmitted with milestones := [{ milestonePending with status := MilestoneStatus.released }] }
 
 def articleDraft : ArticleState :=
   { articleId := 1, publicationId := 1, firstAuthor := 1, status := ArticleStatus.draft,
@@ -205,14 +216,14 @@ def main : IO Unit := do
      | none => "none"
      | some p => proposalStatusName p.status)
 
-  emit "escrow.submit.too_late" "pending,100,10"
-    (okNone (escrowSubmit escrowActive true MilestoneStatus.pending 1 100 10))
-  emit "escrow.release.ok" "submitted,true,400"
-    (escrowLine (escrowRelease escrowActive true MilestoneStatus.submitted true 1 400))
-  emit "escrow.release.double" "released,true,400"
-    (escrowLine (escrowRelease escrowActive true MilestoneStatus.released true 1 400))
-  emit "escrow.release.prior" "submitted,false,400"
-    (escrowLine (escrowRelease escrowActive true MilestoneStatus.submitted false 1 400))
+  emit "escrow.submit.too_late" "pending,deadline 100,now 101"
+    (okNone (escrowSubmit escrowActive true 1 101))
+  emit "escrow.release.ok" "submitted,true,m1"
+    (escrowLine (escrowRelease escrowSubmitted true true 1))
+  emit "escrow.release.double" "released,true,m1"
+    (escrowLine (escrowRelease escrowReleased true true 1))
+  emit "escrow.release.prior" "submitted,false,m1"
+    (escrowLine (escrowRelease escrowSubmitted true false 1))
   emit "escrow.cancel.conserves" "true"
     (escrowLine (escrowCancel escrowActive true))
   emit "escrow.expire.conserves" "100"

@@ -155,19 +155,19 @@
       "output": "expired,0,1000,0,1000"
     },
     "escrow.release.double": {
-      "input": "released,true,400",
+      "input": "released,true,m1",
       "output": "none"
     },
     "escrow.release.ok": {
-      "input": "submitted,true,400",
+      "input": "submitted,true,m1",
       "output": "active,400,0,600,1000"
     },
     "escrow.release.prior": {
-      "input": "submitted,false,400",
+      "input": "submitted,false,m1",
       "output": "none"
     },
     "escrow.submit.too_late": {
-      "input": "pending,100,10",
+      "input": "pending,deadline 100,now 101",
       "output": "none"
     },
     "knowledge.attach.author": {

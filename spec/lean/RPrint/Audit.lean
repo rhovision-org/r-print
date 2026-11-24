@@ -76,6 +76,8 @@ namespace RPrint
 #print axioms RPrint.escrow_release_bounded_by_purse
 #print axioms RPrint.escrow_release_conserves
 #print axioms RPrint.escrow_release_pays_once
+#print axioms RPrint.escrow_release_sets_released
+#print axioms RPrint.findMilestone_setMilestoneStatus_same
 #print axioms RPrint.escrow_release_requires_active
 #print axioms RPrint.escrow_release_requires_editor
 #print axioms RPrint.escrow_release_requires_prior
@@ -89,12 +91,16 @@ namespace RPrint
 #print axioms RPrint.escrow_submit_requires_writer
 #print axioms RPrint.escrow_terminal_conserved
 #print axioms RPrint.findMember_setMember_same
+#print axioms RPrint.findMember_setMember_other
+#print axioms RPrint.isPublisher_setMember_other
 #print axioms RPrint.h1_pure
 #print axioms RPrint.h2a_caller_token
 #print axioms RPrint.h2b_delegated
 #print axioms RPrint.nested_call_rejected
 #print axioms RPrint.p2_await_then_commit
 #print axioms RPrint.peek_then_put_rejected
+#print axioms RPrint.publication_addMember_result
+#print axioms RPrint.publication_removeMember_result
 #print axioms RPrint.publication_addMember_refuses_duplicate
 #print axioms RPrint.publication_addMember_requires_publisher
 #print axioms RPrint.publication_addMember_respects_cap
@@ -152,6 +158,7 @@ namespace RPrint
 #print axioms RPrint.knowledge_attach_preserves_hash
 
 -- Arm guards
+#print axioms RPrint.factoryCreate_guard_eq
 #print axioms RPrint.publicationAddMember_guard_eq
 #print axioms RPrint.publicationRemoveMember_guard_eq
 #print axioms RPrint.publicationSetRole_guard_eq
@@ -197,10 +204,30 @@ namespace RPrint
 #print axioms RPrint.escrow_expire_expire_never_after
 #print axioms RPrint.escrow_expire_arbitrate_exclusive
 #print axioms RPrint.escrow_arbitrate_arbitrate_never_after
+#print axioms RPrint.escrow_release_release_never_after
+#print axioms RPrint.escrow_release_cancel_ordered
+#print axioms RPrint.escrow_release_expire_ordered
+#print axioms RPrint.escrow_release_arbitrate_exclusive
 #print axioms RPrint.article_submit_submit_never_after
 #print axioms RPrint.article_publish_publish_never_after
 #print axioms RPrint.article_submit_publish_ordered
 #print axioms RPrint.article_submit_correct_ordered
+#print axioms RPrint.publication_addMember_addMember_same_never_after
+#print axioms RPrint.publication_addMember_removeMember_ordered
+#print axioms RPrint.publication_pause_pause_independent
+#print axioms RPrint.publication_addMember_pause_independent
+#print axioms RPrint.publication_removeMember_removeMember_independent
+#print axioms RPrint.publication_removeMember_pause_independent
+#print axioms RPrint.article_correct_status
+#print axioms RPrint.article_correct_preserves_status
+#print axioms RPrint.article_publish_preserves_corrections
+#print axioms RPrint.article_publish_correct_ordered
+#print axioms RPrint.article_correct_correct_independent
+#print axioms RPrint.edition_append_success
+#print axioms RPrint.edition_append_preserves_status
+#print axioms RPrint.edition_append_preserves_publication
+#print axioms RPrint.edition_append_contains_article
+#print axioms RPrint.edition_append_append_same_never_after
 #print axioms RPrint.edition_seal_seal_never_after
 #print axioms RPrint.edition_append_seal_ordered
 

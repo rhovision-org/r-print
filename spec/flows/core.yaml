@@ -345,7 +345,7 @@ rules:
     status: implemented
     lean_status: owed
     cell: PublicationFactory
-    guard_eq: owed
+    guard_eq: RPrint.factoryCreate_guard_eq
     note: factory creation has no shallow transition
   - id: C-escrow-factory
     arm: 'CommissionEscrowFactory@"createFunded"'
@@ -353,7 +353,7 @@ rules:
     status: implemented
     lean_status: owed
     cell: CommissionEscrowFactory
-    guard_eq: owed
+    guard_eq: RPrint.factoryCreate_guard_eq
     note: factory creation moves the purse and has no shallow transition
   - id: A-factory
     arm: 'ArticleFactory@"create"'
@@ -361,7 +361,7 @@ rules:
     status: implemented
     lean_status: owed
     cell: ArticleFactory
-    guard_eq: owed
+    guard_eq: RPrint.factoryCreate_guard_eq
     note: factory creation has no shallow transition
   - id: A-attest
     arm: 'Article@"attest"'
@@ -379,7 +379,7 @@ rules:
     status: implemented
     lean_status: owed
     cell: EditionFactory
-    guard_eq: owed
+    guard_eq: RPrint.factoryCreate_guard_eq
     note: factory creation has no shallow transition
   - id: G-identity
     arm: 'RgenAdapter@"identity"'

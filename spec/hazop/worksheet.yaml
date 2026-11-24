@@ -193,15 +193,15 @@ rows:
     deviation: a milestone is released twice
     cause: a repeated release
     consequence: overpayment
-    safeguard: release requires submitted and the milestone moves to released
-    safeguard_status: partial
+    safeguard: the model reads the consumed milestone; the second release refuses
+    safeguard_status: holds
     severity: S3
     likelihood: B
     risk: 6
-    action: IMP-002
-    finding: RPA-002
-    negative: false
-    disposition: open
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
   - id: HZ-ESC-002
     node: escrow
     guide_word: Late

@@ -26,8 +26,9 @@ items:
     decision: fixed
     owner: patrick
     rationale: >-
-      The release/release and release/arbitrate pair claims are marked owed and
-      the public claim is narrowed; no false theorem is recorded.
+      The model now reads the consumed milestone and its amount; the
+      release/release and release/arbitrate pairs are proved in
+      Model/Races.lean.
     evidence:
       - kind: doc
         ref: spec/flows/races.yaml

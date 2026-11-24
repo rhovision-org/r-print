@@ -50,10 +50,9 @@ findings:
     actions: [IMP-002]
     disposition: fixed
     note: >-
-      The model takes milestone status and amount as parameters; the deployed
-      arm reads the consumed milestone. The release/release and
-      release/arbitrate rows are marked owed and the claim is narrowed, so no
-      false theorem is claimed.
+      The model now reads the consumed milestone and its amount, matching the
+      deployed arm. The release/release and release/arbitrate pairs are proved
+      in Model/Races.lean.
   - id: RPA-003
     title: The fund model required an editor
     severity: S3

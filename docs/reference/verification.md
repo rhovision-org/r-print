@@ -75,7 +75,7 @@ measured result is:
 
 | Check | Result |
 |---|---|
-| Lean build and axiom audit | **188 source theorems**, 188 axiom audits |
+| Lean build and axiom audit | **215 source theorems**, 215 axiom audits |
 | Proof escapes | 0 `sorry`/`admit`/`axiom`/`native_decide`; only `propext`, `Classical.choice`, `Quot.sound` |
 | Vectors | **62** deterministic vectors in `spec/vectors/lean.json` |
 | Conformance corpus | **19** rows in `spec/vectors/core.tsv`, emitted by `RPrint/EmitCorpus.lean` |
@@ -95,8 +95,8 @@ The M13 model tranche adds four evidence layers around the state machines:
 | Layer | Measured result |
 |---|---|
 | Rigor ledger (`spec/proofs/rigor.yaml`) | **26** invariant rows, **30** claims, **19** boundary assumptions, **10** model/code divergences, **10** roadmap items |
-| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **25** `proved`, **2** `partial` (release, attachKnowledge), **4** factory `create` arms `owed` |
-| Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; **15** proved, **13** `owed` (including the two release pairs under DIV-002) |
+| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **27** `proved`, **4** `partial` (attachKnowledge and the factory creates), **0** `owed` |
+| Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; **28** proved, **0** `owed` |
 | Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **19** `proved-conformance` arms, **19** emitted rows |
 | Client-op map (`spec/vectors/client-ops.tsv`) | **43** methods (**32** writes, **11** reads): **22** recorded, **5** fixture-only, **16** no live test |
 
@@ -111,7 +111,7 @@ The audit is an internal maintainer review, not an independent audit. The record
 `spec/audit/findings.yaml` (**10** findings), `spec/audit/closeout.yaml` (**6** terminal
 decisions), `spec/audit/improvement-plan.yaml` (**7** items), `spec/audit/redteam.yaml`
 (**11** probes: **9** `fixed`, **2** `accepted`), `spec/hazop/worksheet.yaml` (**8** nodes,
-**32** rows, **29** negative) and `spec/audit/capabilities.yaml` (**28** rows over **21**
+**32** rows, **30** negative) and `spec/audit/capabilities.yaml` (**28** rows over **21**
 published bundles, **3** capability findings).
 
 The two accepted red-team probes attach a self-consistent fake policy and a self-consistent
@@ -175,8 +175,8 @@ counts.
 |---|---|
 | `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph, guard bridge, race matrix, rigor, conformance, client map, capabilities, audit, close-out, HAZOP |
 | `make check-rigor` | 26 coverage rows, 30 claims, 19 assumptions, 10 divergences |
-| `make check-guard-bridge` | 31 mutating arms: 25 proved, 2 partial, 4 owed |
-| `make check-race-matrix` | 28 pairs: 15 proved, 13 owed |
+| `make check-guard-bridge` | 31 mutating arms: 27 proved, 4 partial, 0 owed |
+| `make check-race-matrix` | 28 pairs: 28 proved, 0 owed |
 | `make check-conformance` | 19 promoted arms, 19 emitted rows |
 | `make check-client-ops` | 43 methods: 22 recorded, 5 fixture-only, 16 no live |
 | `make check-capabilities` | 28 capability rows, 21 published bundles, 3 findings |

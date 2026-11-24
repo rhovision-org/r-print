@@ -56,12 +56,12 @@ arms:
     contract: PublicationFactory
     arm: create
     cell: PublicationFactory
-    status: owed
-    guard_eq: owed
+    status: partial
+    guard_eq: RPrint.factoryCreate_guard_eq
     atoms: [clock, codec, duplicate, member, not owner, publication, publication cell, role, terms, unknown]
-    modeled_atoms: []
-    unmodelled_atoms: [clock, codec, duplicate, member, not owner, publication, publication cell, role, terms, unknown]
-    note: factory creation has no shallow transition; the deployed arm is exercised by unit_publication
+    modeled_atoms: [duplicate, not owner]
+    unmodelled_atoms: [clock, codec, member, publication, publication cell, role, terms, unknown]
+    note: the generic factory create guard models authority, terms and id reuse; member, role and cell validation are in the cell factory
 
   - id: publication.addMember
     source: contracts/src/deploy/11_publication_cell.rho
@@ -194,12 +194,12 @@ arms:
     contract: CommissionEscrowFactory
     arm: createFunded
     cell: CommissionEscrowFactory
-    status: owed
-    guard_eq: owed
+    status: partial
+    guard_eq: RPrint.factoryCreate_guard_eq
     atoms: [below threshold, not owner, payments]
-    modeled_atoms: []
-    unmodelled_atoms: [below threshold, not owner, payments]
-    note: the factory creates the escrow and moves the purse; no shallow transition
+    modeled_atoms: [not owner]
+    unmodelled_atoms: [below threshold, payments]
+    note: the generic factory guard models authority and id reuse; the threshold and the purse move are boundary reads
 
   - id: escrow.submit
     source: contracts/src/deploy/21_commission_escrow.rho
@@ -211,19 +211,19 @@ arms:
     atoms: [milestone, not owner, not submitted, not writer, role, status, too late]
     modeled_atoms: [milestone, not owner, not submitted, not writer, role, status, too late]
     unmodelled_atoms: []
-    note: the deadline is a block height; the consumed milestone is a boundary read
+    note: the model reads the consumed milestone and its block-height deadline
 
   - id: escrow.release
     source: contracts/src/deploy/21_commission_escrow.rho
     contract: CommissionEscrow
     arm: release
     cell: CommissionEscrow
-    status: partial
+    status: proved
     guard_eq: RPrint.escrowRelease_guard_eq
     atoms: [editor, milestone, not owner, not submitted, role, status]
-    modeled_atoms: [editor, not owner, not submitted, role, status]
-    unmodelled_atoms: [milestone]
-    note: DIV-002; the model takes milestone status and amount as parameters, the deployed arm reads the consumed milestone
+    modeled_atoms: [editor, milestone, not owner, not submitted, role, status]
+    unmodelled_atoms: []
+    note: the model reads the consumed milestone and its amount
 
   - id: escrow.cancel
     source: contracts/src/deploy/21_commission_escrow.rho
@@ -285,12 +285,12 @@ arms:
     contract: ArticleFactory
     arm: create
     cell: ArticleFactory
-    status: owed
-    guard_eq: owed
+    status: proved
+    guard_eq: RPrint.factoryCreate_guard_eq
     atoms: [not owner]
-    modeled_atoms: []
-    unmodelled_atoms: [not owner]
-    note: factory creation has no shallow transition; the deployed arm is exercised by the article suites
+    modeled_atoms: [not owner]
+    unmodelled_atoms: []
+    note: the factory arm's own guard is authority plus id reuse; article terms are validated by the cell factory
 
   - id: article.submit
     source: contracts/src/deploy/30_article.rho
@@ -375,12 +375,12 @@ arms:
     contract: EditionFactory
     arm: create
     cell: EditionFactory
-    status: owed
-    guard_eq: owed
+    status: partial
+    guard_eq: RPrint.factoryCreate_guard_eq
     atoms: [edition, not owner, status]
-    modeled_atoms: []
-    unmodelled_atoms: [edition, not owner, status]
-    note: factory creation has no shallow transition; the deployed arm is exercised by unit_edition
+    modeled_atoms: [not owner]
+    unmodelled_atoms: [edition, status]
+    note: the generic factory guard models authority and id reuse; edition terms are validated by the cell factory
 
   - id: edition.append
     source: contracts/src/deploy/31_edition.rho

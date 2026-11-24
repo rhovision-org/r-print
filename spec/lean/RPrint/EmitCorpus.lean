@@ -35,10 +35,18 @@ def proposalProposed : ProposalState :=
 def proposalAccepted : ProposalState :=
   { proposalProposed with status := ProposalStatus.accepted }
 
+def milestonePending : Milestone :=
+  { milestoneId := 1, amount := 400, status := MilestoneStatus.pending,
+    deadline := 100, evidenceHash := 0 }
+
 def escrowActive : EscrowState :=
   { escrowId := 1, status := EscrowStatus.active, total := 1000, paidWriter := 0,
-    refundedFunder := 0, purse := 1000, milestones := [], graceBlocks := 0,
-    disputeWindowBlocks := 0, hardDeadline := 100, disputeAt := none, nonce := 0 }
+    refundedFunder := 0, purse := 1000, milestones := [milestonePending],
+    graceBlocks := 0, disputeWindowBlocks := 0, hardDeadline := 100,
+    disputeAt := none, nonce := 0 }
+
+def escrowReleased : EscrowState :=
+  { escrowActive with milestones := [{ milestonePending with status := MilestoneStatus.released }] }
 
 def correction : Correction :=
   { kind := CorrectionKind.correction, bodyHash := 1, reasonHash := 2, articleHash := 9 }
@@ -129,7 +137,7 @@ def rows : List VectorRow := [
     (outcome (commissionFund proposalAccepted 3))
     "RPrint.commission_fund_creates_active_escrow",
   row "ESC-release-double" "CommissionEscrow" "release" "released milestone"
-    (outcome (escrowRelease escrowActive true MilestoneStatus.released true 1 400))
+    (outcome (escrowRelease escrowReleased true true 1))
     "RPrint.escrow_release_pays_once",
   row "ESC-cancel-ok" "CommissionEscrow" "cancel" "active escrow"
     (outcome (escrowCancel escrowActive true))

@@ -122,11 +122,10 @@ Three modules sit around the four state machines:
 
 - `RPrint/ArmGuards.lean` defines a positive `Bool` guard for every mutating
   cornerstone arm and proves `(step …).isSome = guard …`. `spec/guards/arms.yaml`
-  records 31 arms: 25 `proved`, 2 `partial` (release and attachKnowledge) and 4
-  factory `create` arms `owed`. The bridge is a drift check, not an extraction.
-- `spec/flows/races.yaml` records the 28 arm pairs over five cells: 15 are
-  proved and 13 are `owed` with a note (including both release pairs under
-  DIV-002). The matrix is pair-level; it is not scheduler-level race freedom.
+  records 31 arms: 27 `proved` and 4 `partial` (attachKnowledge and three
+  factory creates), with 0 `owed`. The bridge is a drift check, not an extraction.
+- `spec/flows/races.yaml` records the 28 arm pairs over five cells: all 28 are
+  proved. The matrix is pair-level; it is not scheduler-level race freedom.
 - `RPrint/EmitCorpus.lean` emits `spec/vectors/core.tsv`; 19 arms are
   `proved-conformance`. The corpus is byte-identical to the emission and each
   case is asserted by a named suite.
@@ -137,7 +136,7 @@ rejects an unstatused gap.
 
 ## Audit baseline
 
-The project builds 188 source theorems with 188 axiom audits, no `sorry`/`admit`/`axiom`/
+The project builds 215 source theorems with 215 axiom audits, no `sorry`/`admit`/`axiom`/
 `native_decide`, and only `propext`, `Classical.choice` and `Quot.sound`. `spec/flows/core.yaml`
 has 43 rules over 43 arms, 15 core arms are `proved-conformance`, 19 rules are
 `proved-conformance`, 9 are `proved-model`, and `make check-flows-strict` reports zero

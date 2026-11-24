@@ -2,7 +2,7 @@
 
 > **Status:** Implemented. The arm strings below are the deployed contract arms.
 > The 31 mutating cornerstone arms have a guard row in `spec/guards/arms.yaml`
-> (25 `proved`, 2 `partial`, 4 `owed`); 19 arms are `proved-conformance` and map to
+> (27 `proved`, 4 `partial`, 0 `owed`); 19 arms are `proved-conformance` and map to
 > `spec/vectors/core.tsv`.
 
 ## PrintRoot

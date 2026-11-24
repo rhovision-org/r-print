@@ -8,7 +8,7 @@
 | Id | Finding | Severity / priority | Disposition |
 |---|---|---|---|
 | RPA-001 | Adapter designation is not factory membership; a self-consistent fake policy or chain can pass | S2 / P0 | risk-accepted until M14 |
-| RPA-002 | The release/release race claim is not proved (the model parameterises the milestone) | S3 / P1 | fixed by narrowing the claim and marking the pair owed |
+| RPA-002 | The release/release race claim was not proved (the model parameterised the milestone) | S3 / P1 | fixed by the milestone-binding refactor |
 | RPA-005 | r-gen returned `Uri` values; comparing them to strings refused every real chain | S2 / P0 | fixed |
 | RPA-006 | The r-gen root `resolve` arity was wrong | S2 / P0 | fixed |
 | RPA-007 | Credential status was read from the issuance record, not `Credential("get")` | S2 / P0 | fixed |

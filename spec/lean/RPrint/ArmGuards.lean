@@ -28,6 +28,35 @@ set_option linter.unusedVariables false
 
 namespace RPrint
 
+/-! ## Factory creation -/
+
+structure FactoryState where
+  issued : List Id
+  deriving DecidableEq, Repr
+
+def factoryCreate (s : FactoryState) (id : Id) (authorized termsOk : Bool) :
+    Option FactoryState :=
+  if !authorized then none
+  else if !termsOk then none
+  else if id ∈ s.issued then none
+  else some { s with issued := id :: s.issued }
+
+def factoryCreateGuard (s : FactoryState) (id : Id) (authorized termsOk : Bool) : Bool :=
+  authorized && termsOk && !decide (id ∈ s.issued)
+
+theorem factoryCreate_guard_eq (s : FactoryState) (id : Id) (authorized termsOk : Bool) :
+    (factoryCreate s id authorized termsOk).isSome =
+      factoryCreateGuard s id authorized termsOk := by
+  cases authorized with
+  | false => simp [factoryCreate, factoryCreateGuard]
+  | true =>
+      cases termsOk with
+      | false => simp [factoryCreate, factoryCreateGuard]
+      | true =>
+          by_cases h : id ∈ s.issued
+          · simp [factoryCreate, factoryCreateGuard, h]
+          · simp [factoryCreate, factoryCreateGuard, h]
+
 /-! ## Publication authority -/
 
 def publicationAddMemberGuard (s : PublicationState) (caller id : Id) (role : Role)
@@ -175,47 +204,59 @@ theorem commissionCancel_guard_eq (p : ProposalState) (authorized : Bool) :
       · simp [commissionCancel, commissionCancelGuard, ha, hs]
       · simp [commissionCancel, commissionCancelGuard, ha, hs]
 
-def escrowSubmitGuard (s : EscrowState) (callerIsWriter : Bool) (mStatus : MilestoneStatus)
-    (milestoneId : Id) (now deadline : Height) : Bool :=
+def escrowSubmitGuard (s : EscrowState) (callerIsWriter : Bool)
+    (milestoneId : Id) (now : Height) : Bool :=
   callerIsWriter && (s.status = EscrowStatus.active) &&
-    (mStatus = MilestoneStatus.pending) && (now ≤ deadline + s.graceBlocks)
+    match findMilestone s.milestones milestoneId with
+    | none => false
+    | some m => (m.status = MilestoneStatus.pending) &&
+        (now ≤ m.deadline + s.graceBlocks)
 
 theorem escrowSubmit_guard_eq (s : EscrowState) (callerIsWriter : Bool)
-    (mStatus : MilestoneStatus) (milestoneId : Id) (now deadline : Height) :
-    (escrowSubmit s callerIsWriter mStatus milestoneId now deadline).isSome =
-      escrowSubmitGuard s callerIsWriter mStatus milestoneId now deadline := by
+    (milestoneId : Id) (now : Height) :
+    (escrowSubmit s callerIsWriter milestoneId now).isSome =
+      escrowSubmitGuard s callerIsWriter milestoneId now := by
   cases hw : callerIsWriter with
   | false => simp [escrowSubmit, escrowSubmitGuard, hw]
   | true =>
       by_cases ha : s.status = EscrowStatus.active
-      · by_cases hp : mStatus = MilestoneStatus.pending
-        · by_cases hl : now ≤ deadline + s.graceBlocks
-          · simp [escrowSubmit, escrowSubmitGuard, hw, ha, hp, hl]
-          · simp [escrowSubmit, escrowSubmitGuard, hw, ha, hp, hl]
-        · simp [escrowSubmit, escrowSubmitGuard, hw, ha, hp]
+      · cases hm : findMilestone s.milestones milestoneId with
+        | none => simp [escrowSubmit, escrowSubmitGuard, hw, ha, hm]
+        | some m =>
+            by_cases hp : m.status = MilestoneStatus.pending
+            · by_cases hl : now ≤ m.deadline + s.graceBlocks
+              · simp [escrowSubmit, escrowSubmitGuard, hw, ha, hm, hp, hl]
+              · simp [escrowSubmit, escrowSubmitGuard, hw, ha, hm, hp, hl]
+            · simp [escrowSubmit, escrowSubmitGuard, hw, ha, hm, hp]
       · simp [escrowSubmit, escrowSubmitGuard, hw, ha]
 
-def escrowReleaseGuard (s : EscrowState) (callerIsEditor : Bool) (mStatus : MilestoneStatus)
-    (priorReleased : Bool) (milestoneId : Id) (amount : Amount) : Bool :=
+def escrowReleaseGuard (s : EscrowState) (callerIsEditor : Bool)
+    (priorReleased : Bool) (milestoneId : Id) : Bool :=
   callerIsEditor && (s.status = EscrowStatus.active) &&
-    (mStatus = MilestoneStatus.submitted) && priorReleased && (amount ≤ s.purse)
+    match findMilestone s.milestones milestoneId with
+    | none => false
+    | some m => (m.status = MilestoneStatus.submitted) && priorReleased &&
+        (m.amount ≤ s.purse)
 
 theorem escrowRelease_guard_eq (s : EscrowState) (callerIsEditor : Bool)
-    (mStatus : MilestoneStatus) (priorReleased : Bool) (milestoneId : Id) (amount : Amount) :
-    (escrowRelease s callerIsEditor mStatus priorReleased milestoneId amount).isSome =
-      escrowReleaseGuard s callerIsEditor mStatus priorReleased milestoneId amount := by
+    (priorReleased : Bool) (milestoneId : Id) :
+    (escrowRelease s callerIsEditor priorReleased milestoneId).isSome =
+      escrowReleaseGuard s callerIsEditor priorReleased milestoneId := by
   cases he : callerIsEditor with
   | false => simp [escrowRelease, escrowReleaseGuard, he]
   | true =>
       by_cases ha : s.status = EscrowStatus.active
-      · by_cases hm : mStatus = MilestoneStatus.submitted
-        · cases hp : priorReleased with
-          | false => simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hp]
-          | true =>
-              by_cases hb : amount ≤ s.purse
-              · simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hp, hb]
-              · simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hp, hb]
-        · simp [escrowRelease, escrowReleaseGuard, he, ha, hm]
+      · cases hm : findMilestone s.milestones milestoneId with
+        | none => simp [escrowRelease, escrowReleaseGuard, he, ha, hm]
+        | some m =>
+            by_cases hsub : m.status = MilestoneStatus.submitted
+            · cases hp : priorReleased with
+              | false => simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hsub, hp]
+              | true =>
+                  by_cases hb : m.amount ≤ s.purse
+                  · simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hsub, hp, hb]
+                  · simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hsub, hp, hb]
+            · simp [escrowRelease, escrowReleaseGuard, he, ha, hm, hsub]
       · simp [escrowRelease, escrowReleaseGuard, he, ha]
 
 def escrowCancelGuard (s : EscrowState) (callerAuthorized : Bool) : Bool :=
