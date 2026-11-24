@@ -158,7 +158,7 @@ rules:
     arm: 'Article@"attachKnowledge"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
-    lean: RPrint.article_attachKnowledge_refused_after_publish
+    lean: RPrint.knowledge_attach_requires_author
     lean_status: proved-model
   - id: A-approve
     arm: 'Article@"approve"'
@@ -199,18 +199,43 @@ rules:
   - id: G-claim
     arm: 'RgenAdapter@"claim"'
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean_status: modeled
+  - id: G-kasset
+    arm: 'RgenAdapter@"kasset"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
   - id: G-provenance
     arm: 'RgenAdapter@"provenance"'
     source: contracts/src/deploy/05_rgen.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean_status: modeled
+  - id: G-provenance-info
+    arm: 'RgenAdapter@"provenanceInfo"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
+  - id: G-credential
+    arm: 'RgenAdapter@"credential"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
+  - id: G-health
+    arm: 'RgenAdapter@"health"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: modeled
   - id: S-policy
     arm: 'RsureAdapter@"policy"'
     source: contracts/src/deploy/06_rsure.rho
-    status: surface
-    lean_status: owed
+    status: implemented
+    lean_status: modeled
+  - id: S-health
+    arm: 'RsureAdapter@"health"'
+    source: contracts/src/deploy/06_rsure.rho
+    status: implemented
+    lean_status: modeled
   - id: Q-record
     arm: 'CoordinationRecord@"record"'
     source: spec/spec-only.md

@@ -38,11 +38,12 @@ SUITES: dict[str, str] = {
     "edition": "unit_edition.py",
     "corrections": "unit_corrections.py",
     "cover": "unit_cover.py",
+    "knowledge": "unit_knowledge.py",
 }
 EXPERIMENTAL: set[str] = set()
 SAFE_ONLY: set[str] = set()
 AUDIT: set[str] = set()
-SIBLING: set[str] = {"cover"}
+SIBLING: set[str] = {"cover", "knowledge"}
 SAFE_CORE = sorted(set(SUITES) - EXPERIMENTAL - SAFE_ONLY - AUDIT - SIBLING)
 DEFAULT = SAFE_CORE + sorted(SAFE_ONLY)
 

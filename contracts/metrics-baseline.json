@@ -1,6 +1,6 @@
 {
   "deploy_terms": 13,
-  "bytes_total": 116227,
+  "bytes_total": 121761,
   "bytes_max": 22005,
   "depth_max": 35,
   "contracts_max": 37,
@@ -62,9 +62,9 @@
       "contracts": 37
     },
     "30_article.rho": {
-      "bytes": 15752,
+      "bytes": 21286,
       "depth": 33,
-      "contracts": 14
+      "contracts": 23
     },
     "31_edition.rho": {
       "bytes": 9648,

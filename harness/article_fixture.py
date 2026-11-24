@@ -22,44 +22,42 @@ def editorial_publication(label: str = "article") -> dict:
         admins=["deployer"], threshold=1)
 
 
+def _mock_entity(verify: bool) -> str:
+    """One state cell with `get`/`config` and, for provenance, a `verify` arm."""
+    verify_arm = (
+        '  contract E(@"verify", @hash, ret) = { ret!((true, true)) } |\n'
+        if verify else "")
+    reply = one(f"""
+new E, st, rs(`rho:registry:insertArbitrary`), ch, deployId(`rho:rchain:deployId`) in {{
+  st!({{}}) |
+  contract E(@"get", ret) = {{ for (@s <<- st) {{ ret!((true, s)) }} }} |
+  contract E(@"config", @v, ret) = {{ for (@_ <- st) {{ st!(v) | ret!((true, Nil)) }} }} |
+{verify_arm}  rs!(bundle+{{*E}}, *ch) |
+  for (@u <- ch) {{ deployId!(u) }}
+}}
+""")
+    if not isinstance(reply, str):
+        raise AssertionError(f"mock entity: {reply!r}")
+    return reply
+
+
 def mock_knowledge(author: str = "reporter1") -> tuple[str, str, str]:
     """A configured Claim, KAsset and Provenance stand-in with reciprocal references."""
-    reply = one("""
-new Claim, KAsset, Provenance, kState, rs(`rho:registry:insertArbitrary`),
-    c1, c2, c3, deployId(`rho:rchain:deployId`) in {
-  kState!({}) |
-  contract Claim(@"get", ret) = {
-    for (@s <<- kState) { ret!((true, s.get("claim"))) }
-  } |
-  contract Claim(@"config", @state, ret) = { kState!(state) | ret!((true, Nil)) } |
-  contract KAsset(@"get", ret) = {
-    for (@s <<- kState) { ret!((true, s.get("kasset"))) }
-  } |
-  contract Provenance(@"get", ret) = {
-    for (@s <<- kState) { ret!((true, s.get("provenance"))) }
-  } |
-  contract Provenance(@"verify", @hash, ret) = { ret!((true, true)) } |
-  rs!(bundle+{*Claim}, *c1) |
-  rs!(bundle+{*KAsset}, *c2) |
-  rs!(bundle+{*Provenance}, *c3) |
-  for (@a <- c1; @b <- c2; @c <- c3) { deployId!([a, b, c]) }
-}
-""")
-    if not (isinstance(reply, list) and len(reply) == 3):
-        raise AssertionError(f"mock knowledge: {reply!r}")
-    claim, kasset, provenance = reply
-    state = {
-        "claim": {"status": "validated", "claimant": actors.address(author),
-                  "kassetRef": {"uri": kasset}},
-        "kasset": {"status": "validated", "claimRef": {"uri": claim}},
-        "provenance": {
-            "assetRef": {"uri": kasset, "claimRef": {"uri": claim}},
-            "writers": [actors.address(author)],
-        },
-    }
-    configured = one(call_uri(claim, "config", json.dumps(state)))
-    if not (isinstance(configured, tuple) and configured and configured[0] is True):
-        raise AssertionError(f"mock knowledge config: {configured!r}")
+    claim = _mock_entity(False)
+    kasset = _mock_entity(False)
+    provenance = _mock_entity(True)
+    address = actors.address(author)
+    states = [
+        (claim, {"status": "validated", "claimant": address,
+                 "kassetRef": {"uri": kasset}}),
+        (kasset, {"status": "validated", "claimRef": {"uri": claim}}),
+        (provenance, {"assetRef": {"uri": kasset, "claimRef": {"uri": claim}},
+                      "writers": [address]}),
+    ]
+    for uri, payload in states:
+        configured = one(call_uri(uri, "config", json.dumps(payload)))
+        if not (isinstance(configured, tuple) and configured and configured[0] is True):
+            raise AssertionError(f"mock knowledge config {uri}: {configured!r}")
     return claim, kasset, provenance
 
 

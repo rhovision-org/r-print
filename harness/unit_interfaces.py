@@ -23,11 +23,16 @@ def main() -> int:
     expect_refusal("credential disabled",
                    one(call_uri(rgen, "credential", '"rho:id:credential"')), "disabled")
 
-    kasset, claim, provenance = mock_knowledge()
+    claim, kasset, provenance = mock_knowledge()
     expect_ok("claim read", one(call_uri(rgen, "claim", f'"{claim}"')))
     expect_ok("kasset read", one(call_uri(rgen, "kasset", f'"{kasset}"')))
     expect_ok("provenance verify",
               one(call_uri(rgen, "provenance", f'"{provenance}", "hash"')))
+    info = one(call_uri(rgen, "provenanceInfo", f'"{provenance}"'))
+    expect_ok("provenance info", info)
+    expect("provenance asset", info[1].get("assetRef").get("uri"), kasset)
+    expect_refusal("provenance info empty uri",
+                   one(call_uri(rgen, "provenanceInfo", '""')), "uri")
     return 0
 
 

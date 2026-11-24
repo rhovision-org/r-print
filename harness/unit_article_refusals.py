@@ -35,7 +35,7 @@ def main() -> int:
                        key="deployer"),
                    "status")
 
-    kasset, claim, provenance = mock_knowledge()
+    claim, kasset, provenance = mock_knowledge()
     expect_refusal("factchecker cannot attach knowledge",
                    one(call_uri(article["uri"], "attachKnowledge",
                                 f'*dId, "bad-know", "{kasset}", "{claim}", "{provenance}", ""'),
