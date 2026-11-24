@@ -2,11 +2,14 @@
 
 **On-chain newspaper and magazine primitives for rholo, settled through r-cash.**
 
-> **Status:** Devnet-only, unaudited. 18 behavioural suites pass on the local 50403 devnet;
+> **Status:** Devnet-only, unaudited. 19 behavioural suites pass on the local 50403 devnet;
 > a recorded live-client smoke on the same devnet founded a publication, wrote an article and
-> sealed an edition with 11 finalized deploys; the CI dispatch devnet independently recorded
-> 18/18 suites and 11/11 finalized live steps. A Chromium fixture suite covers every route
-> and write form with the node and WASM blocked, and a live browser journey records 10
+> sealed an edition with 11 finalized deploys; an extended 2026-11-24 client journey recorded
+> 24 finalized deploys and 32 credited methods, covering the client writes credited to it;
+> with the CLI journey every client write has a live path (42 recorded, 3 fixture-only,
+> 0 no live in the client-op map). The CI dispatch devnet independently
+> recorded 18/18 suites and 11/11 finalized live steps. A Chromium fixture suite covers every
+> route and write form with the node and WASM blocked, and a live browser journey records 10
 > finalized writes and 1 refusal; CI dispatch 45270193372 recorded 27 fixture tests and the
 > browser journey on the pinned node. The baseline escrow is implemented; r-sure cover and r-gen
 > K-Assets are optional surfaces with strict chain checks. A Lean 4.12 model covers publication
@@ -49,7 +52,7 @@ when it wants stronger provenance.
 | Path | Contents |
 |---|---|
 | `contracts/src/deploy/` | 13 numbered deploy terms |
-| `harness/` | installer, fixtures, 18 behavioural suites |
+| `harness/` | installer, fixtures, 19 behavioural suites |
 | `spec/graph/` | the named integration graph |
 | `spec/lean/` | Lean 4.12 model, axiom audit, vectors and flow traceability |
 | `crates/` | Rust core, keystore, SDK, wallet, CLI and WASM facade |

@@ -7,7 +7,7 @@ chain, settled through [r-cash](https://github.com/rhovision-org/r-cash). A publ
 organisation, a commission is escrowed work with milestones, an article is an editorial record
 over a content hash, an edition is an ordered manifest, and corrections are append-only.
 
-> **Status:** Devnet-only, unaudited. 18 behavioural suites (232 assertions) pass on a fresh
+> **Status:** Devnet-only, unaudited. 19 behavioural suites (259 assertions) pass on a fresh
 > local devnet; `make spec-check`, `make parse-check`, `make docs-check` and the Rust client
 > gates pass.
 > Escrow is the baseline settlement rail. r-sure cover and r-gen K-Assets are optional
@@ -15,7 +15,10 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > `RprintApi` method is implemented, the key stays in WASM, and writes require finality.
 > The recorded live smoke founded a publication with a 2-of-2 admin set, wrote an article
 > through its lifecycle, sealed a one-article edition and paused through admin multisig on
-> the local 50403 devnet (rholo node build `5b9685e`). The CI dispatch devnet recorded
+> the local 50403 devnet (rholo node build `5b9685e`). A 2026-11-24 extended client journey
+> recorded 24 finalized deploys and 32 credited methods, covering the client writes credited
+> to it; with the CLI journey every client write has a live path. The client-op map is 42
+> recorded, 3 fixture-only and 0 no live. The CI dispatch devnet recorded
 > 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
 > A Chromium fixture suite renders every route and every write form with `/api` and `/wasm`
 > blocked; a live browser journey records 10 finalized writes and 1 refusal on the local
@@ -73,7 +76,7 @@ hashes, authority records and optional sibling URIs.
 |---|---|
 | `contracts/src/deploy/` | 13 numbered deploy terms |
 | `contracts/src/lib/` | build-time fragments |
-| `harness/` | installer, fixtures, 18 behavioural suites, 2 sibling suites and the red-team probes |
+| `harness/` | installer, fixtures, 19 behavioural suites, 2 sibling suites and the red-team probes |
 | `spec/graph/` | the named integration graph (`make check-graph`) |
 | `spec/lean/` | Lean 4.12 model, guard bridge, race pair theorems, axiom audit and both vector emitters |
 | `spec/proofs/` | the rigor ledger: invariants, claims, assumptions and divergences |

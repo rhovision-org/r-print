@@ -43,9 +43,9 @@ Out of scope:
 | Red-team results | `spec/audit/redteam.yaml` (14 probes: 13 fixed, 1 accepted) |
 | Sibling campaign | `spec/acceptance.yaml`, `deployments/sibling-suite-results.json` |
 | Live escrow journey | `deployments/cli-live-escrow-results.json` |
-| Client-op map | `spec/vectors/client-ops.tsv` (29 recorded, 5 fixture-only, 11 no live) |
+| Client-op map | `spec/vectors/client-ops.tsv` (42 recorded, 3 fixture-only, 0 no live) |
 | Audit ledgers | `spec/audit/findings.yaml`, `closeout.yaml`, `improvement-plan.yaml`, `hazop/worksheet.yaml` |
-| Known risks | RPA-001 (provenance residual), RPA-008 (8 no-live writes), RPA-009 (this review) |
+| Known risks | RPA-001 (provenance residual), RPA-009 (this review) |
 
 ## Reproduction
 

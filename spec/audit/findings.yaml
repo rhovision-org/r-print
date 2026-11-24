@@ -148,7 +148,7 @@ findings:
     disposition: fixed
     note: The factory verify record has no status or expiry; the adapter now reads Credential("get").
   - id: RPA-008
-    title: Eleven of thirty-four client writes have no live test
+    title: No client write lacks a live test
     severity: S3
     likelihood: B
     risk: 6
@@ -158,16 +158,19 @@ findings:
       - spec/vectors/client-ops.tsv
       - tools/check_client_ops.py
     claim: Every client write is live-tested.
-    verdict: proved-but-narrower
+    verdict: fixed
     arms: []
     actions: [IMP-003]
-    disposition: accept-risk
+    disposition: fixed
     note: >-
-      The map records 29 recorded, 5 fixture-only and 11 no-live methods; the live
-      escrow journey covers fund, submit, release, cancel, dispute, resolve,
-      expire and arbitrate. Membership changes, pause, proposal cancel, article
-      attest/correct/retract, coordinationInfo, createCoordination,
-      recordCoordination and browser escrow remain no-live.
+      The client-op map records 42 recorded, 3 fixture-only and 0 no-live
+      methods. The 2026-11-24 WASM client journey exercised and listed in
+      deployments/live-client-results.json every method credited to it,
+      including membership changes, pause, proposal cancel, article
+      attest/correct/retract and coordination create/record. The CLI journey
+      carries the escrow and knowledge rows. Browser commission funding remains
+      a browser-UI limitation because the browser has no r-cash deposit surface;
+      it is not an unrecorded client method.
   - id: RPA-009
     title: Independent technical review is outstanding
     severity: S2
