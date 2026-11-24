@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve()
-SIBLINGS = Path(os.environ.get("RPRINT_SIBLINGS_DIR", HERE.parent.parent))
+SIBLINGS = Path(os.environ.get("RPRINT_SIBLINGS_DIR", HERE.parents[2]))
 RSure = SIBLINGS / "RSure"
 sys.path.insert(0, str(RSure / "harness"))
 

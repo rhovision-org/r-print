@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve()
-SIBLINGS = Path(os.environ.get("RPRINT_SIBLINGS_DIR", HERE.parent.parent))
+SIBLINGS = Path(os.environ.get("RPRINT_SIBLINGS_DIR", HERE.parents[2]))
 RGen = SIBLINGS / "RGen"
 sys.path.insert(0, str(RGen / "harness"))
 
