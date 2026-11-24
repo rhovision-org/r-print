@@ -41,6 +41,21 @@ def main() -> int:
     expect("provenance asset", info[1].get("assetRef").get("uri"), kasset)
     expect_refusal("provenance info empty uri",
                    one(call_uri(rgen, "provenanceInfo", '""')), "uri")
+
+    slip = one("""
+new S, rs(`rho:registry:insertArbitrary`), ch, deployId(`rho:rchain:deployId`) in {
+  contract S(@"info", ret) = {
+    ret!((true, {"status": "active", "premium": 500}))
+  } |
+  rs!(bundle+{*S}, *ch) |
+  for (@u <- ch) { deployId!(u) }
+}
+""")
+    if not isinstance(slip, str):
+        raise AssertionError(f"slip mock: {slip!r}")
+    slip_info = one(call_uri(rsure, "slip", f'"{slip}"'))
+    expect("slip status", slip_info[1].get("status"), "active")
+    expect("slip premium", slip_info[1].get("premium"), 500)
     return 0
 
 

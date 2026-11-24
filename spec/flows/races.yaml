@@ -1,0 +1,172 @@
+schema: rprint.races/v1
+scope:
+  refinement: false
+  note: >-
+    Pair obligations over the shallow Lean model. This is not scheduler-level
+    race freedom and not a refinement of the deployed Rholang.
+cells:
+  Publication: [addMember, removeMember, pause]
+  CommissionProposal: [accept, fund]
+  CommissionEscrow: [release, cancel, expire, arbitrate]
+  Article: [submit, publish, correct]
+  Edition: [append, seal]
+pairs:
+  - cell: Publication
+    a: addMember
+    b: addMember
+    case: same-member
+    class: exclusive
+    theorem: owed
+    note: not proved in M13; the roster pair obligations are recorded for M14
+  - cell: Publication
+    a: addMember
+    b: removeMember
+    class: ordered
+    theorem: owed
+    note: not proved in M13; the roster pair obligations are recorded for M14
+  - cell: Publication
+    a: addMember
+    b: pause
+    class: independent
+    theorem: owed
+    note: not proved in M13; the roster pair obligations are recorded for M14
+  - cell: Publication
+    a: removeMember
+    b: removeMember
+    class: independent
+    theorem: owed
+    note: not proved in M13; the roster pair obligations are recorded for M14
+  - cell: Publication
+    a: removeMember
+    b: pause
+    class: independent
+    theorem: owed
+    note: not proved in M13; the roster pair obligations are recorded for M14
+  - cell: Publication
+    a: pause
+    b: pause
+    class: independent
+    theorem: owed
+    note: not proved in M13; the roster pair obligations are recorded for M14
+  - cell: CommissionProposal
+    a: accept
+    b: accept
+    class: exclusive
+    theorem: RPrint.commission_accept_accept_never_after
+  - cell: CommissionProposal
+    a: accept
+    b: fund
+    class: ordered
+    theorem: RPrint.commission_accept_fund_ordered
+    note: accept then fund is admitted; fund then accept refuses
+  - cell: CommissionProposal
+    a: fund
+    b: fund
+    class: exclusive
+    theorem: RPrint.commission_fund_fund_never_after
+  - cell: CommissionEscrow
+    a: release
+    b: release
+    class: exclusive
+    theorem: owed
+    note: DIV-002; the model takes milestone status and amount as parameters
+  - cell: CommissionEscrow
+    a: release
+    b: cancel
+    class: ordered
+    theorem: owed
+    note: DIV-002; the release model parameterises the milestone, so the pair is M14
+  - cell: CommissionEscrow
+    a: release
+    b: expire
+    class: ordered
+    theorem: owed
+    note: DIV-002; the release model parameterises the milestone, so the pair is M14
+  - cell: CommissionEscrow
+    a: release
+    b: arbitrate
+    class: ordered
+    theorem: owed
+    note: requires a dispute interleaving; not a direct pair obligation
+  - cell: CommissionEscrow
+    a: cancel
+    b: cancel
+    class: exclusive
+    theorem: RPrint.escrow_cancel_cancel_never_after
+  - cell: CommissionEscrow
+    a: cancel
+    b: expire
+    class: exclusive
+    theorem: RPrint.escrow_cancel_expire_exclusive
+  - cell: CommissionEscrow
+    a: cancel
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_cancel_arbitrate_exclusive
+  - cell: CommissionEscrow
+    a: expire
+    b: expire
+    class: exclusive
+    theorem: RPrint.escrow_expire_expire_never_after
+  - cell: CommissionEscrow
+    a: expire
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_expire_arbitrate_exclusive
+  - cell: CommissionEscrow
+    a: arbitrate
+    b: arbitrate
+    class: exclusive
+    theorem: RPrint.escrow_arbitrate_arbitrate_never_after
+  - cell: Article
+    a: submit
+    b: submit
+    class: exclusive
+    theorem: RPrint.article_submit_submit_never_after
+  - cell: Article
+    a: submit
+    b: publish
+    class: ordered
+    theorem: RPrint.article_submit_publish_ordered
+    note: publish requires approved; submit alone leaves submitted
+  - cell: Article
+    a: submit
+    b: correct
+    class: ordered
+    theorem: RPrint.article_submit_correct_ordered
+    note: submit leaves submitted, so the following correct refuses
+  - cell: Article
+    a: publish
+    b: publish
+    class: exclusive
+    theorem: RPrint.article_publish_publish_never_after
+  - cell: Article
+    a: publish
+    b: correct
+    class: ordered
+    theorem: owed
+    note: not proved in M13; the article pair obligations are recorded for M14
+  - cell: Article
+    a: correct
+    b: correct
+    class: independent
+    theorem: owed
+    note: not proved in M13; the article pair obligations are recorded for M14
+  - cell: Edition
+    a: append
+    b: append
+    case: same-article
+    class: exclusive
+    theorem: owed
+    note: not proved in M13; the duplicate-append pair is recorded for M14
+  - cell: Edition
+    a: append
+    b: seal
+    class: ordered
+    theorem: RPrint.edition_append_seal_ordered
+    note: append then seal is admitted; seal then append refuses
+  - cell: Edition
+    a: seal
+    b: seal
+    class: exclusive
+    theorem: RPrint.edition_seal_seal_never_after

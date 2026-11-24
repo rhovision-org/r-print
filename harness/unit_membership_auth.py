@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from assertions import expect, expect_ok, expect_refusal, one
 from helpers import block_height, call_uri, resolve_component
 from preflight import require_devnet
@@ -43,6 +44,7 @@ def main() -> int:
         ),
         key="reporter1")
     expect_refusal("writer cannot add", writer_add, "role")
+    corpus.assert_row("PUB-add-nonpublisher", writer_add)
 
     duplicate = one(call_uri(
         uri, "addMember",
@@ -79,6 +81,7 @@ def main() -> int:
         ),
         key="deployer")
     expect_refusal("last publisher remove", last_remove, "last publisher")
+    corpus.assert_row("PUB-remove-last", last_remove)
     last_demote = one(call_uri(
         solo["uri"], "setRole",
         f'*dId, "demote-last", {quoted(actors.address("deployer"))}, "writer"',

@@ -151,4 +151,57 @@ namespace RPrint
 #print axioms RPrint.knowledge_attach_preserves_status
 #print axioms RPrint.knowledge_attach_preserves_hash
 
+-- Arm guards
+#print axioms RPrint.publicationAddMember_guard_eq
+#print axioms RPrint.publicationRemoveMember_guard_eq
+#print axioms RPrint.publicationSetRole_guard_eq
+#print axioms RPrint.publicationAttestSelf_guard_eq
+#print axioms RPrint.publicationPause_guard_eq
+#print axioms RPrint.publicationAdmin_guard_eq
+#print axioms RPrint.commissionPropose_guard_eq
+#print axioms RPrint.commissionAccept_guard_eq
+#print axioms RPrint.commissionFund_guard_eq
+#print axioms RPrint.commissionCancel_guard_eq
+#print axioms RPrint.escrowSubmit_guard_eq
+#print axioms RPrint.escrowRelease_guard_eq
+#print axioms RPrint.escrowCancel_guard_eq
+#print axioms RPrint.escrowExpire_guard_eq
+#print axioms RPrint.escrowDispute_guard_eq
+#print axioms RPrint.escrowArbitrate_guard_eq
+#print axioms RPrint.escrowResolveDispute_guard_eq
+#print axioms RPrint.articleSubmit_guard_eq
+#print axioms RPrint.articleAttachKnowledge_guard_eq
+#print axioms RPrint.articleApprove_guard_eq
+#print axioms RPrint.articlePublish_guard_eq
+#print axioms RPrint.articleCorrect_guard_eq
+#print axioms RPrint.articleRetract_guard_eq
+#print axioms RPrint.articleAttest_guard_eq
+#print axioms RPrint.editionAppend_guard_eq
+#print axioms RPrint.editionSeal_guard_eq
+#print axioms RPrint.coverAttach_guard_eq
+
+-- Race matrix
+#print axioms RPrint.commission_accept_sets_accepted
+#print axioms RPrint.commission_fund_sets_funded
+#print axioms RPrint.escrow_cancel_sets_cancelled
+#print axioms RPrint.escrow_expire_sets_expired
+#print axioms RPrint.escrow_arbitrate_sets_arbitrated
+#print axioms RPrint.article_submit_sets_submitted
+#print axioms RPrint.article_publish_sets_published
+#print axioms RPrint.commission_accept_accept_never_after
+#print axioms RPrint.commission_fund_fund_never_after
+#print axioms RPrint.commission_accept_fund_ordered
+#print axioms RPrint.escrow_cancel_cancel_never_after
+#print axioms RPrint.escrow_cancel_expire_exclusive
+#print axioms RPrint.escrow_cancel_arbitrate_exclusive
+#print axioms RPrint.escrow_expire_expire_never_after
+#print axioms RPrint.escrow_expire_arbitrate_exclusive
+#print axioms RPrint.escrow_arbitrate_arbitrate_never_after
+#print axioms RPrint.article_submit_submit_never_after
+#print axioms RPrint.article_publish_publish_never_after
+#print axioms RPrint.article_submit_publish_ordered
+#print axioms RPrint.article_submit_correct_ordered
+#print axioms RPrint.edition_seal_seal_never_after
+#print axioms RPrint.edition_append_seal_ordered
+
 end RPrint

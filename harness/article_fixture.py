@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 
 import actors
+import corpus
 from assertions import one
 from helpers import block_height, call_uri, resolve_component
 from publication_fixture import create_publication, quoted
@@ -103,12 +104,16 @@ def submit(article: dict, content_hash: str | None = None) -> None:
         raise AssertionError(f"submit: {reply!r}")
 
 
-def attest(article: dict, kind: str = "factcheck") -> None:
+def attest(article: dict, kind: str = "factcheck",
+           case: str | None = None):
     reply = one(call_uri(article["uri"], "attest",
                          f'*dId, "attest:{article["article_id"]}", "fact-1", "{kind}", "evidence"'),
                 key="reporter2")
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"attest: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)
+    return reply
 
 
 def approve(article: dict, key: str = "deployer") -> None:

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import corpus
 from assertions import expect, expect_ok, expect_refusal, one
 from commission_fixture import (accept, cancel, dispute, editor_publication,
                                 fund, propose, submit)
@@ -55,9 +56,9 @@ def main() -> int:
     expect("writer delta", actors.balance("reporter3") - writer_before, 500)
     expect("funder delta", actors.balance("sponsor") - funder_before, 500)
     expect("empty purse", one(call_uri(uri, "balance"))[1], 0)
-    expect_refusal("second arbitrate",
-                   one(call_uri(uri, "arbitrate", f'2, {bps}, {sigs}, "arb2"')),
-                   "status")
+    second = one(call_uri(uri, "arbitrate", f'2, {bps}, {sigs}, "arb2"'))
+    expect_refusal("second arbitrate", second, "status")
+    corpus.assert_row("ESC-arbitrate-replay", second)
 
     # Timeout path: a zero dispute window resolves immediately and refunds the funder.
     timeout_proposal = propose(editor_publication("timeout"), dispute_window=0)

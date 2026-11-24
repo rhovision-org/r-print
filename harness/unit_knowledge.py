@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import corpus
 from article_fixture import (approve, create_article, editorial_publication,
                              publish, submit)
 from assertions import expect, expect_ok, expect_refusal, one
@@ -51,10 +52,10 @@ def main() -> int:
                    attach(article, rgen["claimKassetMismatchKassetUri"],
                           rgen["claimKassetMismatchClaimUri"], provenance),
                    "claim kasset")
-    expect_refusal("claim status",
-                   attach(article, rgen["rejectedKassetUri"],
-                          rgen["rejectedClaimUri"], provenance),
-                   "claim status")
+    claim_status = attach(article, rgen["rejectedKassetUri"],
+                          rgen["rejectedClaimUri"], provenance)
+    expect_refusal("claim status", claim_status, "claim status")
+    corpus.assert_row("KNO-attach-claim-status", claim_status)
     expect_refusal("provenance asset",
                    attach(article, kasset, claim, rgen["wrongAssetProvenanceUri"]),
                    "provenance asset")

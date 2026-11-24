@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from article_fixture import (approve, create_article, edition_data,
                              editorial_publication, publish, submit)
 from assertions import expect, expect_ok, expect_refusal, one
@@ -48,10 +49,10 @@ def main() -> int:
     expect_ok("append second",
               one(call_uri(uri, "append", f'*dId, "append-2", "{second["uri"]}"'), key="deployer"))
     expect("manifest length", len(one(call_uri(uri, "manifest"))[1]), 2)
-    expect_refusal("duplicate article",
-                   one(call_uri(uri, "append", f'*dId, "append-dup", "{first["uri"]}"'),
-                       key="deployer"),
-                   "duplicate")
+    duplicate = one(call_uri(uri, "append", f'*dId, "append-dup", "{first["uri"]}"'),
+                    key="deployer")
+    expect_refusal("duplicate article", duplicate, "duplicate")
+    corpus.assert_row("ED-append-duplicate", duplicate)
     expect_refusal("draft article",
                    one(call_uri(uri, "append", f'*dId, "append-draft", "{draft["uri"]}"'),
                        key="deployer"),
@@ -69,6 +70,7 @@ def main() -> int:
     sig = sign_digest(keys, "deployer", digest)
     sealed = one(call_uri(uri, "seal", f'*dId, "seal-1", {sig}'), key="deployer")
     expect_ok("seal", sealed)
+    corpus.assert_row("ED-seal-ok", sealed)
     status = one(call_uri(uri, "status"))
     expect("sealed status", status[1], "sealed")
     manifest = one(call_uri(uri, "manifest"))

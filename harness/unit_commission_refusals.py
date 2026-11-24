@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from assertions import expect, expect_refusal, one
 from commission_fixture import (accept, editor_publication, fund, propose,
                                 release, submit)
@@ -45,10 +46,10 @@ def main() -> int:
 
     submit(escrow, "m1")
     release(escrow, "m1")
-    expect_refusal("double release",
-                   one(call_uri(uri, "release", '*dId, "double-release", "m1"'),
-                       key="reporter1"),
-                   "not submitted")
+    double = one(call_uri(uri, "release", '*dId, "double-release", "m1"'),
+                 key="reporter1")
+    expect_refusal("double release", double, "not submitted")
+    corpus.assert_row("ESC-release-double", double)
 
     expect_refusal("duplicate fund",
                    one(call_uri(proposal["uri"], "fund", '*dId, "double-fund"'),

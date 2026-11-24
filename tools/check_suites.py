@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "harness"))
 import run_suites  # noqa: E402
 
 ALLOWED_TARGETS = {"unit_all"}
-SCAN = [ROOT / "README.md", ROOT / "docs", ROOT / "spec", ROOT / "audit"]
+SCAN = [ROOT / "README.md", ROOT / "docs", ROOT / "spec"]
 SUITE_REF = re.compile(r"`(unit[-_][a-z0-9_-]+)`")
 
 

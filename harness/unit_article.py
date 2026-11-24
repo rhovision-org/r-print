@@ -26,7 +26,7 @@ def main() -> int:
     expect("draft status", one(call_uri(article["uri"], "status"))[1], "draft")
     submit(article)
     expect("submitted status", one(call_uri(article["uri"], "status"))[1], "submitted")
-    attest(article)
+    attest(article, case="ART-attest-ok")
     atts = one(call_uri(article["uri"], "attestations"))[1]
     expect("attestation count", len(atts), 1)
 

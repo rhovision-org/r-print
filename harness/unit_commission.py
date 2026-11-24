@@ -40,10 +40,10 @@ def main() -> int:
         actors.ensure_vault(name)
 
     pub = editor_publication("commission")
-    proposal = propose(pub)
+    proposal = propose(pub, case="COM-propose-ok")
     expect("proposed status",
            one(call_uri(proposal["uri"], "status"))[1], "proposed")
-    accept(proposal)
+    accept(proposal, case="COM-accept-ok")
     expect("accepted status",
            one(call_uri(proposal["uri"], "status"))[1], "accepted")
 
@@ -97,7 +97,7 @@ def main() -> int:
             key="reporter1"),
         "asset")
 
-    escrow = fund(proposal)
+    escrow = fund(proposal, case="COM-fund-ok")
     info = one(call_uri(escrow["escrow_uri"], "info"))
     expect_ok("escrow info", info)
     expect("escrow total", info[1].get("total"), 1000)

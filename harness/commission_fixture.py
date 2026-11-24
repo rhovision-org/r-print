@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from assertions import one
 from helpers import block_height, call_uri, resolve_component
 from publication_fixture import create_publication, quoted
@@ -46,7 +47,7 @@ def editor_publication(label: str = "commission") -> dict:
 def propose(publication: dict, writer: str = "reporter3", total: int = 1000,
             milestones: list[tuple[str, int, int]] | None = None,
             grace: int = 10, dispute_window: int = 10,
-            proposal_id: str | None = None) -> dict:
+            proposal_id: str | None = None, case: str | None = None) -> dict:
     actors.ensure_vault(writer)
     factory = resolve_component("component:commission-factory")
     pid = proposal_id or f"proposal:{block_height()}:{writer}"
@@ -57,20 +58,26 @@ def propose(publication: dict, writer: str = "reporter3", total: int = 1000,
         key=writer)
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"propose {pid}: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)
     return {"proposal_id": pid, "uri": reply[1], "publication": publication,
             "writer": writer, "total": total}
 
 
-def accept(proposal: dict, editor: str = "reporter1") -> None:
+def accept(proposal: dict, editor: str = "reporter1",
+           case: str | None = None) -> None:
     actors.ensure_vault(editor)
     reply = one(call_uri(proposal["uri"], "accept",
                          f'*dId, {quoted("accept:" + proposal["proposal_id"])}'),
                 key=editor)
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"accept {proposal['proposal_id']}: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)
 
 
-def fund(proposal: dict, funder: str = "deployer", amount: int | None = None) -> dict:
+def fund(proposal: dict, funder: str = "deployer", amount: int | None = None,
+         case: str | None = None) -> dict:
     amount = amount or proposal["total"]
     actors.ensure_vault(funder)
     actors.ensure_account(funder)
@@ -81,6 +88,8 @@ def fund(proposal: dict, funder: str = "deployer", amount: int | None = None) ->
                 key=funder)
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"fund {proposal['proposal_id']}: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)
     return {"proposal": proposal, "escrow_uri": reply[1], "funder": funder}
 
 
@@ -103,12 +112,14 @@ def release(escrow: dict, milestone: str, editor: str = "reporter1") -> None:
         raise AssertionError(f"release {milestone}: {reply!r}")
 
 
-def cancel(escrow: dict, actor: str = "deployer") -> None:
+def cancel(escrow: dict, actor: str = "deployer", case: str | None = None) -> None:
     reply = one(call_uri(escrow["escrow_uri"], "cancel",
                          f'*dId, {quoted("cancel:" + escrow["proposal"]["proposal_id"])}, "reason"'),
                 key=actor)
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"cancel: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)
 
 
 def dispute(escrow: dict, actor: str | None = None) -> None:
@@ -120,7 +131,9 @@ def dispute(escrow: dict, actor: str | None = None) -> None:
         raise AssertionError(f"dispute: {reply!r}")
 
 
-def expire(escrow: dict) -> None:
+def expire(escrow: dict, case: str | None = None) -> None:
     reply = one(call_uri(escrow["escrow_uri"], "expire", '"expire-op"'))
     if not (isinstance(reply, tuple) and reply and reply[0] is True):
         raise AssertionError(f"expire: {reply!r}")
+    if case:
+        corpus.assert_row(case, reply)

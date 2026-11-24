@@ -58,9 +58,13 @@ def check_lean_ref(where: str, node: dict, names: set[str], kinds: dict[str, str
         problems.append(f"{where}: unknown lean_status {status}")
         return
     lean = node.get("lean")
-    if status in {"proved-model", "proved-model-bounded"} and not lean:
+    if status in {"proved-model", "proved-model-bounded", "proved-conformance"} and not lean:
         problems.append(f"{where}: {status} needs a lean target")
         return
+    if status == "proved-conformance":
+        for field in ("corpus", "suite"):
+            if not node.get(field):
+                problems.append(f"{where}: proved-conformance needs a {field}")
     if status == "proved-tied" and not node.get("corpus"):
         problems.append(f"{where}: proved-tied needs a corpus")
     if not lean:
@@ -69,7 +73,7 @@ def check_lean_ref(where: str, node: dict, names: set[str], kinds: dict[str, str
     if short not in names:
         problems.append(f"{where}: Lean name {lean} not found")
         return
-    if status == "proved-model" and kinds.get(short) != "theorem":
+    if status in {"proved-model", "proved-conformance"} and kinds.get(short) != "theorem":
         message = (f"{where}: proved-model target {lean} is a "
                    f"{kinds.get(short, 'declaration')}, not a theorem")
         warnings.append(message)
@@ -131,8 +135,8 @@ def main(argv: list[str] | None = None) -> int:
             problems.append(f"core arm missing from flows: {arm}")
         else:
             rule = next(r for r in rules if r.get("arm") == arm)
-            if rule.get("lean_status") != "proved-model":
-                problems.append(f"core arm not proved-model: {arm}")
+            if rule.get("lean_status") != "proved-conformance":
+                problems.append(f"core arm not proved-conformance: {arm}")
 
     for warning in warnings:
         print(f"check-flows: warning: {warning}", file=sys.stderr)
@@ -143,11 +147,14 @@ def main(argv: list[str] | None = None) -> int:
     counts = {status: sum(1 for r in rules if r.get("status", "owed") == status)
               for status in STATUSES}
     proved = sum(1 for r in rules if r.get("lean_status") == "proved-model")
+    conformance = sum(1 for r in rules
+                      if r.get("lean_status") == "proved-conformance")
     print(f"check-flows: {len(rules)} rules "
           f"(implemented {counts['implemented']}, surface {counts['surface']}, "
           f"design {counts['design']}, owed {counts['owed']}), "
-          f"{len(arms)} arms, {len(core)} core arms proved-model, "
-          f"{proved} proved-model rules, {len(warnings)} proof-quality warnings")
+          f"{len(arms)} arms, {len(core)} core arms proved-conformance, "
+          f"{proved} proved-model, {conformance} proved-conformance rules, "
+          f"{len(warnings)} proof-quality warnings")
     return 0
 
 

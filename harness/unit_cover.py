@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from assertions import expect, expect_ok, expect_refusal, one
 from commission_fixture import accept, fund, propose
 from helpers import call_uri
@@ -79,8 +80,9 @@ def main() -> int:
 
     expired = propose(pub, proposal_id=f"cover-expired:{node.height()}")
     accept(expired)
-    expect_refusal("inactive policy", attach(expired, rsure["expiredPolicyUri"]),
-                   "policy status")
+    inactive = attach(expired, rsure["expiredPolicyUri"])
+    expect_refusal("inactive policy", inactive, "policy status")
+    corpus.assert_row("COV-attach-inactive", inactive)
 
     wrong_insured_pub = cover_publication(
         "cover-wrong-insured", treasury=actors.address("recipient"))

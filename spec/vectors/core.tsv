@@ -1,0 +1,20 @@
+case_id	cell	arm	input	expected	lean_decl
+PUB-add-nonpublisher	Publication	addMember	caller not publisher	reject	RPrint.publication_addMember_requires_publisher
+PUB-remove-last	Publication	removeMember	last publisher	reject	RPrint.publication_removeMember_refuses_last_publisher
+PUB-admin-replay	Publication	admin	replayed nonce	reject	RPrint.publication_admin_replay_refused
+PUB-pause-nonpublisher	Publication	pause	caller not publisher	reject	RPrint.publication_pause_requires_publisher
+COM-propose-ok	CommissionFactory	propose	writer proposes	some	RPrint.commission_propose_initial
+COM-accept-ok	CommissionProposal	accept	editor accepts	some	RPrint.commission_accept_sets_editor
+COM-fund-ok	CommissionProposal	fund	accepted proposal	some	RPrint.commission_fund_creates_active_escrow
+ESC-release-double	CommissionEscrow	release	released milestone	reject	RPrint.escrow_release_pays_once
+ESC-cancel-ok	CommissionEscrow	cancel	active escrow	some	RPrint.escrow_cancel_conserves
+ESC-expire-ok	CommissionEscrow	expire	deadline reached	some	RPrint.escrow_expire_conserves
+ESC-arbitrate-replay	CommissionEscrow	arbitrate	replayed nonce	reject	RPrint.escrow_arbitrate_replay_refused
+ART-submit-nonauthor	Article	submit	caller not author	reject	RPrint.article_submit_requires_author
+ART-publish-unapproved	Article	publish	not approved	reject	RPrint.article_publish_requires_approved
+ART-correct-append	Article	correct	published article	some	RPrint.article_correct_append_only
+ART-attest-ok	Article	attest	submitted article	some	RPrint.article_attest_append_only
+ED-append-duplicate	Edition	append	duplicate article	reject	RPrint.edition_append_refuses_duplicate
+ED-seal-ok	Edition	seal	non-empty manifest, valid signature	some	RPrint.edition_seal_binds_manifest
+COV-attach-inactive	CommissionProposal	attachCover	inactive policy	reject	RPrint.cover_attach_requires_active_policy
+KNO-attach-claim-status	Article	attachKnowledge	open claim	reject	RPrint.knowledge_attach_requires_claim_status

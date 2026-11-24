@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from assertions import expect, expect_ok, expect_refusal, one
 from helpers import admin_payload, call_uri, resolve_component, sign_payload
 from preflight import require_devnet
@@ -76,6 +77,10 @@ def main() -> int:
 
     paused = one(call_uri(uri, "pause", '*dId, "pause-1", true'), key=publisher)
     expect_ok("pause", paused)
+    intruder = one(call_uri(uri, "pause", '*dId, "pause-intruder", true'),
+                   key="reporter1")
+    expect_refusal("non-publisher pause", intruder, "role")
+    corpus.assert_row("PUB-pause-nonpublisher", intruder)
     expect_refusal("paused write",
                    one(call_uri(uri, "addMember",
                                 f'*dId, "add-while-paused", {quoted(actors.address("sender"))}, '
@@ -102,6 +107,9 @@ def main() -> int:
     expect_ok("set treasury", admin)
     expect("treasury updated",
            one(call_uri(uri, "treasury"))[1], new_treasury)
+    replay = one(call_uri(uri, "admin", f'{nonce}, "setTreasury", {args}, {sigs}'))
+    expect_refusal("admin replay", replay, "replay")
+    corpus.assert_row("PUB-admin-replay", replay)
 
     multi = create_publication(
         "multi", publisher="deployer",

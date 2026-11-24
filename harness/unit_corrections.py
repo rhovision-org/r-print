@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import actors
+import corpus
 from article_fixture import (approve, create_article, editorial_publication,
                              publish, submit)
 from assertions import expect, expect_ok, one
@@ -23,9 +24,11 @@ def main() -> int:
     publish(article)
     uri = article["uri"]
 
-    expect_ok("correction",
-              one(call_uri(uri, "correct",
-                           '*dId, "op-c1", "c1", "correction", "body:1", "reason:1"'), key="deployer"))
+    first_correction = one(call_uri(
+        uri, "correct", '*dId, "op-c1", "c1", "correction", "body:1", "reason:1"'),
+        key="deployer")
+    expect_ok("correction", first_correction)
+    corpus.assert_row("ART-correct-append", first_correction)
     expect_ok("clarification",
               one(call_uri(uri, "correct",
                            '*dId, "op-c2", "c2", "clarification", "body:2", "reason:2"'), key="deployer"))
