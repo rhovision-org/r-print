@@ -84,11 +84,19 @@ milestones:
        "spec/vectors/lean.json", "spec/flows/core.yaml"]
     recorded: 2026-11-23
     lean: "leanprover/lean4:v4.12.0"
-    theorems: 108
-    vectors: 38
-    flow_rules: 31
+    theorems: 131
+    vectors: 56
+    flow_rules: 36
     core_arms_proved: 15
     status: passing
+  M12:
+    title: sibling surfaces
+    evidence:
+      ["make siblings-venv siblings-install install-with-siblings",
+       "make sibling-suites-strict", "make cli-live RPRINT_SIBLINGS=1",
+       "spec/lean/RPrint/Model/Adapter.lean"]
+    status: in_progress
+    note: "strict chains, real-sibling suites, CLI test and CI wiring landed; the local and CI campaigns are pending"
 suites_total: 18
 suites_passing: 18
 live_client:
@@ -124,21 +132,21 @@ browser_e2e:
 formal_model:
   toolchain: "leanprover/lean4:v4.12.0"
   project: "spec/lean"
-  modules: 12
-  theorems: 108
-  axiom_audits: 108
-  vectors: 38
-  flow_rules: 31
+  modules: 13
+  theorems: 131
+  axiom_audits: 131
+  vectors: 56
+  flow_rules: 36
   core_arms_proved: 15
-  proved_model_rules: 26
+  proved_model_rules: 27
   proof_quality_warnings: 0
   escapes: 0
   allowed_axioms: ["propext", "Classical.choice", "Quot.sound"]
-  scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, linear cell and protocol layer"
+  scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, r-sure cover, r-gen knowledge chain, linear cell and protocol layer"
   not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions"
 surfaces:
-  r_sure_cover: "CommissionProposal.attachCover -> RsureAdapter.policy; disabled by default"
-  r_gen_kasset: "Article.attachKnowledge -> RgenAdapter; optional, not a publication gate"
+  r_sure_cover: "CommissionProposal.attachCover verifies active status, insured and asset; single-assignment; disabled by default"
+  r_gen_kasset: "Article.attachKnowledge verifies the reciprocal chain, provenance hash, author and credential; optional, not a publication gate; disabled root refuses credentials"
 design:
   - subscriptions and entitlements
   - revenue split claims

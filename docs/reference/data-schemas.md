@@ -22,9 +22,11 @@
 { proposalId, publicationId, publicationUri, writerId, writerDid, editorId,
   titleHash, briefHash, total, milestones[],
   graceBlocks, disputeWindowBlocks, requireFactCheck,
-  coverUri, coverStatus, status, escrowUri, createdAtHeight, ops, schemaVersion }
+  coverUri, coverStatus, coverAssetId, coverPerClaimLimit, coverAggregateRemaining,
+  coverInsured, status, escrowUri, createdAtHeight, ops, schemaVersion }
 ```
 
+`coverUri` starts empty; `attachCover` fills it and the five sibling fields after verification.
 Milestone: `{ id, kind, amount, deadlineHeight }`.
 
 ## commissionEscrowState
@@ -53,6 +55,10 @@ submittedAtHeight, releasedAtHeight }`.
   corrections: [{ id, kind, bodyHash, reasonHash, articleHash, by }],
   createdAtHeight, ops, schemaVersion }
 ```
+
+`attachKnowledge` is accepted only while the article is `submitted` or `approved`; it verifies
+the reciprocal Claim ↔ KAsset references, the provenance binding and content hash, the author
+and an optional credential, and fills the four URI fields and `knowledgeAtHeight`.
 
 ## editionState
 

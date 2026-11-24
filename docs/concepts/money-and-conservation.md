@@ -45,5 +45,6 @@ shallow escrow model; it is not a formal refinement of the deployed Rholang.
 
 r-sure's conservation model adds the Slip's funded premium and the syndicate/line balances
 to the closed set. r-print's baseline does not include those vertices until a publication
-enables the r-sure surface. See [the integration graph](../reference/integration-graph.md)
+enables the r-sure surface. Attaching a cover is metadata: it moves no value and does not
+change the escrow's `paidWriter + refundedFunder + purse = total` invariant. See [the integration graph](../reference/integration-graph.md)
 for the edges `funds`, `escrows`, `refunds`, `distributes` and `settles`.

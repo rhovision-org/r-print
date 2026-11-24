@@ -17,7 +17,8 @@
 | M8 | Docs, CI and recorded verification | Passing (dispatch run 45250733118) |
 | M9 | Horizontal live client layer | Passing on the recorded local and CI devnets |
 | M10 | Browser end-to-end layer | Passing: 27 fixture tests and a 13-step live browser journey (CI dispatch 45270193372) |
-| M11 | Lean 4 formal model | Passing: 108 theorems, 38 vectors, 15 core arms `proved-model`, zero proof escapes |
+| M11 | Lean 4 formal model | Passing: 131 theorems, 56 vectors, 36 flow rules, 27 `proved-model`, zero proof escapes |
+| M12 | Sibling surfaces | In progress: strict cover/knowledge chains, real-sibling suites, CLI test and CI wiring landed; the recorded campaign is pending |
 
 The acceptance map is `spec/acceptance.yaml`; the recorded contract campaign is 18/18 suites
 on the local 50403 devnet with rholo node build `8fe0136`. The live client smoke recorded 11
@@ -30,13 +31,11 @@ steps in the same job).
 
 ## Next
 
-1. Enable an r-sure root on a devnet and exercise `attachCover` against a real Policy.
-2. Enable an r-gen root and exercise `attachKnowledge` against a validated Claim/KAsset and
-   a bound Provenance record.
-3. Implement the coordination record (design edge) and a golden quantum-os outcome.
-4. Extend the Lean model beyond the four cores: commission funding across an r-cash
-   account, the r-sure cover tie and the r-gen K-Asset tie.
-5. Audit the escrow and the publication authority paths.
+1. Run and record the M12 sibling campaign locally and in the dispatch devnet job: install the
+   pinned r-sure and r-gen roots, run `unit_cover` and `unit_knowledge`, and record the CLI
+   cover/knowledge journey.
+2. Implement the coordination record (design edge) and a golden quantum-os outcome.
+3. Audit the escrow and the publication authority paths.
 
 ## Explicitly deferred
 

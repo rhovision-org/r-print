@@ -75,17 +75,33 @@ measured result is:
 
 | Check | Result |
 |---|---|
-| Lean build and axiom audit | **108 source theorems**, 108 axiom audits |
+| Lean build and axiom audit | **131 source theorems**, 131 axiom audits |
 | Proof escapes | 0 `sorry`/`admit`/`axiom`/`native_decide`; only `propext`, `Classical.choice`, `Quot.sound` |
-| Vectors | **38** deterministic vectors in `spec/vectors/lean.json` |
-| Flow manifest | **31 rules**, **15 core arms** `proved-model`, **26** `proved-model` rules, 0 proof-quality warnings |
+| Vectors | **56** deterministic vectors in `spec/vectors/lean.json` |
+| Flow manifest | **36 rules**, **15 core arms** `proved-model`, **27** `proved-model` rules, 0 proof-quality warnings |
 
 The model covers publication authority and membership, commission proposal and escrow,
-article lifecycle, and edition seal, plus the shared linear-cell and protocol layer. It is
-`proved-model`: theorems about the shallow Lean state machines, not a refinement of the
-deployed Rholang. ERTP purse atomicity, phlo, cryptography, node scheduling, deploy atomicity
-and the cross-contract ties are explicit boundary assumptions in
-`spec/lean/RPrint/Model/System.lean`.
+article lifecycle, edition seal, and the r-sure cover and r-gen knowledge ties, plus the shared
+linear-cell and protocol layer. It is `proved-model`: theorems about the shallow Lean state
+machines, not a refinement of the deployed Rholang. ERTP purse atomicity, phlo, cryptography,
+node scheduling, deploy atomicity and the cross-contract ties are explicit boundary assumptions
+in `spec/lean/RPrint/Model/System.lean`.
+
+## Sibling surfaces — campaign pending
+
+The cover and knowledge arms now enforce the strict chains described in
+[Formal model](formal-model.md). `unit_cover` and `unit_knowledge` are real-sibling suites;
+`unit-all` keeps its 18 safe suites, and the sibling suites run separately with
+`make sibling-suites-strict`. The CI dispatch devnet job installs the pinned r-sure
+(`0da5d04`) and r-gen (`bcc840c`) roots and runs both. The local and CI runs have **not yet
+been recorded**; until they are, the sibling suites report `not_run` and this page does not
+claim a pass.
+
+The `cli-live` sibling test creates a publication with the policy-insured treasury, attaches
+the real cover, attaches the real knowledge chain and asserts the overwrite refusal. The web
+live smoke attaches the cover only: its fresh WASM wallet cannot sign the r-gen claimant, and
+the WASM facade has no raw-secret import. That omission is recorded in
+`deployments/live-client-results.json`.
 
 ## CI devnet campaign
 
@@ -115,7 +131,7 @@ counts.
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build |
 | `make formal-check` | Lean build, axiom audit, vector corpus, strict flow traceability |
 | `make client-check` | Rust fmt/clippy/tests, wasm32 check, wasm-pack web build, WASM smoke, web typecheck/test/build |
-| `make check-graph` | 25 vertices, 36 edges (14 implemented, 14 surface, 8 design) |
+| `make check-graph` | 25 vertices, 36 edges (18 implemented, 10 surface, 8 design) |
 
 ## What the suites actually assert
 
@@ -131,7 +147,10 @@ counts.
 - **edition / behavior**: ordered append, duplicate/draft refusals, editor-signed seal,
   post-seal refusal, and the small-newsroom golden transcript.
 - **interfaces / pause_scope**: adapters disabled by default, mock Claim/KAsset/Provenance
-  reads, publication pause blocking new work while existing escrow releases continue.
+  reads including `provenanceInfo`, publication pause blocking new work while existing escrow
+  releases continue.
+- **cover / knowledge (sibling group)**: real r-sure policy and real r-gen chain, every strict
+  refusal branch, replay and overwrite, and the escrowed cover carrying through funding.
 - **live client**: the Node script exercises the real WASM term/sign/poll path; the vitest
   suite covers every `RprintApi` write through a fake bridge and transport, including
   refusals, processed-with-error and finality timeouts.
@@ -146,14 +165,15 @@ counts.
   network, not a public network.
 - No audit and no penetration test. The Lean model is `proved-model`; there is no refinement
   theorem tying it to the deployed Rholang.
-- No r-sure or r-gen root enabled in the recorded campaign; the adapters were disabled and
-  the optional surfaces were exercised with mock entity contracts.
+- The strict cover and knowledge chains are implemented and unit-tested with mocks, but the
+  real-sibling campaign is not yet recorded; the earlier campaign ran with the roots disabled.
 - No multi-validator finality campaign.
 - The live browser journey covers a representative path, not all 32 writes; the remaining
   writes have fake-transport unit coverage and fixture browser rendering.
 - The live browser journey does not fund a commission (that needs an r-cash-funded account);
   the escrow is covered by the 18-suite campaign and the fake-transport client tests.
-- r-sure and r-gen roots remain disabled; cover and K-Asset links are URI surfaces only.
+- The r-sure and r-gen roots remain disabled by default; enabling them is an explicit
+  `make install-with-siblings` opt-in.
 
 ## How to reproduce
 
@@ -171,6 +191,11 @@ make cli-live
 make web-e2e-install
 make web-e2e-fixture
 make web-e2e-live NODE=http://127.0.0.1:40403
+# optional sibling surfaces, after installing the pinned roots:
+make siblings-venv siblings-install install-with-siblings
+make sibling-suites-strict
+make client-live RPRINT_SIBLINGS=1
+make cli-live RPRINT_SIBLINGS=1
 ```
 
 A suite that cannot reach a healthy devnet reports `not_run`, never a pass. Report the actual

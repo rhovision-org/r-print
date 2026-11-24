@@ -30,8 +30,10 @@ Publication writes: `addMember`, `removeMember`, `setRole`, `attestSelf`, `pause
 
 ## CommissionFactory / CommissionProposal
 
-Factory: `propose`, `issued`. Proposal reads: `info`, `status`, `milestones`, `cover`.
-Proposal writes: `accept`, `fund`, `attachCover`, `cancel`.
+Factory: `propose`, `issued`. Proposal reads: `info`, `status`, `milestones`, `cover`,
+`coverInfo`. Proposal writes: `accept`, `fund`, `attachCover`, `cancel`. `attachCover` requires
+an active policy insured to the publication treasury and matching the charter asset, and is
+single-assignment.
 
 ## CommissionEscrowFactory / CommissionEscrow
 
@@ -41,14 +43,17 @@ Factory: `createFunded`, `issued`. Escrow reads: `info`, `status`, `balance`, `m
 
 ## RgenAdapter / RsureAdapter
 
-`RgenAdapter`: `health`, `claim`, `kasset`, `provenance`, `identity`, `credential`.
-`RsureAdapter`: `health`, `policy`, `slip`.
+`RgenAdapter`: `health`, `claim`, `kasset`, `provenance`, `provenanceInfo`, `identity`,
+`credential`. `RsureAdapter`: `health`, `policy`, `slip`. `provenanceInfo` refuses an empty URI
+with `uri`; the other entity reads resolve by caller-supplied URI.
 
 ## ArticleFactory / Article
 
 Factory: `create`, `issued`. Article reads: `info`, `status`, `attestations`, `corrections`,
 `knowledge`. Article writes: `submit`, `attachKnowledge`, `attest`, `approve`, `publish`,
-`correct`, `retract`.
+`correct`, `retract`. `attachKnowledge` accepts only `submitted`/`approved` articles and
+verifies the reciprocal Claim/KAsset chain, provenance binding and hash, author and credential;
+it is single-assignment.
 
 ## EditionFactory / Edition
 

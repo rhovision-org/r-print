@@ -48,6 +48,19 @@
 - **I20.** Spec-only features (subscriptions, revenue splits, crowdfunding, tips,
   syndication) do not change v0.1 cell semantics.
 
+## Sibling surfaces
+
+- **I24.** An attached cover is an active policy whose `insured` is the publication treasury
+  and whose asset matches the charter. A cover is single-assignment.
+- **I25.** An attached knowledge link has reciprocal Claim ↔ KAsset references, a validated or
+  conditional claim, a provenance bound to that KAsset and Claim and anchored to the article
+  content hash, an author match, and an active unexpired credential when supplied. The article
+  must be `submitted` or `approved`, so the hash cannot change afterwards.
+- **I26.** A sibling link is single-assignment. An identical re-attach is a replay; a different
+  tuple is refused.
+
+I21–I23 are client finality, term-shape and retry invariants; see `spec/invariants.md`.
+
 ## Evidence map
 
 | Invariant | Suites | Lean |
@@ -62,6 +75,9 @@
 | I12–I16 | article, article_refusals, corrections, edition, behavior | `RPrint.article_publish_freezes_hash`, `RPrint.article_correct_append_only`, `RPrint.article_retract_appends_record`, `RPrint.edition_append_guards`, `RPrint.edition_sealed_manifest_immutable` |
 | I17–I19 | interfaces, behavior, money checks | outside the model |
 | I20 | spec review | outside the model |
+| I24 | cover, commission | `RPrint.cover_attach_requires_insured`, `RPrint.cover_attach_requires_asset`, `RPrint.cover_attach_single_assignment` |
+| I25 | knowledge, article | `RPrint.knowledge_attach_requires_kasset_claim`, `RPrint.knowledge_attach_requires_provenance_hash`, `RPrint.knowledge_attach_requires_author`, `RPrint.knowledge_attach_requires_credential` |
+| I26 | cover, knowledge | `RPrint.cover_attach_single_assignment`, `RPrint.knowledge_attach_single_assignment` |
 
 The model evidence is `spec/lean/`; `spec/flows/core.yaml` names the carrying theorem for
 each rule. The model is shallow and does not formalise ERTP, phlo, cryptography, the node

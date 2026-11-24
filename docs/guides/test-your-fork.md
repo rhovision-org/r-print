@@ -31,6 +31,29 @@
 5. If the suite moves value, add it to the conservation set.
 6. Update the acceptance map in `spec/acceptance.yaml` and the verification chapter.
 
+## Run the sibling surfaces
+
+The r-sure and r-gen roots are optional and disabled by default. The defaults resolve the
+`RSure` and `RGen` checkouts next to r-print; `SIBLINGS_DIR` overrides the parent directory.
+The sibling harnesses share the r-print `.devnet/keys.json` through `RSHARE_KEYS` and
+`RGEN_KEYS`, which is what lets the r-gen claimant and provenance writer be the article author.
+
+```sh
+make devnet-up rcash-keys rcash-bootstrap keys
+make siblings-venv
+make siblings-install                  # r-sure 0da5d04, then r-gen bcc840c --fresh
+make install-with-siblings             # r-print with both roots enabled
+make sibling-fixture                   # real policy and Claim/KAsset/Provenance artifacts
+make sibling-suites-strict             # unit_cover and unit_knowledge
+make client-live RPRINT_SIBLINGS=1     # cover step
+make cli-live RPRINT_SIBLINGS=1        # cover and knowledge journey
+```
+
+`unit-all` stays at 18 suites; `unit_cover` and `unit_knowledge` are in the `SIBLING` group
+and report `not_run` until `deployments/sibling-fixture.json` exists. Do not report the
+sibling campaign as passing without `deployments/sibling-suite-results.json` (or the CI
+artifact) from a healthy devnet.
+
 ## Add a formal obligation
 
 1. Add the theorem to the relevant `spec/lean/RPrint/Model/*.lean` module. The model is

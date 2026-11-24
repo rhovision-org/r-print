@@ -65,6 +65,33 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
 - **Cover is optional.** `CommissionProposal("attachCover")` verifies an r-sure Policy via
   `RsureAdapter("policy")`; the escrow rail remains the default.
 
+## Sibling surfaces
+
+- **Optional, opt-in, fail closed.** `configs/rsure.json` and `configs/rgen.json` keep
+  `enabled: false`. `make install-with-siblings` (`--siblings` / `RPRINT_SIBLINGS=1`) requires
+  both manifests and fails the install when one is missing; `RPRINT_SIBLINGS_DIR` overrides
+  the parent checkout directory and `RPRINT_RGEN_MANIFEST`/`RPRINT_RSURE_MANIFEST` override a
+  manifest path.
+- **One key file.** The sibling harnesses read `RSHARE_KEYS` (r-sure) and `RGEN_KEYS` (r-gen);
+  both point at the r-print `.devnet/keys.json`. This is what lets the r-gen claimant and
+  provenance writer be the article author. The r-gen issuer is `deployer`; validators are
+  distinct keys.
+- **Cover chain.** `attachCover` requires an active policy, `insured == charter.treasuryAccountId`,
+  `assetId == charter.assetId`, and refuses a different overwrite. An identical attach is a
+  replay. Record `coverAssetId`, `coverPerClaimLimit`, `coverAggregateRemaining`, `coverInsured`;
+  read them through `coverInfo`.
+- **Knowledge chain.** `attachKnowledge` accepts `submitted`/`approved` only and verifies the
+  reciprocal Claim ↔ KAsset references, a validated/conditional claim, the provenance asset
+  and claim binding, the anchored content hash, the author match, and an active unexpired
+  credential when supplied. It is single-assignment. `provenanceInfo` returns the provenance
+  state; an empty URI refuses `"uri"`.
+- **Subprocess fixtures.** Never import a sibling harness in-process; `actors`, `deploy` and
+  `preflight` collide. Run `sibling_rsure_driver.py` and `sibling_rgen_driver.py` in a
+  subprocess and cache the result in `deployments/sibling-fixture.json`.
+- **No fake live knowledge.** The fresh WASM wallet cannot sign the r-gen claimant. The web
+  live smoke covers `attachCover` only; the CLI live test covers both. Do not weaken the author
+  check to make a browser demo pass.
+
 ## Live client
 
 - **Two term shapes.** Reads use `explore_call_term` (reply on the first private name,
@@ -131,6 +158,11 @@ make devnet-up       # r-cash devnet via RCASH_DIR/RHOLO_DIR
 make rcash-keys      # generate and faucet r-cash keys
 make rcash-bootstrap # install the r-cash components r-print needs
 make keys install    # copy keys and install r-print
+make siblings-venv   # install the pinned sibling harness requirements
+make siblings-install # install r-sure and r-gen with the shared key file
+make install-with-siblings # enable both roots and install r-print
+make sibling-fixture # write deployments/sibling-fixture.json
+make sibling-suites-strict # unit_cover and unit_knowledge
 make unit-all        # all 18 behavioural suites
 make client-lint client-test client-wasm client-check
 make client-wasm-pack client-wasm-node client-wasm-smoke
@@ -189,3 +221,5 @@ make check-graph     # named integration vertices and edges
 - The final report states the measured counts and the exact node/build or CI run; it does not
   invent them.
 - `proved-model` is reported as `proved-model`, never as an audit or a refinement.
+- A sibling-surface claim needs `deployments/sibling-suite-results.json` (or the CI artifact)
+  from a healthy devnet with the pinned roots installed. `not_run` is not a pass.

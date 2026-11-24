@@ -14,9 +14,11 @@ browser fixture suite covers every route and write form with the node and WASM b
 live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the local
 devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 suites,
 11/11 live-client steps and the same 13-step browser journey on the pinned node build
-`e2d073d`. A Lean 4.12 model builds 108 theorems with 108 axiom audits, 38 vectors and 15
-`proved-model` core arms, with no proof escapes; the model covers publication authority,
-commission escrow, article lifecycle and edition seal. All are local or CI Docker results,
+`e2d073d`. The r-sure cover and r-gen knowledge arms now verify their full chains, and the
+sibling suites and CLI live test are implemented; the recorded sibling campaign is pending.
+A Lean 4.12 model builds 131 theorems with 131 axiom audits, 56 vectors and 15 `proved-model`
+core arms, with no proof escapes; the model covers publication authority, commission escrow,
+article lifecycle, edition seal and the two sibling ties. All are local or CI Docker results,
 not a public testnet or mainnet claim.
 
 ## Labels
@@ -42,21 +44,22 @@ Never read "implemented" as "audited", "production-ready" or "safe for real valu
 | Commission proposal, escrow, milestones, cancel, expire, dispute | `commission`, `commission_refusals`, `commission_dispute`, `conservation` |
 | Article lifecycle, reviews, corrections, retraction | `article`, `article_refusals`, `corrections` |
 | Edition manifest and editor signature | `edition`, `behavior` |
-| Optional r-sure cover surface | `CommissionProposal.attachCover`, `interfaces`, `commission` |
-| Optional r-gen Claim/KAsset/Provenance surface | `Article.attachKnowledge`, `interfaces`, `article` |
+| r-sure cover chain | `CommissionProposal.attachCover` verifies active status, insured and asset; `unit_cover` is the real-sibling suite |
+| r-gen knowledge chain | `Article.attachKnowledge` verifies reciprocal Claim/KAsset refs, provenance binding, hash, author and credential; `unit_knowledge` is the real-sibling suite |
 | Pause scope | `pause_scope` |
 | Named integration graph | `make check-graph` |
 | Live client layer | `make client-check`; `make client-live`; `make cli-live`; recorded `deployments/live-client-results.json` |
 | Browser e2e layer | `make web-e2e-fixture`; `make web-e2e-live`; recorded `deployments/browser-e2e-results.json` |
-| Lean 4 formal model | `make formal-check`; 108 theorems, 38 vectors, 15 core arms `proved-model`; `spec/lean/RPrint/Audit.lean` |
+| Lean 4 formal model | `make formal-check`; 131 theorems, 56 vectors, 36 flow rules, 27 `proved-model` rules, 15 core arms; `spec/lean/RPrint/Audit.lean` |
 
 ## What is surface
 
 The r-sure adapter (`configs/rsure.json`) and r-gen adapter (`configs/rgen.json`) are
-`enabled: false` by default. `health` returns `(false, "disabled")`. `attachCover` and
-`attachKnowledge` still verify the URI they are given by calling the entity contract, which
-lets a publication attach a policy or a K-Asset without a configured sibling root. The full
-broker/underwriting/claim flow is not enabled.
+`enabled: false` by default. `health` returns `(false, "disabled")`. The cover and knowledge
+arms still read the entity by URI, so a publication can attach a policy or a K-Asset without a
+configured sibling root; a credential, however, is verified through the r-gen root and is
+refused when the root is disabled. `make install-with-siblings` enables both roots and fails
+closed if a manifest is missing. The full broker/underwriting/claim flow is not enabled.
 
 ## What is design
 

@@ -42,7 +42,10 @@ Attestation: `factcheck`, `legal`, `editor`.
 `amount`, `total`, `deadline`, `too early`, `too late`, `submitted`, `not submitted`,
 `released`, `refunded`, `arbitrated`, `dispute`, `signature`, `hash`, `did`, `license`,
 `access`, `article`, `edition`, `edition full`, `attestations`, `corrections`, `unknown`,
-`kasset`, `rgen adapter`, `claim`, `provenance`, `rsure adapter`, `not owner`.
+`kasset`, `rgen adapter`, `claim`, `provenance`, `rsure adapter`, `not owner`, `cover`,
+`policy`, `policy status`, `insured`, `kasset claim`, `claim kasset`, `claim status`,
+`provenance asset`, `provenance claim`, `provenance hash`, `author`, `credential`,
+`knowledge`, `uri`.
 
 ## Formal-model status
 

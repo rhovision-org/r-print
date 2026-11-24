@@ -2,7 +2,7 @@
 
 > **Status:** Implemented. The model builds with Lean 4.12 and no Mathlib. Its results are
 > `proved-model`: theorems about the shallow Lean state machines, not a refinement of the
-> deployed Rholang.
+> deployed Rholang. It covers the four cores and the two sibling ties.
 
 `proved-model` means proved about the model in `spec/lean`, not about Rholang reduction,
 ERTP purse atomicity, phlo, cryptography, node scheduling or deploy atomicity. The flow
@@ -22,6 +22,7 @@ empty package manifest:
 | `RPrint/Model/Commission.lean` | proposal statuses; escrow milestones, release, cancel, expire, dispute, arbitration and conservation |
 | `RPrint/Model/Article.lean` | `draft → submitted → approved → published → retracted`; hash freeze, append-only corrections, retraction |
 | `RPrint/Model/Edition.lean` | `draft → sealed`; published/same-publication/duplicate/cap append guards, manifest binding, sealed terminal |
+| `RPrint/Model/Adapter.lean` | r-sure cover binding and the r-gen Claim/KAsset/Provenance/credential chain |
 | `RPrint/Model/System.lean` | composition aliases and the explicit boundary assumptions |
 | `RPrint/Invariants.lean` | stable `I`-names pointing at carrying theorems |
 | `RPrint/Audit.lean` | `#print axioms` for every theorem |
@@ -66,6 +67,22 @@ binds the manifest hash and is terminal. Carrying theorems include
 `RPrint.article_retract_appends_record`, `RPrint.edition_append_guards` and
 `RPrint.edition_seal_binds_manifest`.
 
+### Sibling ties
+
+`Model/Adapter.lean` models the r-sure cover and the r-gen knowledge chain as shallow state
+machines over opaque sibling facts. The cover transition refuses an inactive policy, a policy
+whose insured is not the publication treasury, a policy for another asset, and a different
+overwrite; an identical attach is a replay. The knowledge transition refuses a non-attachable
+article, empty required URIs, a KAsset/Claim reference mismatch in either direction, a claim
+that is not validated or conditional, a provenance that binds another asset or claim, a
+failed hash anchor, a claimant or writer who is not an author, an inactive/expired/wrong-
+subject credential, and a different overwrite. It preserves the content hash and status.
+Carrying theorems include `RPrint.cover_attach_requires_insured`,
+`RPrint.cover_attach_single_assignment`, `RPrint.knowledge_attach_requires_kasset_claim`,
+`RPrint.knowledge_attach_requires_provenance_hash`,
+`RPrint.knowledge_attach_requires_author` and
+`RPrint.knowledge_attach_requires_credential`.
+
 ## What is not proved
 
 The state machines are shallow. A member key is an `Id`, not a key derivation; a DID is an
@@ -76,7 +93,9 @@ deploy atomicity.
 `RPrint/Model/System.lean` records the boundary as named assumptions:
 `ertpPurseAtomic`, `cryptoAuthority`, `deployAtomicity`, `clockHeight`, `codecHash`,
 `adminMultisig`, `schedulerFairness`, `canonicalUriBinding`, `memberKeyDerivation`,
-`arbitrationQuorumTie` and `rgenKassetValidation`. These are assumptions, never theorems.
+`arbitrationQuorumTie`, `rgenKassetValidation`, `rsurePolicyInfo`, `rgenKassetInfo`,
+`rgenClaimInfo`, `rgenProvenanceInfo` and `rgenCredentialVerify`. These are assumptions,
+never theorems.
 
 ## Status vocabulary
 
@@ -95,10 +114,10 @@ aliases in `RPrint/Invariants.lean` are for the docs; the flow manifest names th
 
 ## Audit baseline
 
-The project builds 108 source theorems with 108 axiom audits, no `sorry`/`admit`/`axiom`/
+The project builds 131 source theorems with 131 axiom audits, no `sorry`/`admit`/`axiom`/
 `native_decide`, and only `propext`, `Classical.choice` and `Quot.sound`. `spec/flows/core.yaml`
-has 31 rules over 31 arms, 15 core arms are `proved-model`, 26 rules are `proved-model`, and
-`make check-flows-strict` reports zero proof-quality warnings. `RPrint/Emit.lean` emits 38
+has 36 rules over 36 arms, 15 core arms are `proved-model`, 27 rules are `proved-model`, and
+`make check-flows-strict` reports zero proof-quality warnings. `RPrint/Emit.lean` emits 56
 deterministic vectors; `spec/vectors/lean.json` is generated from them and never hand-edited.
 
 ## Run it

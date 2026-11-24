@@ -19,11 +19,15 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > A Chromium fixture suite renders every route and every write form with `/api` and `/wasm`
 > blocked; a live browser journey records 10 finalized writes and 1 refusal on the local
 > devnet. CI dispatch 45270193372 recorded the 27 fixture tests and the 13-step browser
-> journey on the pinned node `e2d073d`, alongside 18/18 suites. A Lean 4.12 model covers
-> publication authority, commission escrow, article lifecycle and edition seal: 108
-> machine-checked theorems, 38 vectors and 15 core arms, zero proof escapes. It is not a
-> Rholang refinement. Subscriptions, revenue splits, crowdfunding, reader tips, syndication
-> and the coordination-record contract remain design.
+> journey on the pinned node `e2d073d`, alongside 18/18 suites. The r-sure cover and r-gen
+> knowledge surfaces now verify their full chains: an active policy insured to the publication
+> treasury and asset, and a reciprocal Claim/KAsset/Provenance/credential link authored by the
+> article author. The sibling suites and the CLI live test are implemented; the recorded
+> sibling campaign is still pending. A Lean 4.12 model covers publication authority, commission
+> escrow, article lifecycle, edition seal and the two sibling ties: 131 machine-checked
+> theorems, 56 vectors and 15 core arms, zero proof escapes. It is not a Rholang refinement.
+> Subscriptions, revenue splits, crowdfunding, reader tips, syndication and the
+> coordination-record contract remain design.
 
 ## Why
 
@@ -82,6 +86,9 @@ make parse-check       # needs ../RNodeRust, the rholo node checkout
 make docs-check
 make formal-check      # Lean 4.12 build, axiom audit, vectors and strict flow traceability
 make client-check      # fmt, clippy, tests, wasm32, wasm-pack, wasm smoke, web tests and build
+# Optional sibling surfaces, after installing the pinned r-sure and r-gen roots:
+make siblings-venv siblings-install install-with-siblings
+make sibling-suites-strict
 make web-e2e-install   # one-time Chromium download
 make web-e2e-fixture   # browser fixture suite; no node and no WASM
 ```
