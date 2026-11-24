@@ -1,8 +1,8 @@
 # Arm reference
 
 > **Status:** Implemented. The arm strings below are the deployed contract arms.
-> The 31 mutating cornerstone arms have a guard row in `spec/guards/arms.yaml`
-> (31 `proved`, 0 `partial`, 0 `owed`); 19 arms are `proved-conformance` and map to
+> The 33 mutating cornerstone arms have a guard row in `spec/guards/arms.yaml`
+> (33 `proved`, 0 `partial`, 0 `owed`); 20 arms are `proved-conformance` and map to
 > `spec/vectors/core.tsv`.
 
 ## PrintRoot
@@ -72,18 +72,31 @@ it is single-assignment.
 Factory: `create`, `issued`. Edition reads: `info`, `status`, `manifest`. Edition writes:
 `append`, `seal`.
 
+## CoordinationFactory / CoordinationCellFactory / CoordinationRecord
+
+Factory: `create`. Cell factory: `spawn` (installer-only resolution). Record reads: `info`,
+`status`. Record writes: `record`.
+
+`create` is editor/publisher-only on an active publication; it binds the canonical
+publication URI, a subject, a room hash and 1-16 ordered signer ids that must all be active
+members. `record` requires one entry per signer, in the same order, each carrying a public
+key that derives the member id and a secp256k1 signature over
+`rprint:coord:v1|<id>|<poll>|<outcome>`. The first poll/outcome is terminal: an identical
+replay is a no-op and a different outcome refuses `recorded`. The record is provenance, not
+authority; it never writes the publication cell. Room and poll facts stay off-chain.
+
 ## Client coverage
 
 | Class | Meaning |
 |---|---|
-| SDK builder + web method | Every data-argument arm of publication, commission/escrow, article and edition, plus the keystore and network reads. `RprintApi` has 43 methods. |
+| SDK builder + web method | Every data-argument arm of publication, commission/escrow, article, edition and coordination, plus the keystore and network reads. `RprintApi` has 45 methods. |
 | SDK/CLI only | Operator and read helpers that the browser does not expose (for example `terms`, raw root `get`/`keys`, adapter health). |
 | Print-only | Capability-valued arms: `Payments("accountOf"|"depositFacet"|"refundPayment")` and installer `PrintRoot("register")`. A capability cannot cross a JSON boundary as a standalone client call. |
 
 Reads use `explore_call_term`; writes use the signed-deploy `call_term`. The web client's
 forms cover every write method, and `make client-wasm-smoke` pins the WASM boundary.
-`spec/vectors/client-ops.tsv` maps all 43 methods: 22 are `recorded`, 5 are `fixture-only`
-and 8 have no live test. `make check-client-ops` keeps that map explicit; it does not claim
+`spec/vectors/client-ops.tsv` maps all 45 methods: 29 are `recorded`, 5 are `fixture-only`
+and 11 have no live test. `make check-client-ops` keeps that map explicit; it does not claim
 the 16 are live-tested.
 
 ## Reply shapes

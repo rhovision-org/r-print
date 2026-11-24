@@ -2,7 +2,13 @@ import type { RprintApi } from "../../lib/api";
 import type { SessionContextValue } from "../../lib/session";
 import type { Settings } from "../../lib/settings";
 import type { WriteMethod } from "../../lib/api";
-import type { Attestation, Correction, Reply, Role } from "../../lib/types";
+import type {
+  Attestation,
+  CoordinationSigner,
+  Correction,
+  Reply,
+  Role,
+} from "../../lib/types";
 
 export type FormValue = string | number | boolean;
 export type FormValues = Record<string, FormValue>;
@@ -397,5 +403,87 @@ export const SIMPLE_FORMS: Partial<Record<WriteMethod, FormSpec>> = {
         opId: text(values, "opId"),
         articleUri: text(values, "articleUri"),
       }),
+  },
+  createCoordination: {
+    method: "createCoordination",
+    title: "Create coordination record",
+    description:
+      "An editor or publisher binds a publication, a room and a fixed signer set. The record is provenance, not authority.",
+    submitLabel: "Create record",
+    fields: [
+      { kind: "text", name: "coordinationId", label: "Coordination id" },
+      { kind: "text", name: "publicationId", label: "Publication id" },
+      { kind: "text", name: "publicationUri", label: "Canonical publication URI" },
+      {
+        kind: "select",
+        name: "subjectKind",
+        label: "Subject kind",
+        default: "publication",
+        options: [
+          { value: "publication", label: "Publication" },
+          { value: "edition", label: "Edition" },
+          { value: "article", label: "Article" },
+          { value: "room", label: "Room" },
+          { value: "poll", label: "Poll" },
+        ],
+      },
+      { kind: "text", name: "subjectId", label: "Subject id" },
+      { kind: "text", name: "subjectUri", label: "Subject URI" },
+      { kind: "text", name: "roomIdHash", label: "Room id hash" },
+      {
+        kind: "textarea",
+        name: "signerIds",
+        label: "Signer member ids (comma separated, 1-16)",
+        placeholder: "1111..., 1111...",
+      },
+    ],
+    submit: (values, context) =>
+      context.api.createCoordination({
+        opId: text(values, "opId"),
+        coordinationId: text(values, "coordinationId"),
+        publicationId: text(values, "publicationId"),
+        publicationUri: text(values, "publicationUri"),
+        subjectKind: text(values, "subjectKind"),
+        subjectId: text(values, "subjectId"),
+        subjectUri: text(values, "subjectUri"),
+        roomIdHash: text(values, "roomIdHash"),
+        signerIds: text(values, "signerIds")
+          .split(",")
+          .map((signer) => signer.trim())
+          .filter(Boolean),
+      }),
+  },
+  recordCoordination: {
+    method: "recordCoordination",
+    title: "Record the outcome",
+    description:
+      "The first outcome is terminal. Each signer entry signs rprint:coord:v1|<id>|<poll>|<outcome>.",
+    submitLabel: "Record outcome",
+    fields: [
+      { kind: "text", name: "coordinationId", label: "Coordination id" },
+      { kind: "text", name: "pollIdHash", label: "Poll id hash" },
+      { kind: "text", name: "outcomeHash", label: "Outcome hash" },
+      {
+        kind: "textarea",
+        name: "signatures",
+        label: "Signatures JSON",
+        placeholder: '[{"memberId":"1111...","pubKey":"02ab...","sig":"3044..."}]',
+      },
+    ],
+    submit: (values, context) => {
+      let signatures: CoordinationSigner[];
+      try {
+        signatures = JSON.parse(text(values, "signatures")) as CoordinationSigner[];
+      } catch {
+        throw new Error("signatures must be a JSON array of {memberId, pubKey, sig}");
+      }
+      return context.api.recordCoordination(context.uri, {
+        opId: text(values, "opId"),
+        coordinationId: text(values, "coordinationId"),
+        pollIdHash: text(values, "pollIdHash"),
+        outcomeHash: text(values, "outcomeHash"),
+        signatures,
+      });
+    },
   },
 };

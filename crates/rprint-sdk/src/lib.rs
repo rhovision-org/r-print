@@ -319,6 +319,49 @@ pub fn edition_seal_term(edition_uri: &str, op_id: &str, signature_hex: &str) ->
     )
 }
 
+/// `CoordinationFactory("create", dId, opId, coordinationId, data)`.
+pub fn create_coordination_term(
+    factory_uri: &str,
+    op_id: &str,
+    coordination_id: &str,
+    data: &Value,
+) -> String {
+    call_term(
+        factory_uri,
+        "create",
+        Some(&format!(
+            "*dId, {}, {}, {}",
+            quote(op_id),
+            quote(coordination_id),
+            json_to_rho(data)
+        )),
+    )
+}
+
+/// `CoordinationRecord("record", dId, opId, coordinationId, poll, outcome, sigs)`.
+/// Each signature entry carries `memberId` plus `pubKey`/`sig` as `{"$bytes": hex}`.
+pub fn coordination_record_term(
+    record_uri: &str,
+    op_id: &str,
+    coordination_id: &str,
+    poll_id_hash: &str,
+    outcome_hash: &str,
+    signatures: &Value,
+) -> String {
+    call_term(
+        record_uri,
+        "record",
+        Some(&format!(
+            "*dId, {}, {}, {}, {}, {}",
+            quote(op_id),
+            quote(coordination_id),
+            quote(poll_id_hash),
+            quote(outcome_hash),
+            json_to_rho(signatures)
+        )),
+    )
+}
+
 /// `Publication("addMember", dId, opId, memberId, role, did, attestationHash)`.
 pub fn publication_add_member_term(
     publication_uri: &str,

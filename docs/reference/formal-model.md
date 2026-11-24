@@ -2,7 +2,8 @@
 
 > **Status:** Implemented. The model builds with Lean 4.12 and no Mathlib. Its results are
 > `proved-model`: theorems about the shallow Lean state machines, not a refinement of the
-> deployed Rholang. It covers the four cores and the two sibling ties.
+> deployed Rholang. It covers the five cores (publication, commission, article, edition,
+> coordination) and the two sibling ties.
 
 `proved-model` means proved about the model in `spec/lean`, not about Rholang reduction,
 ERTP purse atomicity, phlo, cryptography, node scheduling or deploy atomicity. The flow
@@ -22,6 +23,7 @@ empty package manifest:
 | `RPrint/Model/Commission.lean` | proposal statuses; escrow milestones, release, cancel, expire, dispute, arbitration and conservation |
 | `RPrint/Model/Article.lean` | `draft → submitted → approved → published → retracted`; hash freeze, append-only corrections, retraction |
 | `RPrint/Model/Edition.lean` | `draft → sealed`; published/same-publication/duplicate/cap append guards, manifest binding, sealed terminal |
+| `RPrint/Model/Coordination.lean` | `open → recorded`; fixed signer set, ordered signature checks, first-outcome terminal, publication preserved |
 | `RPrint/Model/Adapter.lean` | r-sure cover binding and the r-gen Claim/KAsset/Provenance/credential chain |
 | `RPrint/Model/System.lean` | composition aliases and the explicit boundary assumptions |
 | `RPrint/Invariants.lean` | stable `I`-names pointing at carrying theorems |
@@ -119,31 +121,41 @@ manifest names the theorem.
 
 ## Guard bridge, race matrix and conformance corpus
 
-Three modules sit around the four state machines:
+Three modules sit around the five state machines:
 
 - `RPrint/ArmGuards.lean` defines a positive `Bool` guard for every mutating
   cornerstone arm and proves `(step …).isSome = guard …`. `spec/guards/arms.yaml`
-  records 31 arms: all 31 `proved`, 0 `partial`, 0 `owed`. The bridge is a drift
+  records 33 arms: all 33 `proved`, 0 `partial`, 0 `owed`. The bridge is a drift
   check, not an extraction; factory guards model each external validation as a
   Bool atom.
-- `spec/flows/races.yaml` records the 28 arm pairs over five cells: all 28 are
+- `spec/flows/races.yaml` records the 29 arm pairs over six cells: all 29 are
   proved. The matrix is pair-level; it is not scheduler-level race freedom.
-- `RPrint/EmitCorpus.lean` emits `spec/vectors/core.tsv`; 19 arms are
+- `RPrint/EmitCorpus.lean` emits `spec/vectors/core.tsv`; 20 arms are
   `proved-conformance`. The corpus is byte-identical to the emission and each
   case is asserted by a named suite.
 
-The rigor ledger `spec/proofs/rigor.yaml` maps all 26 invariants, 24 boundary
+The rigor ledger `spec/proofs/rigor.yaml` maps all 26 invariants, 25 boundary
 assumptions, 10 model/code divergences and the claim ledger. `make check-rigor`
 rejects an unstatused gap.
 
+## Coordination record
+
+`Coordination.lean` models the record as `open → recorded`. The transition requires the
+authority, id, poll, outcome, signature-count, signer, signature, verifier, codec and clock
+checks, then makes the first poll/outcome terminal: an identical replay returns the state
+unchanged and a different outcome refuses. `coordination_record_preserves_publication`
+composes the transition with an arbitrary publication state and returns it unchanged; that
+is the shallow-model meaning of I18 (provenance, not authority). Room, poll and outcome
+facts stay off-chain under ASM-025.
+
 ## Audit baseline
 
-The project builds 220 source theorems with 220 axiom audits, no `sorry`/`admit`/`axiom`/
+The project builds 239 source theorems with 239 axiom audits, no `sorry`/`admit`/`axiom`/
 `native_decide`, and only `propext`, `Classical.choice` and `Quot.sound`. `spec/flows/core.yaml`
-has 45 rules over 45 arms, 15 core arms are `proved-conformance`, 19 rules are
-`proved-conformance`, 13 are `proved-model`, and `make check-flows-strict` reports zero
-proof-quality warnings. `RPrint/Emit.lean` emits 77 deterministic vectors; `RPrint/EmitCorpus.lean`
-emits 19 arm-conformance rows. Both corpora are generated and never hand-edited.
+has 46 rules over 46 arms, 16 core arms are `proved-conformance`, 20 rules are
+`proved-conformance`, 14 are `proved-model`, and `make check-flows-strict` reports zero
+proof-quality warnings. `RPrint/Emit.lean` emits 90 deterministic vectors; `RPrint/EmitCorpus.lean`
+emits 20 arm-conformance rows. Both corpora are generated and never hand-edited.
 
 ## Run it
 

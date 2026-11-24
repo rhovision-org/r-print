@@ -89,10 +89,7 @@ def main() -> int:
         elif match:
             needle = f'contract {match.group(1)}(@"{match.group(2)}"'
             if needle not in contracts:
-                if match.group(1) == "CoordinationRecord" and row["live"] == "none":
-                    pass
-                else:
-                    errors.append(f"{method}: arm {arm} not found in contracts")
+                errors.append(f"{method}: arm {arm} not found in contracts")
         else:
             errors.append(f"{method}: bad arm {arm!r}")
 

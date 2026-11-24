@@ -152,8 +152,34 @@ milestones:
     capabilities: {rows: 28, published_bundles: 21, findings: 3}
     client_ops: {methods: 43, writes: 32, reads: 11, recorded: 29, fixture_only: 5, no_live: 9}
     note: "all 28 race pairs and all 31 guard arms are proved; the guard theorems are shallow guard-structure results"
-suites_total: 18
-suites_passing: 18
+  M15:
+    title: coordination record
+    evidence:
+      ["make check-flows --strict", "make check-guard-bridge", "make check-race-matrix",
+       "make check-conformance", "make check-schemas", "make check-arm-inventory",
+       "make check-capabilities", "make check-hazop", "make redteam",
+       "make unit-all", "spec/proofs/rigor.yaml", "harness/unit_coordination.py"]
+    status: passing
+    invariants: 26
+    assumptions: 25
+    theorems: 239
+    axiom_audits: 239
+    vectors: 90
+    flow_rules: 46
+    guard_arms: {proved: 33, partial: 0, owed: 0}
+    race_pairs: 29
+    race_pairs_proved: 29
+    race_pairs_owed: 0
+    conformance_arms: 20
+    redteam: {probes: 14, fixed: 13, accepted: 1}
+    hazop: {nodes: 9, rows: 47, negative: 45}
+    capabilities: {rows: 31, published_bundles: 24, findings: 3}
+    schemas: {states: 7, examples: 7}
+    client_ops: {methods: 45, writes: 34, reads: 11, recorded: 29, fixture_only: 5, no_live: 11}
+    suites: {total: 19, passing: 19, assertions: 259}
+    note: "the coordination record is deployed and proved-model; provenance, not authority; room and poll facts stay off-chain"
+suites_total: 19
+suites_passing: 19
 live_client:
   recorded: 2026-11-23
   node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
@@ -192,33 +218,13 @@ browser_e2e:
     refused_deploys: 1
     suites_passing: 18
   not_covered: "live commission funding, r-sure and r-gen roots, public testnet, multi-validator finality, all 32 writes live-submitted"
-formal_model:
-  toolchain: "leanprover/lean4:v4.12.0"
-  project: "spec/lean"
-  modules: 15
-  theorems: 215
-  axiom_audits: 215
-  vectors: 62
-  conformance_rows: 19
-  flow_rules: 43
-  core_arms_proved: 15
-  proved_model_rules: 9
-  proved_conformance_rules: 19
-  guard_arms: {proved: 27, partial: 4, owed: 0}
-  race_pairs: 28
-  race_pairs_proved: 28
-  race_pairs_owed: 0
-  proof_quality_warnings: 0
-  escapes: 0
-  allowed_axioms: ["propext", "Classical.choice", "Quot.sound"]
-  scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, r-sure cover, r-gen knowledge chain, guard bridge, race pairs, linear cell and protocol layer"
-  not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions; guard arms are shallow guard-structure proofs, not cell-semantics proofs"
+formal_model: "See the M13 and M15 milestone blocks and docs/reference/verification.md; those carry the current measured counts."
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover verifies active status, insured and asset; single-assignment; disabled by default"
   r_gen_kasset: "Article.attachKnowledge verifies the reciprocal chain, provenance hash, author and credential; optional, not a publication gate; disabled root refuses credentials"
+  coordination_record: "CoordinationFactory/CoordinationRecord bind a publication, room and ordered signer set, verify address-bound signatures over the canonical text, and make the first poll/outcome terminal; provenance, not authority"
 design:
   - subscriptions and entitlements
   - revenue split claims
   - investigation crowdfunding
   - reader tips and syndication
-  - coordination record contract (graph edge only)

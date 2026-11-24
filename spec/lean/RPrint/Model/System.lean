@@ -34,7 +34,9 @@ are not theorems and are never described as proved:
 * `rgenChainMembership` — the pinned r-gen claim and credential factories verify issued URIs;
 * `rgenProvenanceResidual` — provenance membership has no query in the pinned r-gen rev;
 * `rgenIdentityDirectory` — the directory lookup returns the member's identity;
-* `rsureSlipInfo` — a Slip `info` read returns the stated status and premium.
+* `rsureSlipInfo` — a Slip `info` read returns the stated status and premium;
+* `quantumRoomOffchain` — the room/poll hashes are caller-supplied anchors and the
+  room exists only off-chain.
 -/
 
 namespace RPrint
@@ -61,6 +63,7 @@ structure Boundary where
   rgenProvenanceResidual : Bool
   rgenIdentityDirectory : Bool
   rsureSlipInfo : Bool
+  quantumRoomOffchain : Bool
   deriving DecidableEq, Repr
 
 def boundary : Boundary :=
@@ -84,7 +87,8 @@ def boundary : Boundary :=
     rgenChainMembership := true
     rgenProvenanceResidual := true
     rgenIdentityDirectory := true
-    rsureSlipInfo := true }
+    rsureSlipInfo := true
+    quantumRoomOffchain := true }
 
 /-- Composition: a publication member write is guarded by the publisher key. -/
 def system_publication_authority := @publication_addMember_requires_publisher

@@ -22,14 +22,14 @@ interface-only, not an on-chain DID registry.
 
 ## Coordination
 
-A quantum-os room or poll is an off-chain coordination surface. The design edge
-`recordsOutcome` anchors `roomIdHash`, `pollIdHash`, `outcomeHash` and a signer set in a
-coordination record. The record is provenance, not authority: editorial authority remains
-the publication admin set.
+A quantum-os room or poll is an off-chain coordination surface. The `CoordinationFactory`
+and `CoordinationRecord` implement the `recordsOutcome` edge: an editor or publisher creates
+a record for a publication subject, and `record` anchors `pollIdHash`, `outcomeHash` and an
+ordered set of active-member signatures. The record is provenance, not authority: editorial
+authority remains the publication admin set and `record` never writes the publication cell.
 
-The current repo names this edge in `spec/graph/edges.yaml` as design. A fork that wants
-quantum-os coordination can implement the record without changing publication, commission,
-article or edition semantics.
+The record edge was added without changing publication, commission, article or edition
+semantics. Room, poll and outcome facts stay off-chain.
 
 ## The boundary rule
 

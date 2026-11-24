@@ -284,9 +284,9 @@ edges:
     from: publication
     to: room
     kind: reference
-    arms: [CoordinationRecord.record]
-    source: spec/spec-only.md
-    status: design
+    arms: [CoordinationFactory.create, CoordinationRecord.record]
+    source: contracts/src/deploy/32_coordination.rho
+    status: implemented
 
   - id: records-outcome
     verb: recordsOutcome
@@ -294,8 +294,8 @@ edges:
     to: room
     kind: hash
     arms: [CoordinationRecord.record]
-    source: spec/spec-only.md
-    status: design
+    source: contracts/src/deploy/33_coordination_cell.rho
+    status: implemented
 
   - id: splits-revenue
     verb: splitsRevenue

@@ -18,3 +18,4 @@ ED-append-duplicate	Edition	append	duplicate article	reject	RPrint.edition_appen
 ED-seal-ok	Edition	seal	non-empty manifest, valid signature	some	RPrint.edition_seal_binds_manifest
 COV-attach-inactive	CommissionProposal	attachCover	inactive policy	reject	RPrint.cover_attach_requires_active_policy
 KNO-attach-claim-status	Article	attachKnowledge	open claim	reject	RPrint.knowledge_attach_requires_claim_status
+COORD-record-conflict	CoordinationRecord	record	recorded, different outcome	reject	RPrint.coordination_record_record_conflict_refused

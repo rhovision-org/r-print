@@ -3,6 +3,7 @@ import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
 import RPrint.Model.Adapter
+import RPrint.Model.Coordination
 
 /-!
 # Arm guards
@@ -608,5 +609,64 @@ theorem coverAttach_guard_eq (s : CoverState) (uri : Id) (p : PolicyFact) :
           by_cases heq : u = uri
           · simp [coverAttach, coverAttachGuard, ho, hc, heq]
           · simp [coverAttach, coverAttachGuard, ho, hc, heq]
+
+/-! ## Coordination record -/
+
+def coordinationRecordGuard (s : CoordinationState) (callerAuthorized : Bool)
+    (idOk clockOk codecOk verifierOk signerOk sigOk : Bool)
+    (poll outcome : Id) (sigCount : Nat) : Bool :=
+  coordinationRecordChecks s callerAuthorized idOk clockOk codecOk verifierOk signerOk
+    sigOk poll outcome sigCount &&
+    (s.status = CoordinationStatus.open ∨
+      (s.pollIdHash = some poll ∧ s.outcomeHash = some outcome))
+
+theorem coordinationRecord_guard_eq (s : CoordinationState) (callerAuthorized : Bool)
+    (idOk clockOk codecOk verifierOk signerOk sigOk : Bool)
+    (poll outcome : Id) (sigCount : Nat) :
+    (coordinationRecord s callerAuthorized idOk clockOk codecOk verifierOk signerOk sigOk
+      poll outcome sigCount).isSome =
+      coordinationRecordGuard s callerAuthorized idOk clockOk codecOk verifierOk signerOk
+        sigOk poll outcome sigCount := by
+  unfold coordinationRecord coordinationRecordGuard
+  by_cases hc : coordinationRecordChecks s callerAuthorized idOk clockOk codecOk
+      verifierOk signerOk sigOk poll outcome sigCount = true
+  · have hcf : (!coordinationRecordChecks s callerAuthorized idOk clockOk codecOk
+        verifierOk signerOk sigOk poll outcome sigCount) = false := by simp [hc]
+    cases hst : s.status
+    · simp [hc, hcf, hst]
+    · by_cases hp : s.pollIdHash = some poll
+      · by_cases ho : s.outcomeHash = some outcome
+        · simp [hc, hcf, hst, hp, ho]
+        · simp [hc, hcf, hst, hp, ho]
+      · simp [hc, hcf, hst, hp]
+  · have hcf : (!coordinationRecordChecks s callerAuthorized idOk clockOk codecOk
+        verifierOk signerOk sigOk poll outcome sigCount) = true := by simp [hc]
+    simp [hcf, hc]
+
+def coordinationFactoryCreateGuard (s : FactoryState) (id : Id)
+    (authorized coordinationOk publicationOk subjectOk roomOk signersOk roleOk
+      statusOk clockOk cellOk : Bool) : Bool :=
+  coordinationFactoryChecks authorized coordinationOk publicationOk subjectOk
+    roomOk signersOk roleOk statusOk clockOk cellOk &&
+    !decide (id ∈ s.issued)
+
+theorem coordinationFactoryCreate_guard_eq (s : FactoryState) (id : Id)
+    (authorized coordinationOk publicationOk subjectOk roomOk signersOk roleOk
+      statusOk clockOk cellOk : Bool) :
+    (coordinationFactoryCreate s id authorized coordinationOk publicationOk subjectOk
+      roomOk signersOk roleOk statusOk clockOk cellOk).isSome =
+      coordinationFactoryCreateGuard s id authorized coordinationOk publicationOk subjectOk
+        roomOk signersOk roleOk statusOk clockOk cellOk := by
+  unfold coordinationFactoryCreate coordinationFactoryCreateGuard
+  by_cases hc : coordinationFactoryChecks authorized coordinationOk publicationOk subjectOk
+      roomOk signersOk roleOk statusOk clockOk cellOk = true
+  · have hcf : (!coordinationFactoryChecks authorized coordinationOk publicationOk subjectOk
+        roomOk signersOk roleOk statusOk clockOk cellOk) = false := by simp [hc]
+    by_cases hid : id ∈ s.issued
+    · simp [hc, hcf, hid]
+    · simp [hc, hcf, hid]
+  · have hcf : (!coordinationFactoryChecks authorized coordinationOk publicationOk subjectOk
+        roomOk signersOk roleOk statusOk clockOk cellOk) = true := by simp [hc]
+    simp [hc, hcf]
 
 end RPrint

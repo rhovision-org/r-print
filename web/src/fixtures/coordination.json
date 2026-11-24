@@ -1,5 +1,7 @@
 {
   "coordinationId": "coord:kindling:water-room",
+  "publicationId": "pub:kindling",
+  "publicationUri": "rho:id:fixture-publication-kindling",
   "subjectRef": {
     "kind": "publication",
     "id": "pub:kindling",
@@ -17,7 +19,15 @@
       "by": "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau",
       "sig": "3044fixture-publisher",
       "atHeight": 1390
+    },
+    {
+      "by": "11112bQ3Uo8Q5pg4zVCqH1bXg6kEGKRYhTZ8sN7jErf79sGozC47GP",
+      "sig": "3045fixture-editor",
+      "atHeight": 1390
     }
   ],
-  "status": "recorded"
+  "status": "recorded",
+  "createdBy": "11112VYAt8rUGNRRZX3eJdgagaAhtWTK8Js7F7X5iqddMVqyDTtYau",
+  "createdAtHeight": 1380,
+  "recordedAtHeight": 1390
 }

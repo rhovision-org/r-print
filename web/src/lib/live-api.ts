@@ -33,7 +33,9 @@ import type {
   Charter,
   Correction,
   CorrectionInput,
+  CoordinationState,
   CreateArticleInput,
+  CreateCoordinationInput,
   CreateEditionInput,
   CreatePublicationInput,
   EditionEntry,
@@ -51,6 +53,7 @@ import type {
   ProposeCommissionInput,
   ProposalState,
   PublicationState,
+  RecordCoordinationInput,
   Reply,
   ResolveDisputeInput,
   ResolveResult,
@@ -167,11 +170,57 @@ export class LiveApi implements RprintApi {
     return { ok: true, value: edition(reply.value) };
   }
 
-  async coordinationInfo(_uri: string): Promise<Reply<never>> {
-    return {
-      ok: false,
-      reason: "design-only: the coordination record contract is not deployed",
-    };
+  async coordinationInfo(uri: string): Promise<Reply<CoordinationState>> {
+    const reply = await this.readReply(uri, "info");
+    if (!reply.ok) return reply;
+    return { ok: true, value: coordination(reply.value) };
+  }
+
+  async createCoordination(
+    input: CreateCoordinationInput,
+  ): Promise<Reply<{ uri: string }>> {
+    const factory = await this.component("component:coordination-factory");
+    return this.write(
+      "createCoordination",
+      {
+        op: "createCoordination",
+        factoryUri: factory,
+        opId: input.opId,
+        coordinationId: input.coordinationId,
+        data: {
+          publicationId: input.publicationId,
+          publicationUri: input.publicationUri,
+          subjectRef: {
+            kind: input.subjectKind,
+            id: input.subjectId,
+            uri: input.subjectUri,
+          },
+          roomIdHash: input.roomIdHash,
+          signerIds: input.signerIds,
+        },
+      },
+      factory,
+      (values) => ({ uri: str(values[0]) }),
+    );
+  }
+
+  async recordCoordination(
+    uri: string,
+    input: RecordCoordinationInput,
+  ): Promise<Reply<null>> {
+    return this.write("recordCoordination", {
+      op: "recordCoordination",
+      recordUri: uri,
+      opId: input.opId,
+      coordinationId: input.coordinationId,
+      pollIdHash: input.pollIdHash,
+      outcomeHash: input.outcomeHash,
+      signatures: input.signatures.map((signer) => ({
+        memberId: signer.memberId,
+        pubKey: { $bytes: signer.pubKey },
+        sig: { $bytes: signer.sig },
+      })),
+    }, uri);
   }
 
   /** Live-only: fetch the deployed Codec's canonical admin payload. */
@@ -982,5 +1031,33 @@ function edition(raw: unknown): EditionState {
       sealedAtHeight: num(seal.sealedAtHeight),
     },
     createdAtHeight: num(value.createdAtHeight),
+  };
+}
+
+function coordination(raw: unknown): CoordinationState {
+  const value = asRecord(raw);
+  const subject = asRecord(value.subjectRef);
+  return {
+    coordinationId: str(value.coordinationId),
+    publicationId: str(value.publicationId),
+    publicationUri: str(value.publicationUri),
+    subjectRef: {
+      kind: str(subject.kind),
+      id: str(subject.id),
+      uri: str(subject.uri),
+    },
+    roomIdHash: str(value.roomIdHash),
+    pollIdHash: str(value.pollIdHash),
+    outcomeHash: str(value.outcomeHash),
+    signers: strings(value.signers),
+    signatures: records(value.signatures).map((item) => ({
+      by: str(item.by),
+      sig: str(item.sig),
+      atHeight: num(item.atHeight),
+    })),
+    status: str(value.status, "open") as CoordinationState["status"],
+    createdBy: str(value.createdBy),
+    createdAtHeight: num(value.createdAtHeight),
+    recordedAtHeight: num(value.recordedAtHeight),
   };
 }

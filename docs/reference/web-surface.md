@@ -14,14 +14,14 @@
 | `/escrow/:uri` | Commission escrow | accounting, milestones, dispute; submit, release, cancel, dispute, arbitrate, resolve, expire |
 | `/article/:uri` | Article | content hash, bylines, attestations, corrections, knowledge links; submit, attach knowledge, attest, approve, publish, correct, retract |
 | `/edition/:uri` | Edition | ordered manifest and seal; create, append, seal |
-| `/coordination/:uri` | Coordination record | design-only; live returns a design refusal |
+| `/coordination/:uri` | Coordination record | info, status, signers, signatures; record the signed outcome |
 | `/keystore` | Keystore | create, import, unlock, lock, export |
 | `/network` | Network settings | mode, node, root, phlo, status, component resolution, faucet, catalogue |
 | `/deploy` | Deploy history | local deploy status, block, reply/refusal/error |
 
 ## API
 
-`RprintApi` has 43 methods: 11 reads and 32 writes. `READ_METHODS` and `WRITE_METHODS` are
+`RprintApi` has 45 methods: 11 reads and 34 writes. `READ_METHODS` and `WRITE_METHODS` are
 exported; the tests assert they partition `API_METHODS` exactly. Every write method has a
 typed form (simple specs or bespoke components) and the form-coverage test enforces it.
 
@@ -53,4 +53,4 @@ live suite runs against a devnet.
 
 No hosted backend, indexer, search, content host, fiat ramp or account system. No public
 testnet run, no audit and no multi-validator finality campaign. Commission funding assumes an
-r-cash-funded account. The live browser journey is representative, not all 32 writes.
+r-cash-funded account. The live browser journey is representative, not all 34 writes.

@@ -16,8 +16,8 @@ const KEYSTORE_NOTE =
   "Fixture mode. Switch to live in Network settings to create or unlock a wallet.";
 
 test("covers every write method with a fixture form", () => {
-  expect(WRITE_METHODS).toHaveLength(32);
-  expect(FORM_INSTANCE_COUNT).toBe(33);
+  expect(WRITE_METHODS).toHaveLength(34);
+  expect(FORM_INSTANCE_COUNT).toBe(35);
   expect(COVERED_METHODS.size).toBe(WRITE_METHODS.length);
   for (const method of WRITE_METHODS) {
     expect(COVERED_METHODS.has(method), `${method} has no browser form`).toBe(true);

@@ -19,6 +19,8 @@ SAFE_TERMS = [
     "21_commission_escrow.rho",
     "30_article.rho",
     "31_edition.rho",
+    "32_coordination.rho",
+    "33_coordination_cell.rho",
 ]
 
 PROFILES = {

@@ -179,6 +179,39 @@
         "Clock",
         "PublicationCellFactory"
       ]
+    },
+    "CoordinationFactory": {
+      "file": "32_coordination.rho",
+      "state_cells": [
+        "coordinationFactoryState"
+      ],
+      "depends_on": [
+        "PublicationFactory",
+        "CoordinationCellFactory",
+        "Clock"
+      ]
+    },
+    "CoordinationCellFactory": {
+      "file": "33_coordination_cell.rho",
+      "state_cells": [],
+      "depends_on": [
+        "Codec",
+        "Verifier",
+        "Clock",
+        "PublicationCellFactory"
+      ]
+    },
+    "CoordinationRecord": {
+      "file": "33_coordination_cell.rho",
+      "state_cells": [
+        "coordinationState"
+      ],
+      "depends_on": [
+        "Codec",
+        "Verifier",
+        "Clock",
+        "PublicationCellFactory"
+      ]
     }
   }
 }

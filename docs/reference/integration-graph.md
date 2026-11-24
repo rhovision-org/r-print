@@ -2,8 +2,8 @@
 
 > **Status:** Implemented for the r-print-owned edges and the r-sure/r-gen links, recorded
 > locally on 2026-11-24 (2/2 sibling suites, 45 assertions; the roots remain disabled by
-> default); design for the cover-claim and coordination edges. `make check-graph` validates
-> every vertex and edge in `spec/graph/`.
+> default); design for the cover-claim edge and the revenue/subscription/syndication edges.
+> `make check-graph` validates every vertex and edge in `spec/graph/`.
 
 r-print is not a new island. It is an extension of one graph. Escrow is the baseline
 settlement rail; r-sure is the surface that lets a publication buy proper insurance when
@@ -23,7 +23,7 @@ KAsset → Provenance chain when it wants stronger provenance.
 | `edition` | r-print | Ordered, editor-sealed manifest | `component:edition-factory` |
 | `correction` | r-print | Append-only correction/retraction record | `Article("correct")` |
 | `review` | r-print | Fact-check/editorial/legal attestation | `Article("attest")` |
-| `coordination_record` | r-print | Quantum-os room/poll anchor | `component:coordination-factory` (design) |
+| `coordination_record` | r-print | Quantum-os room/poll anchor | `component:coordination-factory` |
 | `slip` | r-sure | Funded premium held until bind or expire | `component:slip-factory` |
 | `distribution` | r-sure | Staged payout plan over a purse | `component:distribution-factory` |
 | `policy` | r-sure | Bound cover, limits, claims | `component:policy-factory` |
@@ -100,8 +100,8 @@ a prose sketch.
 
 | Verb | From → To | Status |
 |---|---|---|
-| `coordinates` | publication → room | design |
-| `recordsOutcome` | coordination_record → room | design |
+| `coordinates` | publication → room | implemented (`CoordinationFactory.create`, `CoordinationRecord.record`) |
+| `recordsOutcome` | coordination_record → room | implemented (`CoordinationRecord.record`) |
 | `splitsRevenue` | publication → member | design |
 | `entitles` | subscription → article | design |
 | `licenses` | syndication → kasset | design |

@@ -18,6 +18,8 @@
 | `21_commission_escrow.rho` | `CommissionEscrowFactory`, `CommissionEscrow` | `escrowFactoryState`, `commissionEscrowState` |
 | `30_article.rho` | `ArticleFactory`, `Article` | `articleFactoryState`, `articleState` |
 | `31_edition.rho` | `EditionFactory`, `Edition` | `editionFactoryState`, `editionState` |
+| `32_coordination.rho` | `CoordinationFactory` | `coordinationFactoryState` |
+| `33_coordination_cell.rho` | `CoordinationCellFactory`, `CoordinationRecord` | `coordinationState` |
 | `40_payments.rho` | `Payments` | `paymentsState` |
 
 ## Component responsibilities
@@ -44,16 +46,19 @@
 | `Article` | `30_article.rho` | Lifecycle, reviews, corrections, optional knowledge links |
 | `EditionFactory` | `31_edition.rho` | Canonical edition creation |
 | `Edition` | `31_edition.rho` | Ordered manifest and editor-signed seal |
+| `CoordinationFactory` | `32_coordination.rho` | Publication-bound coordination record creation |
+| `CoordinationCellFactory` | `33_coordination_cell.rho` | One record cell per coordination id |
+| `CoordinationRecord` | `33_coordination_cell.rho` | Signer-verified room/poll outcome anchor |
 
 ## State cells
 
 `rootState`, `adminState`, `paymentsState`, `factoryState` (publication factory),
 `publicationState`, `commissionFactoryState`, `commissionProposalState`, `escrowFactoryState`,
 `commissionEscrowState`, `articleFactoryState`, `articleState`, `editionFactoryState`,
-`editionState`.
+`editionState`, `coordinationFactoryState`, `coordinationState`.
 
 Each cell has one writer. The factory cells are issuance/replay maps. The publication,
-commission, escrow, article and edition cells are the entity state.
+commission, escrow, article, edition and coordination cells are the entity state.
 
 ## Dependency rule
 

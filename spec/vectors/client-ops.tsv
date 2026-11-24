@@ -10,6 +10,8 @@ escrowInfo	read	CommissionEscrow@"info"	read_term	info	(true, escrowState)	web/s
 articleInfo	read	Article@"info"	read_term	info	(true, articleState)	web/tests/live-client.ts	recorded
 editionInfo	read	Edition@"info"	read_term	info	(true, editionState)	web/tests/live-client.ts	recorded
 coordinationInfo	read	CoordinationRecord@"info"	read_term	info	(true, coordinationState)	web/src/test/live-api.test.ts	none
+createCoordination	write	CoordinationFactory@"create"	create_coordination_term	create	(true, uri)	web/src/test/live-api.test.ts	none
+recordCoordination	write	CoordinationRecord@"record"	coordination_record_term	record	(true, Nil)	web/src/test/live-api.test.ts	none
 createPublication	write	PublicationFactory@"create"	create_publication_term	create	(true, uri)	web/tests/live-client.ts	recorded
 addMember	write	Publication@"addMember"	publication_add_member_term	addMember	(true, Nil)	web/tests/live-client.ts	recorded
 removeMember	write	Publication@"removeMember"	publication_remove_member_term	removeMember	(true, Nil)	web/src/test/live-api.test.ts	none

@@ -57,6 +57,11 @@ nodes:
     intent: Installer-only registration, admin quorum, nonce replay guard, owner-only payment.
     parameters: [installer, admin, nonce, owner, payment]
     na_default: the deviation has no distinct operator parameter at this node
+  - id: coordination
+    title: Coordination record
+    intent: An editor or publisher binds a publication, room and fixed signer set; record requires one address-bound signature per signer and the first outcome wins.
+    parameters: [publication, subject, room, signers, signatures, poll, outcome, status]
+    na_default: the deviation has no distinct coordination parameter at this node
 rows:
   - id: HZ-PUB-001
     node: publication
@@ -570,6 +575,246 @@ rows:
     finding: '-'
     negative: true
     disposition: no-finding
+  - id: HZ-COORD-001
+    node: coordination
+    guide_word: No/Not
+    parameter: signers
+    deviation: a record created with no signer
+    cause: an empty signerIds list
+    consequence: no verifiable outcome can be anchored
+    safeguard: create requires 1-16 signers, each an active publication member
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-002
+    node: coordination
+    guide_word: More
+    parameter: signers
+    deviation: more than sixteen signers
+    cause: a caller-supplied signer list beyond the cap
+    consequence: unbounded verification work
+    safeguard: the create arm refuses more than 16 signers
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-003
+    node: coordination
+    guide_word: Less
+    parameter: signatures
+    deviation: fewer signatures than the fixed signer set
+    cause: a caller omits an entry
+    consequence: an outcome anchored without every signer
+    safeguard: record requires the signature count to equal the signer count
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-004
+    node: coordination
+    guide_word: As well as
+    parameter: signers
+    deviation: a non-member added to the signer set
+    cause: a caller-supplied member id outside the roster
+    consequence: an outsider is counted as a signer
+    safeguard: coSignersScan requires every signer to be an active publication member
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-005
+    node: coordination
+    guide_word: Part of
+    parameter: signatures
+    deviation: a partial signature set with missing fields
+    cause: malformed signature entries
+    consequence: verification reads Nil or blocks
+    safeguard: coSigShape checks memberId, pubKey and sig before the cell is consumed
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-006
+    node: coordination
+    guide_word: Reverse
+    parameter: signatures
+    deviation: signatures supplied in reverse signer order
+    cause: a caller reorders the entries
+    consequence: signer and signature are mismatched
+    safeguard: record compares each entry memberId to the fixed signer at the same index
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-007
+    node: coordination
+    guide_word: Other than
+    parameter: signatures
+    deviation: a public key that does not derive the claimed member id
+    cause: a substituted key with a valid-looking signature
+    consequence: a signature is attributed to the wrong member
+    safeguard: rev fromPublicKey must equal the entry memberId before sigOk
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-008
+    node: coordination
+    guide_word: Late
+    parameter: status
+    deviation: recording an existing open record while the publication is paused
+    cause: a pause between create and record
+    consequence: new provenance while editorial work is paused
+    safeguard: creation is gated by the active status; recording an existing record stays available like an escrow release
+    safeguard_status: holds
+    severity: S4
+    likelihood: C
+    risk: 2
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-009
+    node: coordination
+    guide_word: Early
+    parameter: poll
+    deviation: an outcome recorded before the off-chain poll closes
+    cause: a client records too early
+    consequence: the anchor claims a premature outcome
+    safeguard: the contract cannot see the room; the boundary assumption ASM-025 and client discipline cover this
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-010
+    node: coordination
+    guide_word: Before
+    parameter: status
+    deviation: a record call before the record exists
+    cause: a stale or fabricated URI
+    consequence: the call resolves nothing
+    safeguard: the caller must resolve the spawned record URI
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-011
+    node: coordination
+    guide_word: After
+    parameter: status
+    deviation: a different outcome after the record is closed
+    cause: a second poll result
+    consequence: the anchor is rewritten
+    safeguard: the first outcome is terminal; a different poll or outcome refuses recorded
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-012
+    node: coordination
+    guide_word: Duplicate/Replay
+    parameter: signatures
+    deviation: the same outcome replayed
+    cause: a client retry
+    consequence: duplicate work
+    safeguard: the same caller and op returns the stored reply; the same outcome under a new op is a no-op replay
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-013
+    node: coordination
+    guide_word: Stale
+    parameter: signers
+    deviation: a signer removed after the record was created
+    cause: a roster change
+    consequence: a former member still anchors the outcome
+    safeguard: record re-checks every signer is an active member
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-014
+    node: coordination
+    guide_word: Substitute/confused-deputy
+    parameter: signers
+    deviation: a valid member outside the fixed signer set signs the outcome
+    cause: a caller substitutes a member id
+    consequence: an unauthorised signer is counted
+    safeguard: the ordered signer-set check refuses a member that is not at that index
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
+  - id: HZ-COORD-015
+    node: coordination
+    guide_word: Partial commit
+    parameter: status
+    deviation: a failed record leaves the cell consumed
+    cause: a refusal or helper failure after the state is taken
+    consequence: the record cannot be retried
+    safeguard: every refusal branch reposts the unchanged cell; only a successful commit writes
+    safeguard_status: holds
+    severity: S3
+    likelihood: C
+    risk: 4
+    action: none
+    finding: '-'
+    negative: true
+    disposition: no-finding
 coverage:
   - node: publication
     guide_word: No/Not
@@ -699,3 +944,63 @@ coverage:
     guide_word: Substitute/confused-deputy
     status: covered
     refs: [HZ-OPS-004]
+  - node: coordination
+    guide_word: No/Not
+    status: covered
+    refs: [HZ-COORD-001]
+  - node: coordination
+    guide_word: More
+    status: covered
+    refs: [HZ-COORD-002]
+  - node: coordination
+    guide_word: Less
+    status: covered
+    refs: [HZ-COORD-003]
+  - node: coordination
+    guide_word: As well as
+    status: covered
+    refs: [HZ-COORD-004]
+  - node: coordination
+    guide_word: Part of
+    status: covered
+    refs: [HZ-COORD-005]
+  - node: coordination
+    guide_word: Reverse
+    status: covered
+    refs: [HZ-COORD-006]
+  - node: coordination
+    guide_word: Other than
+    status: covered
+    refs: [HZ-COORD-007]
+  - node: coordination
+    guide_word: Late
+    status: covered
+    refs: [HZ-COORD-008]
+  - node: coordination
+    guide_word: Early
+    status: covered
+    refs: [HZ-COORD-009]
+  - node: coordination
+    guide_word: Before
+    status: covered
+    refs: [HZ-COORD-010]
+  - node: coordination
+    guide_word: After
+    status: covered
+    refs: [HZ-COORD-011]
+  - node: coordination
+    guide_word: Duplicate/Replay
+    status: covered
+    refs: [HZ-COORD-012]
+  - node: coordination
+    guide_word: Stale
+    status: covered
+    refs: [HZ-COORD-013]
+  - node: coordination
+    guide_word: Substitute/confused-deputy
+    status: covered
+    refs: [HZ-COORD-014]
+  - node: coordination
+    guide_word: Partial commit
+    status: covered
+    refs: [HZ-COORD-015]

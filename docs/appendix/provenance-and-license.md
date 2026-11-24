@@ -19,7 +19,7 @@ The repository follows the r-* house conventions and reuses architectural patter
 | r-chain-rust | `e2d073d` | Development node and parser CI |
 
 The r-gen and r-sure primitives are referenced through adapter surfaces; their code is not
-vendored. `configs/rgen.json` pins r-gen `c0ae67d`; `configs/rsure.json` pins r-sure
+vendored. `configs/rgen.json` pins r-gen `bcc840c`; `configs/rsure.json` pins r-sure
 `0da5d04`.
 
 ## Content and hashes

@@ -145,6 +145,30 @@ states:
       createdAtHeight: {type: int}
       ops: {type: map}
       schemaVersion: {type: int}
+  coordinationState:
+    source: contracts/src/deploy/32_coordination.rho
+    anchor: '@CellFactory!("spawn", '
+    doc_heading: coordinationState
+    required:
+      [coordinationId, publicationId, publicationUri, subjectRef, roomIdHash,
+       pollIdHash, outcomeHash, signers, signatures, status, createdBy,
+       createdAtHeight, recordedAtHeight, ops, schemaVersion]
+    properties:
+      coordinationId: {type: string}
+      publicationId: {type: string}
+      publicationUri: {type: string}
+      subjectRef: {type: map}
+      roomIdHash: {type: string}
+      pollIdHash: {type: string}
+      outcomeHash: {type: string}
+      signers: {type: list}
+      signatures: {type: list}
+      status: {type: string}
+      createdBy: {type: string}
+      createdAtHeight: {type: int}
+      recordedAtHeight: {type: int}
+      ops: {type: map}
+      schemaVersion: {type: int}
   factoryState:
     source: contracts/src/deploy/10_publication.rho
     anchor: 'factoryState!('

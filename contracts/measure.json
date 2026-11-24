@@ -66,6 +66,16 @@
       "depth": 34,
       "contracts": 15
     },
+    "32_coordination.rho": {
+      "bytes": 8688,
+      "depth": 22,
+      "contracts": 17
+    },
+    "33_coordination_cell.rho": {
+      "bytes": 8483,
+      "depth": 19,
+      "contracts": 19
+    },
     "40_payments.rho": {
       "bytes": 6447,
       "depth": 23,

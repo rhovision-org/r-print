@@ -37,6 +37,8 @@ SOURCE_GLOBS = [
     "contracts/src/deploy/21_commission_escrow.rho",
     "contracts/src/deploy/30_article.rho",
     "contracts/src/deploy/31_edition.rho",
+    "contracts/src/deploy/32_coordination.rho",
+    "contracts/src/deploy/33_coordination_cell.rho",
     "contracts/src/deploy/05_rgen.rho",
     "contracts/src/deploy/06_rsure.rho",
 ]

@@ -1,13 +1,14 @@
 # Spec-only surfaces
 
-These features are named in the integration graph but are not deployed in v0.1.
+These edges are named in the integration graph. The coordination edges are implemented; the
+revenue, subscription, syndication, cover-claim and DID edges are design-only in v0.1.
 
 | Edge | Status | Attachment point |
 |---|---|---|
 | `entitles: subscription -> article` | design | A future subscription cell reads `article.access` and the publication treasury. |
 | `licenses: syndication -> kasset` | design | A future licence cell references a KAsset URI and a revenue split. |
-| `coordinates: publication -> room` | design | A future coordination record anchors a quantum-os room id and poll hash. |
-| `records-outcome: coordination_record -> room` | design | The record stores `roomIdHash`, `pollIdHash`, `outcomeHash` and a signer set. |
+| `coordinates: publication -> room` | implemented | `CoordinationFactory.create` binds a publication, subject and room hash. |
+| `records-outcome: coordination_record -> room` | implemented | `CoordinationRecord.record` anchors `roomIdHash`, `pollIdHash`, `outcomeHash` and the ordered signer set. The record is provenance, not authority. |
 | `claims-loss: policy -> sure_claim` | design | Drive `Policy("openClaim")` from an escrow breach; requires the policy token holder. |
 | `settles-cover: line -> account` | design | Drive `Line("pay")`/`Policy("settleClaim")` from an agreed cover claim. |
 | `anchors-did: member -> did` | design | Store a BYOID anchor string; verification stays off-chain. |

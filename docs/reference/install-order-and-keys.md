@@ -20,12 +20,14 @@ The `safe` profile installs these terms in order:
 11. `21_commission_escrow.rho`
 12. `30_article.rho`
 13. `31_edition.rho`
+14. `32_coordination.rho`
+15. `33_coordination_cell.rho`
 
 `00_root.rho` captures the root URI; every later term is rendered with `__ROOT_URI__` set to
 it. `40_payments.rho` captures the r-cash root and ensures the protocol account. The
 publication factory resolves the cell factory at create time; the commission factory
 resolves the escrow factory at fund time; the article factory resolves the r-gen adapter at
-attach time.
+attach time; the coordination factory resolves the coordination cell factory at create time.
 
 ## Placeholders
 
@@ -51,6 +53,8 @@ configs are enabled and a manifest is present; the adapters then report `disable
 | `component:commission-escrow-factory` | `CommissionEscrowFactory` |
 | `component:article-factory` | `ArticleFactory` |
 | `component:edition-factory` | `EditionFactory` |
+| `component:coordination-factory` | `CoordinationFactory` |
+| `component:coordination-cell-factory` | `CoordinationCellFactory` |
 | `component:rgen-adapter` | `RgenAdapter` |
 | `component:rsure-adapter` | `RsureAdapter` |
 
@@ -62,7 +66,7 @@ commit is `49b441dea4f5561992387ed670ab263fcd5dd164`; the asset is REV.
 
 ## Sibling roots
 
-`configs/rgen.json` pins r-gen `c0ae67d4a493800ce1f8787800f725d9f768f6b5` and lists the
+`configs/rgen.json` pins r-gen `bcc840c25e334048bef390823a21aaf7e209d15b` and lists the
 required components. `configs/rsure.json` pins r-sure
 `0da5d0436e5f33eec3de20adb887ece4b1edcad3` and lists the required components. Both are
 `enabled: false` by default. Enabling one requires its root manifest on the same devnet; a

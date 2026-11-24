@@ -82,6 +82,42 @@
       "input": "3",
       "output": "active,1000,1000"
     },
+    "coordination.record.conflict": {
+      "input": "3,5",
+      "output": "none"
+    },
+    "coordination.record.not_owner": {
+      "input": "false",
+      "output": "none"
+    },
+    "coordination.record.ok": {
+      "input": "true,3,4,true,true,2",
+      "output": "recorded,3,4,2"
+    },
+    "coordination.record.outcome": {
+      "input": "3,0",
+      "output": "none"
+    },
+    "coordination.record.poll": {
+      "input": "0",
+      "output": "none"
+    },
+    "coordination.record.replay": {
+      "input": "3,4",
+      "output": "recorded,3,4,2"
+    },
+    "coordination.record.sig_count": {
+      "input": "1",
+      "output": "none"
+    },
+    "coordination.record.signature": {
+      "input": "false",
+      "output": "none"
+    },
+    "coordination.record.signer": {
+      "input": "false",
+      "output": "none"
+    },
     "cover.attach.asset": {
       "input": "wrong asset",
       "output": "none"
@@ -181,6 +217,22 @@
     "escrow.submit.too_late": {
       "input": "pending,deadline 100,now 101",
       "output": "none"
+    },
+    "factory.coordination.duplicate": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.coordination.id": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.coordination.not_owner": {
+      "input": "none",
+      "output": "none"
+    },
+    "factory.coordination.ok": {
+      "input": "id:5",
+      "output": "id:5"
     },
     "factory.edition.duplicate": {
       "input": "none",

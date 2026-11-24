@@ -18,6 +18,8 @@ In scope:
 - publication authority: roster, roles, admin sets, last-publisher guard;
 - sibling adapter membership: r-sure policy book, r-gen claim and credential
   factories, KAsset binding, and the provenance residual;
+- coordination record authority: publication-bound create, the ordered signer set,
+  address-bound signatures and the first-outcome terminal rule;
 - live-coverage honesty: the client-op map and its evidence artifacts;
 - the schema source of truth and the arm inventory.
 
@@ -34,14 +36,14 @@ Out of scope:
 |---|---|
 | Commit and branch | the commit that adds this packet |
 | Static and formal gates | `make check` output |
-| Lean model | `spec/lean/RPrint/`, `spec/vectors/lean.json` (77 vectors) |
-| Guard bridge | `spec/guards/arms.yaml` (31 proved, 0 partial, 0 owed) |
-| Race matrix | `spec/flows/races.yaml` (28 proved) |
-| Invariants and assumptions | `spec/invariants.md`, `spec/proofs/rigor.yaml` (26 invariants, 24 assumptions) |
-| Red-team results | `spec/audit/redteam.yaml` (12 probes: 11 fixed, 1 accepted) |
+| Lean model | `spec/lean/RPrint/`, `spec/vectors/lean.json` (90 vectors) |
+| Guard bridge | `spec/guards/arms.yaml` (33 proved, 0 partial, 0 owed) |
+| Race matrix | `spec/flows/races.yaml` (29 proved) |
+| Invariants and assumptions | `spec/invariants.md`, `spec/proofs/rigor.yaml` (26 invariants, 25 assumptions) |
+| Red-team results | `spec/audit/redteam.yaml` (14 probes: 13 fixed, 1 accepted) |
 | Sibling campaign | `spec/acceptance.yaml`, `deployments/sibling-suite-results.json` |
 | Live escrow journey | `deployments/cli-live-escrow-results.json` |
-| Client-op map | `spec/vectors/client-ops.tsv` (29 recorded, 5 fixture-only, 9 no live) |
+| Client-op map | `spec/vectors/client-ops.tsv` (29 recorded, 5 fixture-only, 11 no live) |
 | Audit ledgers | `spec/audit/findings.yaml`, `closeout.yaml`, `improvement-plan.yaml`, `hazop/worksheet.yaml` |
 | Known risks | RPA-001 (provenance residual), RPA-008 (8 no-live writes), RPA-009 (this review) |
 
@@ -87,6 +89,9 @@ make web-e2e-live
 9. Do the schema gate and arm inventory enforce real drift, or are they ceremony?
 10. Is the single-validator devnet campaign sufficient for the claims made, and what
     must a multi-validator campaign add?
+11. Is the coordination record's signer binding sound — `rev:fromPublicKey` equality
+    before `Verifier("sigOk")` — and does the terminal first-outcome rule leave any
+    authority or replay gap?
 
 ## Required deliverable
 

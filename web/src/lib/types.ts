@@ -213,6 +213,8 @@ export interface EditionState {
 
 export interface CoordinationState {
   coordinationId: string;
+  publicationId: string;
+  publicationUri: string;
   subjectRef: { kind: string; id: string; uri: string };
   roomIdHash: string;
   pollIdHash: string;
@@ -220,6 +222,35 @@ export interface CoordinationState {
   signers: string[];
   signatures: { by: string; sig: string; atHeight: number }[];
   status: "open" | "recorded";
+  createdBy: string;
+  createdAtHeight: number;
+  recordedAtHeight: number;
+}
+
+export interface CoordinationSigner {
+  memberId: string;
+  pubKey: string;
+  sig: string;
+}
+
+export interface CreateCoordinationInput {
+  opId: string;
+  coordinationId: string;
+  publicationId: string;
+  publicationUri: string;
+  subjectKind: string;
+  subjectId: string;
+  subjectUri: string;
+  roomIdHash: string;
+  signerIds: string[];
+}
+
+export interface RecordCoordinationInput {
+  opId: string;
+  coordinationId: string;
+  pollIdHash: string;
+  outcomeHash: string;
+  signatures: CoordinationSigner[];
 }
 
 export interface ResolveResult {
