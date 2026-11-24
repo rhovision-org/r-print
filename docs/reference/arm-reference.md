@@ -2,7 +2,7 @@
 
 > **Status:** Implemented. The arm strings below are the deployed contract arms.
 > The 31 mutating cornerstone arms have a guard row in `spec/guards/arms.yaml`
-> (27 `proved`, 4 `partial`, 0 `owed`); 19 arms are `proved-conformance` and map to
+> (31 `proved`, 0 `partial`, 0 `owed`); 19 arms are `proved-conformance` and map to
 > `spec/vectors/core.tsv`.
 
 ## PrintRoot
@@ -47,15 +47,17 @@ Factory: `createFunded`, `issued`. Escrow reads: `info`, `status`, `balance`, `m
 ## RgenAdapter / RsureAdapter
 
 `RgenAdapter`: `health`, `claim`, `kasset`, `provenance`, `provenanceInfo`, `identity`,
-`credential`. `RsureAdapter`: `health`, `policy`, `slip`. `provenanceInfo` refuses an empty URI
-with `uri`; the other entity reads resolve by caller-supplied URI.
+`credential`, `membership`. `RsureAdapter`: `health`, `policy`, `slip`, `membership`.
+`provenanceInfo` refuses an empty URI with `uri`; the other entity reads resolve by
+caller-supplied URI.
 
-`identity` and `slip` are read-only and are `owed` in the flow manifest. `slip` is exercised by
-a local `Slip("info")` mock in `unit_interfaces`; the positive r-gen identity path needs a
-fixture and is M14. The r-gen adapter calls the root with `(key, ret)` (r-sure uses
-`(key, minVersion, ret)`), normalises r-gen `Uri` state values with `.toString()`, and reads
-credential status from `Credential("get")`. These three details were found by the first
-real-sibling campaign.
+`identity` and `slip` are read-only and are `assumption` rows in the flow manifest.
+`unit_interfaces` exercises a local `Slip("info")` mock, a positive r-gen identity from the
+sibling fixture and a real bound r-sure slip. The membership arms check policy, claim,
+KAsset and credential issuance; provenance membership remains the documented residual. The
+r-gen adapter calls the root with `(key, ret)` (r-sure uses `(key, minVersion, ret)`),
+normalises r-gen `Uri` state values with `.toString()`, and reads credential status from
+`Credential("get")`. These details were found by the first real-sibling campaign.
 
 ## ArticleFactory / Article
 
@@ -81,7 +83,7 @@ Factory: `create`, `issued`. Edition reads: `info`, `status`, `manifest`. Editio
 Reads use `explore_call_term`; writes use the signed-deploy `call_term`. The web client's
 forms cover every write method, and `make client-wasm-smoke` pins the WASM boundary.
 `spec/vectors/client-ops.tsv` maps all 43 methods: 22 are `recorded`, 5 are `fixture-only`
-and 16 have no live test. `make check-client-ops` keeps that map explicit; it does not claim
+and 8 have no live test. `make check-client-ops` keeps that map explicit; it does not claim
 the 16 are live-tested.
 
 ## Reply shapes

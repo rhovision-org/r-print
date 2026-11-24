@@ -22,6 +22,7 @@ export RPRINT_SIBLINGS_DIR := $(abspath $(SIBLINGS_DIR))
         check-money check-suites check-graph check-flows check-vectors \
         check-guard-bridge check-race-matrix check-rigor check-conformance \
         check-core-vectors gen-core-vectors check-client-ops check-capabilities \
+        check-schemas check-arm-inventory \
         check-audit check-closeout check-hazop check-redteam-results redteam \
         check spec-check parse-check \
         lean-build lean-check lean-vectors lean-vectors-write check-flows-strict formal-check \
@@ -107,6 +108,12 @@ check-client-ops:
 check-capabilities:
 	$(PY) tools/check_capabilities.py
 
+check-schemas:
+	$(PY) tools/check_schemas.py
+
+check-arm-inventory:
+	$(PY) tools/check_arm_inventory.py
+
 check-audit:
 	$(PY) tools/check_audit.py
 
@@ -146,7 +153,8 @@ check-graph:
 spec-check: build-check measure-check metrics-compare check-arch check-captures check-select \
             check-placeholders check-money check-suites check-graph check-flows check-vectors \
             check-guard-bridge check-race-matrix check-rigor check-conformance \
-            check-client-ops check-capabilities check-audit check-closeout check-hazop
+            check-client-ops check-capabilities check-schemas check-arm-inventory \
+            check-audit check-closeout check-hazop
 
 parse-check:
 	$(PY) harness/install.py --dry-run --profile safe

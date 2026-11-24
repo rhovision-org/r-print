@@ -415,4 +415,22 @@ theorem publication_pause_safe (s : PublicationState) (caller : Id) (paused : Bo
     subst s'
     exact hs
 
+/-! ## Factory creation
+
+The factory arm's external validations are modelled as Bool atoms. This is a
+guard-structure model, not a model of charter or roster semantics. -/
+
+def publicationFactoryCreate (s : FactoryState) (id : Id)
+    (authorized clockOk codecOk termsOk cellOk roleOk unknownOk : Bool) :
+    Option FactoryState :=
+  if !authorized then none
+  else if !clockOk then none
+  else if !codecOk then none
+  else if !termsOk then none
+  else if !cellOk then none
+  else if !roleOk then none
+  else if !unknownOk then none
+  else if id ∈ s.issued then none
+  else some { s with issued := id :: s.issued }
+
 end RPrint

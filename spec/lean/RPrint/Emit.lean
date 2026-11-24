@@ -3,6 +3,7 @@ import RPrint.Model.Commission
 import RPrint.Model.Article
 import RPrint.Model.Edition
 import RPrint.Model.Adapter
+import RPrint.ArmGuards
 
 /-!
 # Deterministic vectors
@@ -53,6 +54,14 @@ def okNone {α : Type} (o : Option α) : String :=
   match o with
   | some _ => "ok"
   | none => "none"
+
+def factoryLine (o : Option FactoryState) : String :=
+  match o with
+  | none => "none"
+  | some s =>
+      match s.issued with
+      | [] => "empty"
+      | id :: _ => s!"id:{id}"
 
 def escrowLine (o : Option EscrowState) : String :=
   match o with
@@ -259,6 +268,52 @@ def main : IO Unit := do
   emit "article.attachKnowledge.published" "published"
     (okNone (articleAttachKnowledge { articleApproved with
       status := ArticleStatus.published } true 1))
+  emit "article.attachKnowledge.chain.ok" "ok"
+    (okNone (articleAttachKnowledgeChain articleSubmitted knowledgeBase
+      true true true true 11 12 13 14 kassetFact claimFact provenanceFact credentialFact 50))
+  emit "article.attachKnowledge.chain.membership" "none"
+    (okNone (articleAttachKnowledgeChain articleSubmitted knowledgeBase
+      true true true false 11 12 13 14 kassetFact claimFact provenanceFact credentialFact 50))
+  emit "article.attachKnowledge.chain.published" "none"
+    (okNone (articleAttachKnowledgeChain articleSubmitted
+      { knowledgeBase with status := ArticleStatus.published }
+      true true true true 11 12 13 14 kassetFact claimFact provenanceFact credentialFact 50))
+  emit "factory.publication.ok" "id:5"
+    (factoryLine (publicationFactoryCreate ({ issued := [] } : FactoryState)
+      5 true true true true true true true))
+  emit "factory.publication.not_owner" "none"
+    (factoryLine (publicationFactoryCreate ({ issued := [] } : FactoryState)
+      5 false true true true true true true))
+  emit "factory.publication.duplicate" "none"
+    (factoryLine (publicationFactoryCreate ({ issued := [5] } : FactoryState)
+      5 true true true true true true true))
+  emit "factory.publication.terms" "none"
+    (factoryLine (publicationFactoryCreate ({ issued := [] } : FactoryState)
+      5 true true true false true true true))
+  emit "factory.escrow.ok" "id:5"
+    (factoryLine (escrowFactoryCreateFunded ({ issued := [] } : FactoryState)
+      5 true true true))
+  emit "factory.escrow.not_owner" "none"
+    (factoryLine (escrowFactoryCreateFunded ({ issued := [] } : FactoryState)
+      5 false true true))
+  emit "factory.escrow.threshold" "none"
+    (factoryLine (escrowFactoryCreateFunded ({ issued := [] } : FactoryState)
+      5 true false true))
+  emit "factory.escrow.payments" "none"
+    (factoryLine (escrowFactoryCreateFunded ({ issued := [] } : FactoryState)
+      5 true true false))
+  emit "factory.edition.ok" "id:5"
+    (factoryLine (editionFactoryCreate ({ issued := [] } : FactoryState)
+      5 true true true))
+  emit "factory.edition.not_owner" "none"
+    (factoryLine (editionFactoryCreate ({ issued := [] } : FactoryState)
+      5 false true true))
+  emit "factory.edition.status" "none"
+    (factoryLine (editionFactoryCreate ({ issued := [] } : FactoryState)
+      5 true true false))
+  emit "factory.edition.duplicate" "none"
+    (factoryLine (editionFactoryCreate ({ issued := [5] } : FactoryState)
+      5 true true true))
   emit "article.attest.ok" "true,submitted"
     (articleAttestLine (articleAttest articleSubmitted true attestation1))
   emit "article.attest.role" "false"

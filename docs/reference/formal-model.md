@@ -94,8 +94,9 @@ deploy atomicity.
 `ertpPurseAtomic`, `cryptoAuthority`, `deployAtomicity`, `clockHeight`, `codecHash`,
 `adminMultisig`, `schedulerFairness`, `canonicalUriBinding`, `memberKeyDerivation`,
 `arbitrationQuorumTie`, `rgenKassetValidation`, `rsurePolicyInfo`, `rgenKassetInfo`,
-`rgenClaimInfo`, `rgenProvenanceInfo` and `rgenCredentialVerify`. These are assumptions,
-never theorems.
+`rgenClaimInfo`, `rgenProvenanceInfo`, `rgenCredentialVerify`, `rsurePolicyMembership`,
+`rgenChainMembership`, `rgenProvenanceResidual`, `rgenIdentityDirectory` and
+`rsureSlipInfo`. These are assumptions, never theorems.
 
 ## Status vocabulary
 
@@ -122,25 +123,26 @@ Three modules sit around the four state machines:
 
 - `RPrint/ArmGuards.lean` defines a positive `Bool` guard for every mutating
   cornerstone arm and proves `(step …).isSome = guard …`. `spec/guards/arms.yaml`
-  records 31 arms: 27 `proved` and 4 `partial` (attachKnowledge and three
-  factory creates), with 0 `owed`. The bridge is a drift check, not an extraction.
+  records 31 arms: all 31 `proved`, 0 `partial`, 0 `owed`. The bridge is a drift
+  check, not an extraction; factory guards model each external validation as a
+  Bool atom.
 - `spec/flows/races.yaml` records the 28 arm pairs over five cells: all 28 are
   proved. The matrix is pair-level; it is not scheduler-level race freedom.
 - `RPrint/EmitCorpus.lean` emits `spec/vectors/core.tsv`; 19 arms are
   `proved-conformance`. The corpus is byte-identical to the emission and each
   case is asserted by a named suite.
 
-The rigor ledger `spec/proofs/rigor.yaml` maps all 26 invariants, 19 boundary
+The rigor ledger `spec/proofs/rigor.yaml` maps all 26 invariants, 24 boundary
 assumptions, 10 model/code divergences and the claim ledger. `make check-rigor`
 rejects an unstatused gap.
 
 ## Audit baseline
 
-The project builds 215 source theorems with 215 axiom audits, no `sorry`/`admit`/`axiom`/
+The project builds 220 source theorems with 220 axiom audits, no `sorry`/`admit`/`axiom`/
 `native_decide`, and only `propext`, `Classical.choice` and `Quot.sound`. `spec/flows/core.yaml`
-has 43 rules over 43 arms, 15 core arms are `proved-conformance`, 19 rules are
-`proved-conformance`, 9 are `proved-model`, and `make check-flows-strict` reports zero
-proof-quality warnings. `RPrint/Emit.lean` emits 62 deterministic vectors; `RPrint/EmitCorpus.lean`
+has 45 rules over 45 arms, 15 core arms are `proved-conformance`, 19 rules are
+`proved-conformance`, 13 are `proved-model`, and `make check-flows-strict` reports zero
+proof-quality warnings. `RPrint/Emit.lean` emits 77 deterministic vectors; `RPrint/EmitCorpus.lean`
 emits 19 arm-conformance rows. Both corpora are generated and never hand-edited.
 
 ## Run it

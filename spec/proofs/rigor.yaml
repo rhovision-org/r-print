@@ -257,6 +257,26 @@ assumptions:
     statement: an ambiguous submit is retried with the same op id
     boundary: client
     evidence: [crates/rprint-wasm, spec/acceptance.yaml]
+  - id: ASM-020
+    statement: the pinned r-sure policy book maps a policy id to its issued URI
+    boundary: rsurePolicyMembership
+    evidence: [spec/lean/RPrint/Model/System.lean, contracts/src/deploy/06_rsure.rho]
+  - id: ASM-021
+    statement: the pinned r-gen claim and credential factories verify issued URIs
+    boundary: rgenChainMembership
+    evidence: [spec/lean/RPrint/Model/System.lean, contracts/src/deploy/05_rgen.rho]
+  - id: ASM-022
+    statement: provenance membership has no query in the pinned r-gen rev and remains a documented residual
+    boundary: rgenProvenanceResidual
+    evidence: [spec/lean/RPrint/Model/System.lean, spec/audit/findings.yaml]
+  - id: ASM-023
+    statement: the r-gen identity directory lookup returns the member's identity
+    boundary: rgenIdentityDirectory
+    evidence: [spec/lean/RPrint/Model/System.lean, harness/unit_interfaces.py]
+  - id: ASM-024
+    statement: an r-sure Slip info read returns the stated status and premium
+    boundary: rsureSlipInfo
+    evidence: [spec/lean/RPrint/Model/System.lean, harness/unit_interfaces.py]
 
 divergences:
   - id: DIV-001
@@ -309,9 +329,9 @@ divergences:
     model_decl: RPrint.articleAttachKnowledge
     deployed: contracts/src/deploy/30_article.rho:321
     direction: shape-different
-    consequence: the article model covers status and authorization; the chain is in Model/Adapter
-    status: justified
-    justification: the strict chain is modelled separately and exercised by unit_knowledge
+    consequence: the article step covers status and authorization; the chain is a separate composite guard
+    status: resolved
+    justification: the composite articleAttachKnowledgeChain guard covers article authority, role, adapter resolution, membership and the r-gen chain facts
     closure: '-'
   - id: DIV-007
     arm: 'CommissionProposal@"attachCover"'
@@ -369,8 +389,8 @@ roadmap:
   - id: M14-FACTORY
     priority: P2
     title: add shallow factory create models
-    status: proposed
-    findings: []
+    status: done
+    findings: [DIV-006]
   - id: M14-SCHEMAS
     priority: P2
     title: add spec/schemas and a schema checker
@@ -379,7 +399,7 @@ roadmap:
   - id: M14-LIVE-ESCROW
     priority: P1
     title: record a live escrow journey
-    status: proposed
+    status: done
     findings: []
   - id: M14-ADAPTER-MEMBERSHIP
     priority: P1

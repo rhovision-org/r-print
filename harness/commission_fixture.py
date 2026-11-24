@@ -12,6 +12,12 @@ from publication_fixture import create_publication, quoted
 import deploy as node
 
 
+def rsure_enabled() -> bool:
+    """True when the installed r-print root has a real r-sure adapter."""
+    health = one(call_uri(resolve_component("component:rsure-adapter"), "health"))
+    return isinstance(health, tuple) and bool(health) and health[0] is True
+
+
 def commission_data(publication: dict, writer: str, total: int = 1000,
                     milestones: list[tuple[str, int, int]] | None = None,
                     grace: int = 10, dispute_window: int = 10) -> str:

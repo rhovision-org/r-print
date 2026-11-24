@@ -178,8 +178,8 @@ make lean-vectors-write # regenerate the Lean vector corpus
 make check-flows-strict # every core arm names a proved-model theorem
 make formal-check    # lean-check, lean-vectors, core-vectors, check-flows and strict
 make check-guard-bridge check-race-matrix check-rigor check-conformance
-make check-core-vectors check-client-ops check-capabilities
-make check-audit check-closeout check-hazop check-redteam-results
+make check-core-vectors check-client-ops check-capabilities check-schemas
+make check-arm-inventory check-audit check-closeout check-hazop check-redteam-results
 make redteam         # adversarial probes; writes deployments/redteam-results.json
 make devnet-up       # r-cash devnet via RCASH_DIR/RHOLO_DIR
 make rcash-keys      # generate and faucet r-cash keys

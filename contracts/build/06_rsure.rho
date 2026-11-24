@@ -66,6 +66,61 @@ in {
     }
   } |
 
+  // Factory membership: the policy's own id must be registered in the pinned
+  // r-sure policy book against the supplied policy URI.
+  contract RsureAdapter(@"membership", @policyUri, ret) = {
+    if ("__RSURE_ROOT_URI__".length() == 0) {
+      ret!((true, Nil))
+    } else {
+      new rCh, Root, bCh in {
+        rl!(`__RSURE_ROOT_URI__`, *rCh) |
+        for (Root <- rCh) {
+          Root!("resolve", "component:policy-book", 1, *bCh) |
+          for (@b <- bCh) {
+            match b {
+              (true, bookUri, _) => {
+                new bkCh in {
+                  rl!(bookUri, *bkCh) |
+                  for (PolicyBook <- bkCh) {
+                    new pCh in {
+                      rl!(policyUri, *pCh) |
+                      for (Policy <- pCh) {
+                        new iCh in {
+                          Policy!("info", *iCh) |
+                          for (@i <- iCh) {
+                            match i {
+                              (true, s) => {
+                                new lCh in {
+                                  PolicyBook!("policy", s.get("id"), *lCh) |
+                                  for (@l <- lCh) {
+                                    match l {
+                                      (true, registered) => {
+                                        if (registered.toString() != policyUri) {
+                                          ret!((false, "membership"))
+                                        } else { ret!((true, Nil)) }
+                                      }
+                                      _ => { ret!((false, "membership")) }
+                                    }
+                                  }
+                                }
+                              }
+                              _ => { ret!((false, "membership")) }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              _ => { ret!((false, "membership")) }
+            }
+          }
+        }
+      }
+    }
+  } |
+
   rl!(`__ROOT_URI__`, *rootCh) |
   for (Root <- rootCh) {
     rs!(bundle+{*RsureAdapter}, *c) |

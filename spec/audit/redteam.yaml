@@ -1,5 +1,5 @@
 schema: rprint.redteam/v1
-measured_at: '2026-11-24T11:45:00Z'
+measured_at: '2026-11-24T15:08:45Z'
 node: 'rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)'
 expectation: internal adversarial review, not an independent audit
 results:
@@ -41,10 +41,10 @@ results:
     observed: 'refused: (false, not submitted)'
   - id: RT-007
     name: attach a self-consistent fake policy
-    expected: accept
-    classification: accepted
+    expected: refuse
+    classification: fixed
     finding: RPA-001
-    observed: 'accepted; the adapter checks shape, not factory membership'
+    observed: 'refused: (false, membership)'
   - id: RT-008
     name: append an article from another publication
     expected: refuse
@@ -65,7 +65,13 @@ results:
     observed: 'refused: (false, credential)'
   - id: RT-011
     name: attach a self-consistent fake knowledge chain
+    expected: refuse
+    classification: fixed
+    finding: RPA-001
+    observed: 'refused: (false, membership)'
+  - id: RT-012
+    name: real chain with a self-consistent fake provenance
     expected: accept
     classification: accepted
     finding: RPA-001
-    observed: 'accepted; the chain checks reciprocal shape, not sibling membership'
+    observed: 'accepted; provenance has no membership query in the pinned r-gen rev'

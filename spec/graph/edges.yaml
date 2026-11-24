@@ -68,7 +68,7 @@ edges:
     from: policy
     to: commission
     kind: call
-    arms: [CommissionProposal.attachCover, RsureAdapter.policy]
+    arms: [CommissionProposal.attachCover, RsureAdapter.policy, RsureAdapter.membership]
     source: contracts/src/deploy/20_commission.rho
     status: implemented
 
@@ -221,7 +221,7 @@ edges:
     from: article
     to: kasset
     kind: call
-    arms: [Article.attachKnowledge, RgenAdapter.kasset]
+    arms: [Article.attachKnowledge, RgenAdapter.kasset, RgenAdapter.membership]
     source: contracts/src/deploy/30_article.rho
     status: implemented
 
@@ -230,7 +230,7 @@ edges:
     from: article
     to: rgen_claim
     kind: call
-    arms: [Article.attachKnowledge, RgenAdapter.claim]
+    arms: [Article.attachKnowledge, RgenAdapter.claim, RgenAdapter.membership]
     source: contracts/src/deploy/30_article.rho
     status: implemented
 
@@ -239,7 +239,7 @@ edges:
     from: article
     to: provenance
     kind: call
-    arms: [Article.attachKnowledge, RgenAdapter.provenance]
+    arms: [Article.attachKnowledge, RgenAdapter.provenance, RgenAdapter.membership]
     source: contracts/src/deploy/30_article.rho
     status: implemented
 

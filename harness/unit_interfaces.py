@@ -8,6 +8,8 @@ from assertions import expect, expect_ok, expect_refusal, one
 from helpers import call_uri, resolve_component
 from preflight import require_devnet
 
+import sibling_fixture
+
 
 def main() -> int:
     print("unit-interfaces")
@@ -56,6 +58,17 @@ new S, rs(`rho:registry:insertArbitrary`), ch, deployId(`rho:rchain:deployId`) i
     slip_info = one(call_uri(rsure, "slip", f'"{slip}"'))
     expect("slip status", slip_info[1].get("status"), "active")
     expect("slip premium", slip_info[1].get("premium"), 500)
+
+    fixture = sibling_fixture.load()
+    if fixture and fixture.get("rgen", {}).get("identityAddress"):
+        identity = one(call_uri(rgen, "identity",
+                                f'"{fixture["rgen"]["identityAddress"]}"'))
+        expect_ok("rgen identity", identity)
+    if fixture and fixture.get("rsure", {}).get("slipUri"):
+        real_slip = one(call_uri(rsure, "slip", f'"{fixture["rsure"]["slipUri"]}"'))
+        expect_ok("rsure slip", real_slip)
+        expect("real slip status", real_slip[1].get("status"),
+               fixture["rsure"].get("slipStatus"))
     return 0
 
 

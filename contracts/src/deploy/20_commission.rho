@@ -151,7 +151,7 @@ in {
         match n {
           (true, now) => {
             new CommissionProposal, proposalState, proposalCoverGo, proposalCoverBind,
-                proposalCoverAttach, uCh in {
+                proposalCoverMembership, proposalCoverAttach, uCh in {
               proposalState!({
                 "proposalId": proposalId,
                 "publicationId": data.get("publicationId"),
@@ -276,15 +276,40 @@ in {
                     if (info.get("assetId") != charter.get("assetId")) {
                       proposalState!(s) | ret2!((false, "asset"))
                     } else {
-                      proposalState!(
-                        s.set("coverUri", coverUri)
-                         .set("coverStatus", info.get("status"))
-                         .set("coverAssetId", info.get("assetId"))
-                         .set("coverPerClaimLimit", info.get("perClaimLimit"))
-                         .set("coverAggregateRemaining", info.get("aggregateRemaining"))
-                         .set("coverInsured", info.get("insured"))
-                         .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
-                      ret2!((true, Nil))
+                      proposalCoverMembership!(s, callerId, opId, coverUri, info, *ret2)
+                    }
+                  }
+                }
+              } |
+
+              contract proposalCoverMembership(@s, @callerId, @opId, @coverUri,
+                                               @info, ret2) = {
+                new aCh in {
+                  resolveComponent!("component:rsure-adapter", *aCh) |
+                  for (@a <- aCh) {
+                    match a {
+                      (true, Adapter) => {
+                        new mCh in {
+                          @Adapter!("membership", coverUri, *mCh) |
+                          for (@m <- mCh) {
+                            match m {
+                              (true, Nil) => {
+                                proposalState!(
+                                  s.set("coverUri", coverUri)
+                                   .set("coverStatus", info.get("status"))
+                                   .set("coverAssetId", info.get("assetId"))
+                                   .set("coverPerClaimLimit", info.get("perClaimLimit"))
+                                   .set("coverAggregateRemaining", info.get("aggregateRemaining"))
+                                   .set("coverInsured", info.get("insured"))
+                                   .set("ops", s.get("ops").set(callerId ++ ":" ++ opId, (true, Nil)))) |
+                                ret2!((true, Nil))
+                              }
+                              _ => { proposalState!(s) | ret2!((false, "membership")) }
+                            }
+                          }
+                        }
+                      }
+                      _ => { proposalState!(s) | ret2!((false, "rsure adapter")) }
                     }
                   }
                 }

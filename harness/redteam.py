@@ -167,7 +167,7 @@ def main() -> int:
     fake_policy = policy_stub(pub["treasury"], pub["asset_id"])
     covered = propose(pub, proposal_id=f"rt-cover:{node.height()}")
     accept(covered)
-    record("RT-007", "attach a self-consistent fake policy", "accept",
+    record("RT-007", "attach a self-consistent fake policy", "refuse",
            lambda: one(call_uri(covered["uri"], "attachCover",
                                 f'*dId, "rt-cover", "{fake_policy}"'), key="reporter1"),
            finding="RPA-001")
@@ -227,11 +227,24 @@ def main() -> int:
         fake_prov = entity_stub({"assetRef": {"uri": fake_kasset,
                                               "claimRef": {"uri": fake_claim}},
                                  "writers": [address("reporter1")]}, verify=True)
-        record("RT-011", "attach a self-consistent fake knowledge chain", "accept",
+        record("RT-011", "attach a self-consistent fake knowledge chain", "refuse",
                lambda: one(call_uri(
                    fake_article["uri"], "attachKnowledge",
                    f'*dId, "rt-fake-knowledge", "{fake_kasset}", '
                    f'"{fake_claim}", "{fake_prov}", ""'), key="reporter1"),
+               finding="RPA-001")
+
+        fake_real_prov = entity_stub({
+            "assetRef": {"uri": rgen["kassetUri"], "claimRef": {"uri": rgen["claimUri"]}},
+            "writers": [address("reporter1")],
+        }, verify=True)
+        real_article = create_article(pub, rgen["contentHash"], label="redteam-prov")
+        submit(real_article)
+        record("RT-012", "real chain with a self-consistent fake provenance", "accept",
+               lambda: one(call_uri(
+                   real_article["uri"], "attachKnowledge",
+                   f'*dId, "rt-fake-provenance", "{rgen["kassetUri"]}", '
+                   f'"{rgen["claimUri"]}", "{fake_real_prov}", ""'), key="reporter1"),
                finding="RPA-001")
     else:
         for pid, name in (("RT-010", "revoked credential on a real chain"),

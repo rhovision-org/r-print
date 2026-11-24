@@ -130,6 +130,12 @@ def publish(article: dict, key: str = "deployer") -> None:
         raise AssertionError(f"publish: {reply!r}")
 
 
+def rgen_enabled() -> bool:
+    """True when the installed r-print root has a real r-gen adapter."""
+    health = one(call_uri(resolve_component("component:rgen-adapter"), "health"))
+    return isinstance(health, tuple) and bool(health) and health[0] is True
+
+
 def attach_knowledge(article: dict, kasset: str, claim: str, provenance: str) -> None:
     reply = one(call_uri(article["uri"], "attachKnowledge",
                          f'*dId, "know:{article["article_id"]}", '

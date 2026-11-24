@@ -1,7 +1,8 @@
 # Data schemas
 
 > **Status:** Implemented shapes as deployed in v0.1. Fields marked optional are `Nil` or
-> empty when absent.
+> empty when absent. The top-level shapes are machine-checked by `spec/schemas/states.yaml`
+> and `make check-schemas`; the gate does not check caps or cross-field invariants.
 
 ## publicationState
 
@@ -69,11 +70,15 @@ and an optional credential, and fills the four URI fields and `knowledgeAtHeight
   createdAtHeight, ops, schemaVersion }
 ```
 
-## Factory state
+## factoryState
 
-`{ ids: { entityId -> uri }, ops: { callerId:opId -> reply }, schemaVersion }`. The
-commission, article and edition factories also have a `proposal`/`article`/`edition` state
-cell per entity.
+```
+{ ids: { entityId -> uri }, ops: { callerId:opId -> reply }, schemaVersion }
+```
+
+`ops` is optional: the publication, commission, article and edition factories carry it; the
+escrow factory records `ids` and `schemaVersion`. The commission, article and edition
+factories also have a `proposal`/`article`/`edition` state cell per entity.
 
 ## Caps
 

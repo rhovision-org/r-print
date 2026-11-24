@@ -75,11 +75,11 @@ measured result is:
 
 | Check | Result |
 |---|---|
-| Lean build and axiom audit | **215 source theorems**, 215 axiom audits |
+| Lean build and axiom audit | **220 source theorems**, 220 axiom audits |
 | Proof escapes | 0 `sorry`/`admit`/`axiom`/`native_decide`; only `propext`, `Classical.choice`, `Quot.sound` |
-| Vectors | **62** deterministic vectors in `spec/vectors/lean.json` |
+| Vectors | **77** deterministic vectors in `spec/vectors/lean.json` |
 | Conformance corpus | **19** rows in `spec/vectors/core.tsv`, emitted by `RPrint/EmitCorpus.lean` |
-| Flow manifest | **43 rules**, **15 core arms** `proved-conformance`, **19** `proved-conformance` rules, **9** `proved-model` rules, 0 proof-quality warnings |
+| Flow manifest | **45 rules**, **15 core arms** `proved-conformance`, **19** `proved-conformance` rules, **13** `proved-model` rules, 0 proof-quality warnings |
 
 The model covers publication authority and membership, commission proposal and escrow,
 article lifecycle, edition seal, and the r-sure cover and r-gen knowledge ties, plus the shared
@@ -95,10 +95,10 @@ The M13 model tranche adds four evidence layers around the state machines:
 | Layer | Measured result |
 |---|---|
 | Rigor ledger (`spec/proofs/rigor.yaml`) | **26** invariant rows, **30** claims, **19** boundary assumptions, **10** model/code divergences, **10** roadmap items |
-| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **27** `proved`, **4** `partial` (attachKnowledge and the factory creates), **0** `owed` |
+| Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **31** mutating cornerstone arms: **31** `proved`, **0** `partial`, **0** `owed` |
 | Race matrix (`spec/flows/races.yaml`) | **28** arm pairs over five cells; **28** proved, **0** `owed` |
 | Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **19** `proved-conformance` arms, **19** emitted rows |
-| Client-op map (`spec/vectors/client-ops.tsv`) | **43** methods (**32** writes, **11** reads): **22** recorded, **5** fixture-only, **16** no live test |
+| Client-op map (`spec/vectors/client-ops.tsv`) | **43** methods (**32** writes, **11** reads): **29** recorded, **5** fixture-only, **9** no live test |
 
 The guard bridge is a drift check, not a semantics-preserving extraction. The race matrix is
 pair-level, not scheduler-level race freedom. `proved-conformance` is a finite bundle of a
@@ -110,13 +110,14 @@ deployed Rholang.
 The audit is an internal maintainer review, not an independent audit. The records are
 `spec/audit/findings.yaml` (**10** findings), `spec/audit/closeout.yaml` (**6** terminal
 decisions), `spec/audit/improvement-plan.yaml` (**7** items), `spec/audit/redteam.yaml`
-(**11** probes: **9** `fixed`, **2** `accepted`), `spec/hazop/worksheet.yaml` (**8** nodes,
+(**12** probes: **11** `fixed`, **1** `accepted`), `spec/hazop/worksheet.yaml` (**8** nodes,
 **32** rows, **30** negative) and `spec/audit/capabilities.yaml` (**28** rows over **21**
 published bundles, **3** capability findings).
 
-The two accepted red-team probes attach a self-consistent fake policy and a self-consistent
-fake knowledge chain. That is RPA-001: the adapters check shape, not sibling factory
-membership. The risk is accepted until M14 and expires on 2027-02-28. Independent review
+The fake-policy and fake-chain probes (RT-007, RT-011) now refuse at the membership check.
+The remaining accepted probe (RT-012) attaches a real Claim and KAsset with a self-consistent
+fake provenance, because the pinned r-gen rev has no provenance membership query. That is the
+RPA-001 residual; it is risk-accepted until M14 and expires on 2027-02-28. Independent review
 remains outstanding (RPA-009).
 
 ## Sibling surfaces — recorded local campaign
@@ -174,12 +175,14 @@ counts.
 | Gate | Result |
 |---|---|
 | `make spec-check` | build, measure, architecture, captures, `select`, placeholders, money, suites, graph, guard bridge, race matrix, rigor, conformance, client map, capabilities, audit, close-out, HAZOP |
-| `make check-rigor` | 26 coverage rows, 30 claims, 19 assumptions, 10 divergences |
-| `make check-guard-bridge` | 31 mutating arms: 27 proved, 4 partial, 0 owed |
+| `make check-rigor` | 26 coverage rows, 30 claims, 24 assumptions, 10 divergences |
+| `make check-guard-bridge` | 31 mutating arms: 31 proved, 0 partial, 0 owed |
 | `make check-race-matrix` | 28 pairs: 28 proved, 0 owed |
 | `make check-conformance` | 19 promoted arms, 19 emitted rows |
-| `make check-client-ops` | 43 methods: 22 recorded, 5 fixture-only, 16 no live |
+| `make check-client-ops` | 43 methods: 29 recorded, 5 fixture-only, 9 no live |
 | `make check-capabilities` | 28 capability rows, 21 published bundles, 3 findings |
+| `make check-schemas` | 6 state schemas, 6 examples, doc and source field sets agree |
+| `make check-arm-inventory` | 119 deployed arms: 31 guard, 44 flow, 75 inventory |
 | `make check-audit check-closeout check-hazop` | 10 findings, 6 close-out rows, 32 HAZOP rows |
 | `make parse-check` | every built and rendered term parses with the target node parser |
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build (57 chapters) |
@@ -220,11 +223,13 @@ counts.
 - No audit and no penetration test. The Lean model is `proved-model`; there is no refinement
   theorem tying it to the deployed Rholang. The guard bridge is a drift check; the race
   matrix is pair-level, not scheduler-level race freedom.
-- The sibling adapters check chain shape, not sibling factory membership. A self-consistent
-  fake policy or fake Claim/KAsset/Provenance set is accepted. RPA-001 is risk-accepted until
-  M14; red-team probes RT-007 and RT-011 are the evidence.
-- Sixteen of the 32 client writes have no live test. The client-op map records them; this is
-  not a claim that they are live-tested.
+- The sibling adapters check policy, claim, KAsset and credential membership, but provenance
+  membership has no query in the pinned r-gen rev. A real chain with a self-consistent fake
+  provenance is accepted; RPA-001 is risk-accepted for that residual until M14, and RT-012 is
+  the evidence.
+- Eight of the 32 client writes have no live test (membership changes, pause, proposal
+  cancel, article attest/correct/retract and browser-only paths among them). The client-op
+  map records them; this is not a claim that they are live-tested.
 - The strict cover and knowledge chains are recorded locally against real r-sure and r-gen
   roots; the CI dispatch for that campaign is pending because the commits are unpushed. There
   is no independent audit.

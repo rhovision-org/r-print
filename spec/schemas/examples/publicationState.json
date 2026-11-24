@@ -1,0 +1,21 @@
+{
+  "publicationId": "pub-1",
+  "charterHash": "charter-1",
+  "status": "active",
+  "admins": ["admin-1"],
+  "threshold": 1,
+  "nonce": 0,
+  "schemaVersion": 1,
+  "charter": {
+    "nameHash": "name-1",
+    "mastheadHash": "masthead-1",
+    "taglineHash": "tagline-1",
+    "foundedAtHeight": 1,
+    "treasuryAccountId": "treasury-1",
+    "assetId": "REV",
+    "revenueSplit": [],
+    "governance": {}
+  },
+  "members": {},
+  "ops": {}
+}

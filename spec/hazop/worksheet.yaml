@@ -401,7 +401,7 @@ rows:
     deviation: attach a self-consistent fake policy
     cause: a fake contract returns active, insured and asset
     consequence: a false sense of cover
-    safeguard: shape and treasury checks only; no factory membership
+    safeguard: shape, treasury and policy-book membership checks; disabled roots remain shape-only
     safeguard_status: partial
     severity: S2
     likelihood: B
@@ -465,7 +465,7 @@ rows:
     deviation: attach a self-consistent fake chain
     cause: fake Claim/KAsset/Provenance contracts
     consequence: false provenance
-    safeguard: reciprocal shape and hash checks only; no factory membership
+    safeguard: reciprocal shape, hash, claim and credential factory membership checks; provenance membership remains unverified
     safeguard_status: partial
     severity: S2
     likelihood: B

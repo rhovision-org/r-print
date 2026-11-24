@@ -10,9 +10,11 @@ items:
     decision: risk-accepted
     owner: patrick
     rationale: >-
-      v0.1 is devnet-only. The adapters verify the chain shape, reciprocal
-      references, hash and credential; factory membership is a documented trust
-      boundary until M14 adds or explicitly declines it.
+      v0.1 is devnet-only. Policy membership is checked through the pinned
+      r-sure policy book and claim/credential membership through the pinned
+      r-gen factories; the KAsset is bound to the verified claim. Provenance
+      membership has no query in the pinned r-gen rev and remains the documented
+      residual, with disabled roots shape-only by design.
     evidence:
       - kind: doc
         ref: spec/audit/capabilities.yaml

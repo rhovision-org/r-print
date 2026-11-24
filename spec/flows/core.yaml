@@ -232,7 +232,7 @@ rules:
     arm: 'Article@"attachKnowledge"'
     source: contracts/src/deploy/30_article.rho
     cell: Article
-    guard_eq: RPrint.articleAttachKnowledge_guard_eq
+    guard_eq: RPrint.articleAttachKnowledgeChain_guard_eq
     corpus: KNO-attach-claim-status
     suite: harness/unit_knowledge.py
     status: implemented
@@ -334,6 +334,18 @@ rules:
     source: contracts/src/deploy/06_rsure.rho
     status: implemented
     lean_status: modeled
+  - id: G-membership
+    arm: 'RgenAdapter@"membership"'
+    source: contracts/src/deploy/05_rgen.rho
+    status: implemented
+    lean_status: assumption
+    note: factory membership is a boundary read over the pinned r-gen claim and credential factories; provenance has no membership query in the pinned rev
+  - id: S-membership
+    arm: 'RsureAdapter@"membership"'
+    source: contracts/src/deploy/06_rsure.rho
+    status: implemented
+    lean_status: assumption
+    note: policy membership is a boundary read over the pinned r-sure policy book
   - id: Q-record
     arm: 'CoordinationRecord@"record"'
     source: spec/spec-only.md
@@ -343,26 +355,29 @@ rules:
     arm: 'PublicationFactory@"create"'
     source: contracts/src/deploy/10_publication.rho
     status: implemented
-    lean_status: owed
+    lean: RPrint.publicationFactoryCreate_guard_eq
+    lean_status: proved-model
     cell: PublicationFactory
-    guard_eq: RPrint.factoryCreate_guard_eq
-    note: factory creation has no shallow transition
+    guard_eq: RPrint.publicationFactoryCreate_guard_eq
+    note: shallow factory guard; external validations are Bool atoms
   - id: C-escrow-factory
     arm: 'CommissionEscrowFactory@"createFunded"'
     source: contracts/src/deploy/21_commission_escrow.rho
     status: implemented
-    lean_status: owed
+    lean: RPrint.escrowFactoryCreateFunded_guard_eq
+    lean_status: proved-model
     cell: CommissionEscrowFactory
-    guard_eq: RPrint.factoryCreate_guard_eq
-    note: factory creation moves the purse and has no shallow transition
+    guard_eq: RPrint.escrowFactoryCreateFunded_guard_eq
+    note: shallow factory guard; threshold and purse move are Bool atoms
   - id: A-factory
     arm: 'ArticleFactory@"create"'
     source: contracts/src/deploy/30_article.rho
     status: implemented
-    lean_status: owed
+    lean: RPrint.factoryCreate_guard_eq
+    lean_status: proved-model
     cell: ArticleFactory
     guard_eq: RPrint.factoryCreate_guard_eq
-    note: factory creation has no shallow transition
+    note: shallow factory guard; authority, terms and id reuse
   - id: A-attest
     arm: 'Article@"attest"'
     source: contracts/src/deploy/30_article.rho
@@ -377,22 +392,23 @@ rules:
     arm: 'EditionFactory@"create"'
     source: contracts/src/deploy/31_edition.rho
     status: implemented
-    lean_status: owed
+    lean: RPrint.editionFactoryCreate_guard_eq
+    lean_status: proved-model
     cell: EditionFactory
-    guard_eq: RPrint.factoryCreate_guard_eq
-    note: factory creation has no shallow transition
+    guard_eq: RPrint.editionFactoryCreate_guard_eq
+    note: shallow factory guard; edition terms and status are Bool atoms
   - id: G-identity
     arm: 'RgenAdapter@"identity"'
     source: contracts/src/deploy/05_rgen.rho
     status: implemented
-    lean_status: owed
-    note: read-only identity lookup; unit_interfaces asserts the disabled default, the positive r-gen identity path needs a fixture in M14
+    lean_status: assumption
+    note: read-only identity lookup; unit_interfaces asserts the disabled default and a positive identity from the sibling fixture
   - id: S-slip
     arm: 'RsureAdapter@"slip"'
     source: contracts/src/deploy/06_rsure.rho
     status: implemented
-    lean_status: owed
-    note: read-only passthrough; unit_interfaces asserts a local Slip mock, a real r-sure slip fixture is M14
+    lean_status: assumption
+    note: read-only passthrough; unit_interfaces asserts a local mock and a real bound slip from the sibling fixture
 core_arms:
   - 'Publication@"addMember"'
   - 'Publication@"removeMember"'

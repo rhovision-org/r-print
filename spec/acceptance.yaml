@@ -22,10 +22,10 @@ sibling_campaign:
   suites: [cover, knowledge]
   suites_total: 2
   suites_passing: 2
-  assertions: {cover: 17, knowledge: 26, total: 43}
-  cli_live: "2 tests pass (publication journey; cover + knowledge journey)"
+  assertions: {cover: 18, knowledge: 27, total: 45}
+  cli_live: "3 tests pass (publication journey; cover + knowledge journey; funded escrow journey)"
   web_live: "12 steps; sibling cover attached; knowledge not covered (fresh WASM wallet cannot sign the r-gen claim)"
-  ci: "pending: the M12 commits are not pushed"
+  ci: "pending: scheduled run 45405719109 failed before the campaign (faucet finalized-fringe errors and a missing PyYAML step); a fresh dispatch is pending owner approval"
 ci_campaign:
   run: 45250733118
   url: "https://github.com/rhovision-org/r-print/actions/runs/45250733118"
@@ -118,27 +118,28 @@ milestones:
     suites: [cover, knowledge]
     sibling_suites_total: 2
     sibling_suites_passing: 2
-    assertions: 43
+    assertions: 45
     status: passing
-    note: "real-sibling campaign recorded locally; CI dispatch pending because the commits are unpushed"
+    note: "real-sibling campaign recorded locally and rerun on 2026-11-24 with the membership probes; a fresh CI devnet dispatch is pending owner approval (scheduled run 45405719109 failed for environmental reasons)"
   M13:
     title: rigor ledger, conformance bundle and adversarial audit
     evidence:
       ["make check-rigor", "make check-guard-bridge", "make check-race-matrix",
        "make check-conformance", "make check-core-vectors", "make check-client-ops",
-       "make check-capabilities", "make check-audit", "make check-closeout",
+       "make check-capabilities", "make check-schemas", "make check-arm-inventory",
+       "make check-audit", "make check-closeout",
        "make check-hazop", "make redteam", "spec/proofs/rigor.yaml",
        "spec/audit/findings.yaml"]
     status: passing
     invariants: 26
     claims: 30
-    assumptions: 19
+    assumptions: 24
     divergences: 10
-    theorems: 215
-    axiom_audits: 215
-    vectors: 62
-    flow_rules: 43
-    guard_arms: {proved: 27, partial: 4, owed: 0}
+    theorems: 220
+    axiom_audits: 220
+    vectors: 77
+    flow_rules: 45
+    guard_arms: {proved: 31, partial: 0, owed: 0}
     race_pairs: 28
     race_pairs_proved: 28
     race_pairs_owed: 0
@@ -146,11 +147,11 @@ milestones:
     findings: 10
     closeout_rows: 6
     improvement_items: 7
-    redteam: {probes: 11, fixed: 9, accepted: 2}
+    redteam: {probes: 12, fixed: 11, accepted: 1}
     hazop: {nodes: 8, rows: 32, negative: 30}
     capabilities: {rows: 28, published_bundles: 21, findings: 3}
-    client_ops: {methods: 43, writes: 32, reads: 11, recorded: 22, fixture_only: 5, no_live: 16}
-    note: "all 28 race pairs are proved; the four factory create guards are partial, not owed"
+    client_ops: {methods: 43, writes: 32, reads: 11, recorded: 29, fixture_only: 5, no_live: 9}
+    note: "all 28 race pairs and all 31 guard arms are proved; the guard theorems are shallow guard-structure results"
 suites_total: 18
 suites_passing: 18
 live_client:
@@ -159,7 +160,15 @@ live_client:
   steps: 11
   finalized_deploys: 11
   scope: "wallet, faucet, publication, member, commission proposal, article lifecycle, edition append/seal, admin multisig, read-back"
-  not_covered: "live commission funding (needs an r-cash-funded account), public testnet"
+  not_covered: "arbitrateEscrow, expireEscrow, public testnet"
+  escrow_journey:
+    recorded: 2026-11-24
+    evidence: deployments/cli-live-escrow-results.json
+    methods: [proposeCommission, acceptProposal, fundProposal, submitMilestone,
+              releaseMilestone, cancelEscrow, disputeEscrow, resolveDispute, expireEscrow,
+              arbitrateEscrow]
+    scope: "fund from an r-cash account, submit and release, cancel, dispute, resolve, expire and arbitrate"
+    not_covered: "browser escrow"
 browser_e2e:
   recorded: 2026-11-23
   node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
@@ -203,7 +212,7 @@ formal_model:
   escapes: 0
   allowed_axioms: ["propext", "Classical.choice", "Quot.sound"]
   scope: "publication authority, commission proposal/escrow, article lifecycle, edition seal, r-sure cover, r-gen knowledge chain, guard bridge, race pairs, linear cell and protocol layer"
-  not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions; the four factory create guards are partial"
+  not_covered: "no Rholang refinement; ERTP/phlo/crypto, node scheduler and deploy atomicity are boundary assumptions; guard arms are shallow guard-structure proofs, not cell-semantics proofs"
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover verifies active status, insured and asset; single-assignment; disabled by default"
   r_gen_kasset: "Article.attachKnowledge verifies the reciprocal chain, provenance hash, author and credential; optional, not a publication gate; disabled root refuses credentials"

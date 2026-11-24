@@ -3,12 +3,16 @@
 
 from __future__ import annotations
 
+import json
+
+import actors
 import corpus
 from article_fixture import (approve, create_article, editorial_publication,
                              publish, submit)
 from assertions import expect, expect_ok, expect_refusal, one
 from helpers import call_uri
 from preflight import require_devnet
+from redteam import entity_stub, mutable_stub
 
 import sibling_fixture
 
@@ -96,6 +100,29 @@ def main() -> int:
                    attach(article, rgen["secondKassetUri"], rgen["secondClaimUri"],
                           rgen["wrongAssetProvenanceUri"], op="knowledge-2"),
                    "knowledge")
+
+    fake_hash = f"knowledge:fake:{node.height()}"
+    fake_article = create_article(pub, fake_hash, label="knowledge-fake")
+    submit(fake_article)
+    fake_claim = mutable_stub({
+        "claimant": actors.address("reporter1"),
+        "kassetRef": {"uri": "rho:id:pending"},
+        "status": "validated",
+    })
+    fake_kasset = mutable_stub({"claimRef": {"uri": fake_claim}})
+    one(call_uri(fake_claim, "set", json.dumps({
+        "claimant": actors.address("reporter1"),
+        "kassetRef": {"uri": fake_kasset},
+        "status": "validated",
+    })))
+    fake_prov = entity_stub({
+        "assetRef": {"uri": fake_kasset, "claimRef": {"uri": fake_claim}},
+        "writers": [actors.address("reporter1")],
+    }, verify=True)
+    expect_refusal("fake chain membership",
+                   attach(fake_article, fake_kasset, fake_claim, fake_prov,
+                          op="knowledge-fake"),
+                   "membership")
 
     draft = create_article(pub, content_hash, label="draft")
     expect_refusal("draft article", attach(draft, kasset, claim, provenance, credential),

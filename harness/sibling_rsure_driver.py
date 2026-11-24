@@ -32,6 +32,7 @@ def main() -> int:
     expired_info = expired.policy_info()
     if expired_info.get("status") != "expired":
         raise SystemExit(f"sibling_rsure: policy did not expire: {expired_info!r}")
+    slip = active.slip_info()
     result = {
         "policyUri": active.policy_uri,
         "insured": info.get("insured"),
@@ -41,6 +42,9 @@ def main() -> int:
         "aggregateRemaining": info.get("aggregateRemaining"),
         "expiredPolicyUri": expired.policy_uri,
         "expiredStatus": expired_info.get("status"),
+        "slipUri": active.slip_uri,
+        "slipStatus": slip.get("status"),
+        "slipPremium": slip.get("premium"),
     }
     print("SIBLING_RESULT " + json.dumps(result, sort_keys=True))
     return 0
