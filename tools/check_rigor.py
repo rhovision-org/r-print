@@ -38,7 +38,8 @@ DIRECTIONS = {"model-permissive", "model-stricter", "effect-omitting",
               "shape-different", "mixed"}
 DIV_STATUS = {"resolved", "justified", "material"}
 PRIORITIES = {"P0", "P1", "P2"}
-ROADMAP_STATUS = {"done", "proposed", "accepted", "fixed", "rejected", "risk-accepted"}
+ROADMAP_STATUS = {"done", "proposed", "accepted", "partial", "fixed", "rejected",
+                  "risk-accepted"}
 ALIAS_RE = re.compile(r'^\s*def\s+(I\d+_[A-Za-z0-9_]+)\s*:=\s*@([A-Za-z0-9_.]+)', re.M)
 DECL_RE = re.compile(r'^\s*(?:theorem|lemma)\s+([A-Za-z0-9_\']+)', re.M)
 ALL_DECL_RE = re.compile(r'^\s*(?:theorem|lemma|def|structure|inductive)\s+([A-Za-z0-9_\']+)', re.M)

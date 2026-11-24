@@ -356,6 +356,11 @@ roadmap:
     title: promote the exercised arms to proved-conformance
     status: done
     findings: []
+  - id: M13-RACE
+    priority: P1
+    title: prove the remaining 13 race pairs
+    status: partial
+    findings: [DIV-002]
   - id: M14-MILESTONE
     priority: P1
     title: refactor submit and release to read the consumed milestone

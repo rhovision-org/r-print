@@ -1,6 +1,6 @@
 schema: rprint.acceptance/v1
 protocol: 0.1.0
-status: foundation+live-client+browser-e2e+formal-model+sibling-surfaces+rigor+audit
+status: foundation+live-client+browser-e2e+formal-model+sibling-surfaces+rigor-partial+audit
 recorded_campaign: 2026-11-23
 node: "rholo node 0.1.0 (8fe0136fd5f2a1c6421894163e3f54f1770d6386)"
 devnet: "local 50403, single validator"
@@ -129,7 +129,7 @@ milestones:
        "make check-capabilities", "make check-audit", "make check-closeout",
        "make check-hazop", "make redteam", "spec/proofs/rigor.yaml",
        "spec/audit/findings.yaml"]
-    status: passing
+    status: partial
     invariants: 26
     claims: 30
     assumptions: 19
@@ -150,7 +150,7 @@ milestones:
     hazop: {nodes: 8, rows: 32, negative: 29}
     capabilities: {rows: 28, published_bundles: 21, findings: 3}
     client_ops: {methods: 43, writes: 32, reads: 11, recorded: 22, fixture_only: 5, no_live: 16}
-    note: "race proofs cover the exclusive pairs and the two clean ordered pairs; thirteen pairs are explicitly owed"
+    note: "ledger, guard bridge, conformance and audit are complete; 13 race pairs and the four factory create guards are explicitly owed, so the milestone is partial"
 suites_total: 18
 suites_passing: 18
 live_client:
