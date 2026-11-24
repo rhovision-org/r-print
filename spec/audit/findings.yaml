@@ -1,0 +1,189 @@
+schema_version: rprint.audit/v1
+audit_id: rprint-core-2026-11
+baseline: a6f2fb0
+review:
+  status: internal
+  date: '2026-11-24'
+  reviewers: [Patrick Mockridge (maintainer)]
+  independence: single maintainer; independent technical review has not been performed and remains outstanding
+  scope: >-
+    The escrow and publication authority paths, the r-sure cover and r-gen
+    knowledge chains, and the live-client coverage gap. The review used the
+    real-sibling campaign, the guard bridge and the model ledger.
+findings:
+  - id: RPA-001
+    title: Adapter designation is not factory membership
+    severity: S2
+    likelihood: B
+    risk: 9
+    priority: P0
+    category: capability
+    evidence:
+      - contracts/src/deploy/05_rgen.rho:55
+      - contracts/src/deploy/06_rsure.rho:55
+      - spec/audit/capabilities.yaml
+    claim: The sibling adapters verify the chain.
+    verdict: proved-but-narrower
+    arms: ['RgenAdapter@"claim"', 'RgenAdapter@"kasset"', 'RgenAdapter@"provenanceInfo"', 'RgenAdapter@"credential"', 'RsureAdapter@"policy"', 'RsureAdapter@"slip"']
+    actions: [IMP-001]
+    disposition: accept-risk
+    note: >-
+      The adapters verify shape, reciprocal references, the hash and the
+      credential, but not that the policy or chain was issued by the pinned
+      sibling factory. A self-consistent fake policy or fake Claim/KAsset/
+      Provenance set can pass. v0.1 is devnet-only; the risk is accepted until
+      M14 adds or documents factory-membership verification.
+  - id: RPA-002
+    title: The release/release race claim is not proved
+    severity: S3
+    likelihood: B
+    risk: 6
+    priority: P1
+    category: proof-claim
+    evidence:
+      - spec/lean/RPrint/Model/Commission.lean:240
+      - spec/flows/races.yaml
+      - spec/proofs/rigor.yaml
+    claim: A second release always refuses.
+    verdict: proved-but-narrower
+    arms: ['CommissionEscrow@"release"']
+    actions: [IMP-002]
+    disposition: fixed
+    note: >-
+      The model takes milestone status and amount as parameters; the deployed
+      arm reads the consumed milestone. The release/release and
+      release/arbitrate rows are marked owed and the claim is narrowed, so no
+      false theorem is claimed.
+  - id: RPA-003
+    title: The fund model required an editor
+    severity: S3
+    likelihood: C
+    risk: 4
+    priority: P2
+    category: model-fidelity
+    evidence:
+      - spec/lean/RPrint/Model/Commission.lean:154
+      - contracts/src/deploy/20_commission.rho:372
+    claim: Funding requires an editor.
+    verdict: fixed
+    arms: ['CommissionProposal@"fund"']
+    actions: ['-']
+    disposition: fixed
+    note: The deployed arm accepts any signer; the model and guard now match.
+  - id: RPA-004
+    title: The cover model ignored the proposal status
+    severity: S3
+    likelihood: C
+    risk: 4
+    priority: P2
+    category: model-fidelity
+    evidence:
+      - spec/lean/RPrint/Model/Adapter.lean:53
+      - contracts/src/deploy/20_commission.rho:208
+    claim: A cover can be attached to any proposal.
+    verdict: fixed
+    arms: ['CommissionProposal@"attachCover"']
+    actions: ['-']
+    disposition: fixed
+    note: The model now requires a proposed or accepted proposal, matching the source.
+  - id: RPA-005
+    title: Uri/String comparison refused every real r-gen chain
+    severity: S2
+    likelihood: B
+    risk: 9
+    priority: P0
+    category: integration
+    evidence:
+      - contracts/src/deploy/30_article.rho:430
+      - harness/unit_knowledge.py
+      - docs/reference/verification.md
+    claim: The knowledge chain accepts a real r-gen chain.
+    verdict: fixed
+    arms: ['Article@"attachKnowledge"']
+    actions: ['-']
+    disposition: fixed
+    note: >-
+      r-gen returns Rholang Uri values; comparing them to client strings was
+      always false. The chain now normalises with .toString(); unit_knowledge
+      records 25 assertions.
+  - id: RPA-006
+    title: The r-gen root resolve arity was wrong
+    severity: S2
+    likelihood: B
+    risk: 9
+    priority: P0
+    category: integration
+    evidence:
+      - contracts/src/deploy/05_rgen.rho:20
+      - AGENTS.md
+      - harness/unit_knowledge.py
+    claim: The r-gen adapter resolves the r-gen root.
+    verdict: fixed
+    arms: ['RgenAdapter@"health"', 'RgenAdapter@"credential"', 'RgenAdapter@"identity"']
+    actions: ['-']
+    disposition: fixed
+    note: r-gen resolve takes (key, ret); r-sure takes (key, minVersion, ret). The adapter was sending the r-sure shape.
+  - id: RPA-007
+    title: The credential status came from the issuance record
+    severity: S2
+    likelihood: B
+    risk: 9
+    priority: P0
+    category: integration
+    evidence:
+      - contracts/src/deploy/05_rgen.rho:109
+      - AGENTS.md
+      - harness/unit_knowledge.py
+    claim: The credential check sees status and expiry.
+    verdict: fixed
+    arms: ['RgenAdapter@"credential"', 'Article@"attachKnowledge"']
+    actions: ['-']
+    disposition: fixed
+    note: The factory verify record has no status or expiry; the adapter now reads Credential("get").
+  - id: RPA-008
+    title: Sixteen of thirty-two client writes have no live test
+    severity: S3
+    likelihood: B
+    risk: 6
+    priority: P2
+    category: evidence
+    evidence:
+      - spec/vectors/client-ops.tsv
+      - tools/check_client_ops.py
+    claim: Every client write is live-tested.
+    verdict: proved-but-narrower
+    arms: []
+    actions: [IMP-003]
+    disposition: accept-risk
+    note: The map records 22 recorded, 5 fixture-only and 16 no-live methods; the gap is explicit.
+  - id: RPA-009
+    title: Independent technical review is outstanding
+    severity: S2
+    likelihood: C
+    risk: 6
+    priority: P1
+    category: review
+    evidence:
+      - spec/audit/findings.yaml
+      - spec/proofs/rigor.yaml
+    claim: The model and audit have been independently reviewed.
+    verdict: unproved
+    arms: []
+    actions: [IMP-005]
+    disposition: accept-risk
+    note: The review is a single-maintainer internal review; no independent sign-off exists.
+  - id: RPA-010
+    title: There is no schema source of truth
+    severity: S4
+    likelihood: C
+    risk: 2
+    priority: P2
+    category: evidence
+    evidence:
+      - docs/reference/data-schemas.md
+    claim: The state and reply shapes are machine-checked.
+    verdict: unproved
+    arms: []
+    actions: [IMP-004]
+    disposition: accept-risk
+    note: The shapes are prose and fixtures; spec/schemas is deferred to M14.

@@ -1,0 +1,488 @@
+schema: rprint.capabilities/v1
+scope: >-
+  The thirteen deploy terms, their published bundles, the ambient system
+  channels and the operating surfaces. One row per capability. The register is
+  a source-to-register drift check, not a Rholang semantics proof. Name
+  unforgeability is an assumption, not a result.
+summary:
+  published_bundles: 21
+  ambient_channels: 3
+  capability_rows: 28
+capabilities:
+  - id: CAP-001
+    name: registry-lookup
+    kind: ambient-system
+    source: system:rho:registry:lookup
+    source_atom: ''
+    creator: runtime
+    holders: every deploy
+    exposure: system-channel
+    attenuation: none
+    authority_check: runtime
+    arms: [lookup]
+    delegation: []
+    revocation: none
+    forge_path: anyone can insert a term at a new URI
+    hazard: a URI is a designation, not an endorsement; every consumer verifies its factory
+    disposition: holds
+    evidence: contracts/src/lib/Resolve.rho
+  - id: CAP-002
+    name: registry-insert
+    kind: ambient-system
+    source: system:rho:registry:insertArbitrary
+    source_atom: ''
+    creator: runtime
+    holders: every deploy
+    exposure: system-channel
+    attenuation: none
+    authority_check: runtime
+    arms: []
+    delegation: []
+    revocation: none
+    forge_path: publish a look-alike contract at an attacker-chosen URI
+    hazard: designation is not membership; consumers resolve from the canonical root
+    disposition: holds
+    evidence: contracts/src/deploy/00_root.rho
+  - id: CAP-003
+    name: deployer-id
+    kind: deployer-id
+    source: system:rho:rchain:deployerId
+    source_atom: ''
+    creator: runtime
+    holders: the deploying process
+    exposure: system-channel
+    attenuation: per-deploy
+    authority_check: runtime
+    arms: [authOwner]
+    delegation: [every arm that takes a dId name]
+    revocation: none
+    forge_path: none from data; a caller can only pass the name it holds
+    hazard: an arm that accepts a dId delegates the caller's identity for the deploy
+    disposition: holds
+    evidence: contracts/src/lib/Auth.rho
+  - id: CAP-004
+    name: Clock
+    kind: published-contract
+    source: contracts/src/deploy/01_kernel.rho:100
+    source_atom: 'bundle+{*Clock}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:clock
+    exposure: registry-uri
+    attenuation: none
+    authority_check: runtime
+    arms: [now]
+    delegation: []
+    revocation: root rotate
+    forge_path: publish a look-alike Clock at a fresh URI
+    hazard: a caller that uses a raw URI instead of the root can be handed a fake height
+    disposition: holds
+    evidence: contracts/src/deploy/01_kernel.rho:100
+  - id: CAP-005
+    name: Verifier
+    kind: published-contract
+    source: contracts/src/deploy/01_kernel.rho:101
+    source_atom: 'bundle+{*Verifier}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:verifier
+    exposure: registry-uri
+    attenuation: none
+    authority_check: runtime
+    arms: [hash, sigOk]
+    delegation: []
+    revocation: root rotate
+    forge_path: publish a look-alike verifier
+    hazard: signature and digest checks are boundary assumptions
+    disposition: holds
+    evidence: contracts/src/deploy/01_kernel.rho:101
+  - id: CAP-006
+    name: Codec
+    kind: published-contract
+    source: contracts/src/deploy/01_kernel.rho:102
+    source_atom: 'bundle+{*Codec}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:codec
+    exposure: registry-uri
+    attenuation: none
+    authority_check: runtime
+    arms: [canonical, hash, adminPayload]
+    delegation: []
+    revocation: root rotate
+    forge_path: publish a look-alike codec
+    hazard: the canonical hash is an assumption; the client must use the deployed codec
+    disposition: holds
+    evidence: contracts/src/deploy/01_kernel.rho:102
+  - id: CAP-007
+    name: AdminGuard
+    kind: published-contract
+    source: contracts/src/deploy/02_admin.rho:197
+    source_atom: 'bundle+{*AdminGuard}'
+    creator: PrintRoot installer
+    holders: admin payload verifiers
+    exposure: registry-uri
+    attenuation: none
+    authority_check: admin-multisig
+    arms: [verify]
+    delegation: []
+    revocation: root rotate
+    forge_path: publish a look-alike guard
+    hazard: the guard is data; the admin set and threshold are boundary assumptions
+    disposition: holds
+    evidence: contracts/src/deploy/02_admin.rho:197
+  - id: CAP-008
+    name: PrintAdmin
+    kind: published-contract
+    source: contracts/src/deploy/02_admin.rho:198
+    source_atom: 'bundle+{*PrintAdmin}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:print-admin
+    exposure: registry-uri
+    attenuation: none
+    authority_check: admin-multisig
+    arms: [admin, keys, nonce, isPaused]
+    delegation: []
+    revocation: root rotate
+    forge_path: publish a look-alike admin
+    hazard: platform admin is a quorum boundary; a solo publisher cannot arbitrate their own commission
+    disposition: holds
+    evidence: contracts/src/deploy/02_admin.rho:198
+  - id: CAP-009
+    name: PrintRoot
+    kind: published-contract
+    source: contracts/src/deploy/00_root.rho:291
+    source_atom: 'bundle+{*PrintRoot}'
+    creator: installer
+    holders: the installer and resolver consumers
+    exposure: registry-uri
+    attenuation: none
+    authority_check: installer
+    arms: [resolve, resolveMany, keys, get, nonce, admin, register, freeze, rotate, deprecate]
+    delegation: [component resolution]
+    revocation: root rotate/deprecate
+    forge_path: publish a look-alike root; consumers must use the canonical root URI
+    hazard: root resolution is the designation authority; a fake root can serve fake components
+    disposition: holds
+    evidence: contracts/src/deploy/00_root.rho:291
+  - id: CAP-010
+    name: Terms
+    kind: published-contract
+    source: contracts/src/deploy/03_terms.rho:419
+    source_atom: 'bundle+{*Terms}'
+    creator: PrintRoot installer
+    holders: every deploy that validates terms
+    exposure: registry-uri
+    attenuation: none
+    authority_check: runtime
+    arms: [charter, article, edition, commission, did, role, hash, admins, arbitrators]
+    delegation: []
+    revocation: root rotate
+    forge_path: publish a look-alike terms contract
+    hazard: terms are pure data; consumers must resolve them from the root
+    disposition: holds
+    evidence: contracts/src/deploy/03_terms.rho:419
+  - id: CAP-011
+    name: Payments
+    kind: published-contract
+    source: contracts/src/deploy/40_payments.rho:316
+    source_atom: 'bundle+{*Payments}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:payments
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [health, issuer, protocolOwner, ensureAccount, accountOf, depositFacet, refundPayment, withdrawPayment, admin]
+    delegation: [account and purse facets]
+    revocation: root rotate
+    forge_path: publish a look-alike payments contract
+    hazard: a capability-valued account facet is authority; never return it to a caller who should not hold it
+    disposition: holds
+    evidence: contracts/src/deploy/40_payments.rho:316
+  - id: CAP-012
+    name: Publication
+    kind: published-contract
+    source: contracts/src/deploy/11_publication_cell.rho:569
+    source_atom: 'bundle+{*Publication}'
+    creator: PublicationCellFactory
+    holders: every deploy that resolves the publication URI
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [info, charter, members, member, roleOf, status, treasury, charterHash, admins, nonce, addMember, removeMember, setRole, attestSelf, pause, admin, arbitration]
+    delegation: []
+    revocation: none
+    forge_path: publish a look-alike publication
+    hazard: roster writes are publisher-only; the last publisher guard is the authority invariant
+    disposition: holds
+    evidence: contracts/src/deploy/11_publication_cell.rho:569
+  - id: CAP-013
+    name: PublicationCellFactory
+    kind: published-contract
+    source: contracts/src/deploy/11_publication_cell.rho:576
+    source_atom: 'bundle+{*PublicationCellFactory}'
+    creator: PrintRoot installer
+    holders: the publication factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: installer
+    arms: [spawn]
+    delegation: [Publication]
+    revocation: root rotate
+    forge_path: publish a look-alike cell factory
+    hazard: spawning is installer-gated; a public spawn would mint arbitrary publications
+    disposition: holds
+    evidence: contracts/src/deploy/11_publication_cell.rho:576
+  - id: CAP-014
+    name: PublicationFactory
+    kind: published-contract
+    source: contracts/src/deploy/10_publication.rho:222
+    source_atom: 'bundle+{*PublicationFactory}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:publication-factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [create, issued]
+    delegation: [PublicationCellFactory]
+    revocation: root rotate
+    forge_path: publish a look-alike factory
+    hazard: the creator becomes the first publisher; the canonical URI binding is an assumption
+    disposition: holds
+    evidence: contracts/src/deploy/10_publication.rho:222
+  - id: CAP-015
+    name: CommissionFactory
+    kind: published-contract
+    source: contracts/src/deploy/20_commission.rho:482
+    source_atom: 'bundle+{*CommissionFactory}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:commission-factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [propose, issued]
+    delegation: [CommissionProposal]
+    revocation: root rotate
+    forge_path: publish a look-alike factory
+    hazard: the writer is bound into the proposal; the publication canonical URI is checked by the cell
+    disposition: holds
+    evidence: contracts/src/deploy/20_commission.rho:482
+  - id: CAP-016
+    name: CommissionProposal
+    kind: published-contract
+    source: contracts/src/deploy/20_commission.rho:454
+    source_atom: 'bundle+{*CommissionProposal}'
+    creator: CommissionFactory
+    holders: every deploy that resolves the proposal URI
+    exposure: registry-uri
+    attenuation: none
+    authority_check: role
+    arms: [info, status, milestones, cover, coverInfo, accept, fund, cancel, attachCover]
+    delegation: []
+    revocation: none
+    forge_path: publish a look-alike proposal
+    hazard: accept is editor-only; fund is any signer; attachCover is editor or publisher
+    disposition: holds
+    evidence: contracts/src/deploy/20_commission.rho:454
+  - id: CAP-017
+    name: CommissionEscrowFactory
+    kind: published-contract
+    source: contracts/src/deploy/21_commission_escrow.rho:784
+    source_atom: 'bundle+{*CommissionEscrowFactory}'
+    creator: PrintRoot installer
+    holders: every funded proposal
+    exposure: registry-uri
+    attenuation: none
+    authority_check: any-subject
+    arms: [createFunded, issued]
+    delegation: [PurseKeeper, CommissionEscrow]
+    revocation: root rotate
+    forge_path: publish a look-alike escrow factory
+    hazard: the factory moves the funded purse; any caller may fund an accepted proposal
+    disposition: holds
+    evidence: contracts/src/deploy/21_commission_escrow.rho:784
+  - id: CAP-018
+    name: CommissionEscrow
+    kind: published-contract
+    source: contracts/src/deploy/21_commission_escrow.rho:1
+    source_atom: ''
+    creator: CommissionEscrowFactory
+    holders: every deploy that resolves the escrow URI
+    exposure: registry-uri
+    attenuation: none
+    authority_check: mixed
+    arms: [info, status, balance, cover, milestones, submit, release, cancel, expire, dispute, arbitrate, resolveDispute]
+    delegation: [PurseKeeper]
+    revocation: none
+    forge_path: publish a look-alike escrow
+    hazard: release is editor or publisher; dispute is writer or funder; arbitrate is the arbitration quorum
+    disposition: holds
+    evidence: contracts/src/deploy/21_commission_escrow.rho:1
+    note: the escrow bundle is created inside the funded proposal, not at a fresh top-level bundle site
+  - id: CAP-019
+    name: PurseKeeper
+    kind: private-name
+    source: contracts/src/deploy/21_commission_escrow.rho:224
+    source_atom: 'bundle+{*PurseKeeper}'
+    creator: the escrow factory
+    holders: the escrow cell
+    exposure: closure-only
+    attenuation: escrow-only
+    authority_check: none
+    arms: [balance, pay]
+    delegation: []
+    revocation: none
+    forge_path: none while the name stays in the escrow closure
+    hazard: a leaked keeper can pay the writer outside the milestone guard
+    disposition: holds
+    evidence: contracts/src/deploy/21_commission_escrow.rho:224
+  - id: CAP-020
+    name: ArticleFactory
+    kind: published-contract
+    source: contracts/src/deploy/30_article.rho:909
+    source_atom: 'bundle+{*ArticleFactory}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:article-factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [create, issued]
+    delegation: [Article]
+    revocation: root rotate
+    forge_path: publish a look-alike factory
+    hazard: the first author is the creator; the publication canonical URI is checked
+    disposition: holds
+    evidence: contracts/src/deploy/30_article.rho:909
+  - id: CAP-021
+    name: Article
+    kind: published-contract
+    source: contracts/src/deploy/30_article.rho:881
+    source_atom: 'bundle+{*Article}'
+    creator: ArticleFactory
+    holders: every deploy that resolves the article URI
+    exposure: registry-uri
+    attenuation: none
+    authority_check: role
+    arms: [info, status, knowledge, corrections, attestations, submit, attachKnowledge, approve, publish, correct, retract, attest]
+    delegation: []
+    revocation: none
+    forge_path: publish a look-alike article
+    hazard: submit is author-only; approve/publish/correct/retract are editor or publisher; attachKnowledge is author-only
+    disposition: holds
+    evidence: contracts/src/deploy/30_article.rho:881
+  - id: CAP-022
+    name: EditionFactory
+    kind: published-contract
+    source: contracts/src/deploy/31_edition.rho:416
+    source_atom: 'bundle+{*EditionFactory}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:edition-factory
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [create, issued]
+    delegation: [Edition]
+    revocation: root rotate
+    forge_path: publish a look-alike factory
+    hazard: the creator is the first editor; the publication canonical URI is checked
+    disposition: holds
+    evidence: contracts/src/deploy/31_edition.rho:416
+  - id: CAP-023
+    name: Edition
+    kind: published-contract
+    source: contracts/src/deploy/31_edition.rho:386
+    source_atom: 'bundle+{*Edition}'
+    creator: EditionFactory
+    holders: every deploy that resolves the edition URI
+    exposure: registry-uri
+    attenuation: none
+    authority_check: role
+    arms: [info, status, manifest, append, seal]
+    delegation: []
+    revocation: none
+    forge_path: publish a look-alike edition
+    hazard: append and seal are editor-only; a sealed manifest is immutable
+    disposition: holds
+    evidence: contracts/src/deploy/31_edition.rho:386
+  - id: CAP-024
+    name: RgenAdapter
+    kind: published-contract
+    source: contracts/src/deploy/05_rgen.rho:126
+    source_atom: 'bundle+{*RgenAdapter}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:rgen-adapter
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [health, claim, kasset, provenance, provenanceInfo, identity, credential]
+    delegation: [r-gen root resolution]
+    revocation: root rotate
+    forge_path: publish a look-alike adapter or a self-consistent fake chain
+    hazard: a URI is designation, not factory membership; the strict chain checks shape, not sibling membership
+    disposition: finding
+    evidence: contracts/src/deploy/05_rgen.rho:126
+  - id: CAP-025
+    name: RsureAdapter
+    kind: published-contract
+    source: contracts/src/deploy/06_rsure.rho:71
+    source_atom: 'bundle+{*RsureAdapter}'
+    creator: PrintRoot installer
+    holders: every deploy that resolves component:rsure-adapter
+    exposure: registry-uri
+    attenuation: none
+    authority_check: caller-subject
+    arms: [health, policy, slip]
+    delegation: [r-sure root resolution]
+    revocation: root rotate
+    forge_path: publish a look-alike adapter or a fake policy
+    hazard: a policy that returns active/insured/asset can be attached without a factory-membership check
+    disposition: finding
+    evidence: contracts/src/deploy/06_rsure.rho:71
+  - id: CAP-026
+    name: state-cells
+    kind: private-name
+    source: contracts/src/deploy/11_publication_cell.rho:1
+    source_atom: ''
+    creator: each factory
+    holders: the owning contract
+    exposure: closure-only
+    attenuation: one cell per entity
+    authority_check: none
+    arms: []
+    delegation: []
+    revocation: none
+    forge_path: none while the cell stays in the owning closure
+    hazard: a leaked state cell lets a caller rewrite the entity
+    disposition: holds
+    evidence: contracts/src/deploy/11_publication_cell.rho
+  - id: CAP-027
+    name: factory-issuance-maps
+    kind: registry-entry
+    source: contracts/src/deploy/10_publication.rho:222
+    source_atom: ''
+    creator: each factory
+    holders: the factory cell
+    exposure: closure-only
+    attenuation: one id per entity
+    authority_check: runtime
+    arms: [issued]
+    delegation: []
+    revocation: none
+    forge_path: a colliding id is refused by the issuance map
+    hazard: the map is for idempotency and lookup, never enumeration
+    disposition: holds
+    evidence: contracts/src/deploy/10_publication.rho
+  - id: CAP-028
+    name: sibling-designation
+    kind: data-reference
+    source: contracts/src/deploy/05_rgen.rho:55
+    source_atom: ''
+    creator: the caller
+    holders: the caller
+    exposure: reply-value
+    attenuation: none
+    authority_check: none
+    arms: [claim, kasset, provenance, credential]
+    delegation: []
+    revocation: none
+    forge_path: a self-consistent fake Claim/KAsset/Provenance set satisfies the shape checks
+    hazard: the v0.1 adapters trust the URI's designation; factory membership is not verified
+    disposition: finding
+    evidence: contracts/src/deploy/05_rgen.rho:55

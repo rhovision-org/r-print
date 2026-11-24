@@ -1,0 +1,89 @@
+schema_version: rprint.improvements/v1
+items:
+  - id: IMP-001
+    priority: P0
+    title: Verify or explicitly decline sibling factory membership
+    finding: RPA-001
+    status: proposed
+    compatibility: no wire change; an adapter check or a documented trust boundary
+    tests: add fake-policy and fake-chain red-team probes
+    action: resolve the policy/chain through the pinned sibling root before accepting it
+    files:
+      - path: contracts/src/deploy/05_rgen.rho
+        function: RgenAdapter
+        lines: '55-129'
+      - path: contracts/src/deploy/06_rsure.rho
+        function: RsureAdapter
+        lines: '55-67'
+  - id: IMP-002
+    priority: P1
+    title: Bind submit and release to the consumed milestone
+    finding: RPA-002
+    status: proposed
+    compatibility: model-only; contracts already read the milestone
+    tests: prove release/release and release/arbitrate after the refactor
+    action: change escrowSubmit/escrowRelease to read the milestone list
+    files:
+      - path: spec/lean/RPrint/Model/Commission.lean
+        function: escrowRelease
+        lines: '240-260'
+  - id: IMP-003
+    priority: P2
+    title: Record a live escrow journey and close the client-op gap
+    finding: RPA-008
+    status: proposed
+    compatibility: none
+    tests: fund, submit, release, cancel, dispute and resolve on the devnet
+    action: extend cli-live and the browser journey
+    files:
+      - path: crates/rprint-cli/tests/devnet_live.rs
+        function: attaches_cover_and_knowledge_live
+        lines: '1-440'
+  - id: IMP-004
+    priority: P2
+    title: Add spec/schemas and a schema checker
+    finding: RPA-010
+    status: proposed
+    compatibility: none
+    tests: validate fixtures and state snapshots
+    action: derive schemas from data-schemas.md and the deployed maps
+    files:
+      - path: docs/reference/data-schemas.md
+        function: schema tables
+        lines: '1-200'
+  - id: IMP-005
+    priority: P1
+    title: Complete an independent technical review
+    finding: RPA-009
+    status: proposed
+    compatibility: none
+    tests: external review record
+    action: commission an independent review of the escrow and authority paths
+    files:
+      - path: spec/audit/findings.yaml
+        function: review
+        lines: '1-20'
+  - id: IMP-006
+    priority: P2
+    title: Add the read-only and operator arm inventory
+    finding: '-'
+    status: proposed
+    compatibility: none
+    tests: generated inventory gate
+    action: extend the flow manifest to every deployed arm
+    files:
+      - path: spec/flows/core.yaml
+        function: rules
+        lines: '1-400'
+  - id: IMP-007
+    priority: P2
+    title: Add shallow factory create models
+    finding: '-'
+    status: proposed
+    compatibility: model-only
+    tests: create/issued guards and vectors
+    action: model the four factory create arms
+    files:
+      - path: spec/lean/RPrint/Model/Publication.lean
+        function: publicationAddMember
+        lines: '1-200'
