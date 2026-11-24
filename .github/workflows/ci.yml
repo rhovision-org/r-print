@@ -227,6 +227,8 @@ jobs:
           RCASH_DIR: ${{ github.workspace }}/rholo
           RHOLO_DIR: ${{ github.workspace }}/rnode-rust
         run: make web-e2e-live NODE=http://127.0.0.1:40403
+      - name: Client-op map evidence
+        run: make check-client-ops
       - name: Upload browser e2e results
         if: always()
         uses: actions/upload-artifact@v4

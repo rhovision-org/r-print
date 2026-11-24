@@ -34,8 +34,8 @@ writes). Every method maps to a public arm:
 | Network | status, component resolve |
 
 Reads are explore-deploys; writes are signed deploys. `coordinationInfo` reads the record and
-`createCoordination`/`recordCoordination` build the signed writes; the coordination writes are
-not live-tested in this slice.
+`createCoordination`/`recordCoordination` build the signed writes; all three are exercised by
+the devnet live client.
 
 ## The implementations
 
@@ -78,12 +78,14 @@ editions and commissions are reached by URI.
 
 ## Tests
 
-- 147 vitest tests: fixture reads, every live write through a fake bridge/transport, every
+- 153 vitest tests: fixture reads, every live write through a fake bridge/transport, every
   read's mapping, refusals vs errors, finality timeouts, keystore storage, settings, deploy
   history, surface and form coverage.
 - `web/tests/wasm-smoke.mjs`: the WASM boundary; no network.
-- `web/tests/live-client.ts`: the real WASM + HTTP stack against a devnet; creates a
-  publication, writes and publishes an article, seals an edition and reads everything back.
+- `web/tests/live-client.ts`: the real WASM + HTTP stack against a devnet; exercises every
+  client write, including membership changes, pause, proposal cancel, article
+  attest/correct/retract and coordination create/record, and writes a `methods` list that
+  `make check-client-ops` enforces.
 - Playwright fixture: 27 tests across Chromium and a Pixel 7 project; every route and every
   write form; `/api` and `/wasm` are blocked to prove isolation.
 - Playwright live: one Chromium journey, 13 steps, 10 finalized deploys and 1 refusal; two
@@ -110,6 +112,7 @@ gate; live mode runs in the devnet job and writes
 
 Live mode is devnet-only. Reads are at the node's tip and are not finality-checked. Writes
 require a funded native REV vault; commission funding assumes an r-cash-funded account. The
-client does not fetch or host content. The live browser journey is a representative path, not
-all 34 writes; the rest have fake-transport unit coverage and fixture browser rendering. No
-public testnet run and no audit.
+client does not fetch or host content. The live browser journey is a representative path, but
+every one of the 34 writes has a live path through `web/tests/live-client.ts` or the CLI live
+tests; browser commission funding remains uncovered because the browser has no r-cash deposit
+surface. No public testnet run and no audit.

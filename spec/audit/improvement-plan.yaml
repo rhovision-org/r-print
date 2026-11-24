@@ -35,19 +35,22 @@ items:
         lines: '240-260'
   - id: IMP-003
     priority: P2
-    title: Record a live escrow journey and close the client-op gap
+    title: Close the client-op live map and record the escrow journey
     finding: RPA-008
-    status: partial
+    status: fixed
     compatibility: none
-    tests: fund, submit, release, cancel, dispute, resolve, expire and arbitrate on the devnet
-    action: extended cli-live with a funded escrow journey; browser escrow remains
+    tests: 42 recorded client-op rows, 0 no live; the WASM client lists all 31 methods credited to it and cli-live covers fund, submit, release, cancel, dispute, resolve, expire and arbitrate
+    action: the Node/WASM client now exercises membership changes, pause, proposal cancel, article attest/correct/retract and coordination create/record and writes a methods list that check-client-ops enforces; browser commission funding remains out of scope because the browser has no r-cash deposit surface
     files:
       - path: crates/rprint-cli/tests/devnet_live.rs
         function: funds_settles_and_resolves_an_escrow_live
         lines: '480-700'
+      - path: web/tests/live-client.ts
+        function: main
+        lines: '1-700'
       - path: spec/vectors/client-ops.tsv
         function: rows
-        lines: '21-31'
+        lines: '1-46'
   - id: IMP-004
     priority: P2
     title: Add spec/schemas and a schema checker

@@ -38,13 +38,22 @@ Eleven deploys, all `finalized`; the machine-readable record is
 `deployments/live-client-results.json`. `make cli-live` separately records a CLI
 create-and-read against the same devnet. These are local results, not a public testnet run.
 
+The extended journey on 2026-11-24 ran the same real stack on the local 40403 devnet and
+recorded **24 finalized deploys** and **32 credited methods**: the 31 map rows credited to
+`web/tests/live-client.ts`, plus `publicationAdmin`, which the map credits to the browser.
+It covers `setRole`, `attestSelf`, `removeMember`, direct `pausePublication`, proposal
+cancel, article attest/correct/retract and coordination create/record, and it reads the
+publication back unchanged around the coordination record. The artifact carries the
+`methods` list that `make check-client-ops` enforces; the client-op map is **42 recorded,
+3 fixture-only, 0 no live**.
+
 ## Browser end-to-end campaign
 
 The Playwright layer runs the reference app in a real Chromium browser:
 
 | Suite | Result |
 |---|---|
-| Fixture, `fixture-chromium` + `fixture-mobile` | **27 tests**, all 12 routes, all 32 write methods (33 form instances), settings, catalogue, keystore, deploy history and a mobile smoke |
+| Fixture, `fixture-chromium` + `fixture-mobile` | **27 tests**, all 12 routes, all 34 write methods (35 form instances), settings, catalogue, keystore, deploy history and a mobile smoke |
 | Live, `live-chromium` | **13 steps**, **10 finalized** writes and **1 refused** deploy |
 
 The fixture suite runs with no node and no generated WASM: it aborts `**/api/**` and
@@ -98,7 +107,7 @@ The M13 model tranche adds four evidence layers around the state machines:
 | Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **33** mutating cornerstone arms: **33** `proved`, **0** `partial`, **0** `owed` |
 | Race matrix (`spec/flows/races.yaml`) | **29** arm pairs over six cells; **29** proved, **0** `owed` |
 | Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **20** `proved-conformance` arms, **20** emitted rows |
-| Client-op map (`spec/vectors/client-ops.tsv`) | **45** methods (**34** writes, **11** reads): **29** recorded, **5** fixture-only, **11** no live test |
+| Client-op map (`spec/vectors/client-ops.tsv`) | **45** methods (**34** writes, **11** reads): **42** recorded, **3** fixture-only, **0** no live test |
 
 The guard bridge is a drift check, not a semantics-preserving extraction. The race matrix is
 pair-level, not scheduler-level race freedom. `proved-conformance` is a finite bundle of a
@@ -108,16 +117,16 @@ deployed Rholang.
 ## Internal adversarial audit
 
 The audit is an internal maintainer review, not an independent audit. The records are
-`spec/audit/findings.yaml` (**10** findings), `spec/audit/closeout.yaml` (**6** terminal
-decisions), `spec/audit/improvement-plan.yaml` (**7** items), `spec/audit/redteam.yaml`
-(**12** probes: **11** `fixed`, **1** `accepted`), `spec/hazop/worksheet.yaml` (**8** nodes,
-**32** rows, **30** negative) and `spec/audit/capabilities.yaml` (**28** rows over **21**
+`spec/audit/findings.yaml` (**10** findings), `spec/audit/closeout.yaml` (**7** terminal
+decisions), `spec/audit/improvement-plan.yaml` (**8** items), `spec/audit/redteam.yaml`
+(**14** probes: **13** `fixed`, **1** `accepted`), `spec/hazop/worksheet.yaml` (**9** nodes,
+**47** rows, **45** negative) and `spec/audit/capabilities.yaml` (**31** rows over **24**
 published bundles, **3** capability findings).
 
 The fake-policy and fake-chain probes (RT-007, RT-011) now refuse at the membership check.
 The remaining accepted probe (RT-012) attaches a real Claim and KAsset with a self-consistent
 fake provenance, because the pinned r-gen rev has no provenance membership query. That is the
-RPA-001 residual; it is risk-accepted until M14 and expires on 2027-02-28. Independent review
+RPA-001 residual; it is risk-accepted and expires on 2027-02-28. Independent review
 remains outstanding (RPA-009).
 
 ## Sibling surfaces — recorded local campaign
@@ -179,11 +188,11 @@ counts.
 | `make check-guard-bridge` | 33 mutating arms: 33 proved, 0 partial, 0 owed |
 | `make check-race-matrix` | 29 pairs: 29 proved, 0 owed |
 | `make check-conformance` | 20 promoted arms, 20 emitted rows |
-| `make check-client-ops` | 45 methods: 29 recorded, 5 fixture-only, 11 no live |
+| `make check-client-ops` | 45 methods: 42 recorded, 3 fixture-only, 0 no live |
 | `make check-capabilities` | 31 capability rows, 24 published bundles, 3 findings |
 | `make check-schemas` | 7 state schemas, 7 examples, doc and source field sets agree |
 | `make check-arm-inventory` | 124 deployed arms: 33 guard, 46 flow, 78 inventory |
-| `make check-audit check-closeout check-hazop` | 10 findings, 6 close-out rows, 47 HAZOP rows |
+| `make check-audit check-closeout check-hazop` | 10 findings, 7 close-out rows, 47 HAZOP rows |
 | `make parse-check` | every built and rendered term parses with the target node parser |
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build (57 chapters) |
 | `make formal-check` | Lean build, axiom audit, vector corpora, strict flow traceability |
@@ -229,19 +238,22 @@ counts.
   matrix is pair-level, not scheduler-level race freedom.
 - The sibling adapters check policy, claim, KAsset and credential membership, but provenance
   membership has no query in the pinned r-gen rev. A real chain with a self-consistent fake
-  provenance is accepted; RPA-001 is risk-accepted for that residual until M14, and RT-012 is
-  the evidence.
-- Eight of the 32 client writes have no live test (membership changes, pause, proposal
-  cancel, article attest/correct/retract and browser-only paths among them). The client-op
-  map records them; this is not a claim that they are live-tested.
+  provenance is accepted; RPA-001 is risk-accepted for that residual and expires on
+  2027-02-28, and RT-012 is the evidence.
+- No client write lacks a live test. The 2026-11-24 WASM client journey exercised the 23
+  writes and eight reads credited to it; the CLI journeys cover the remaining 11 writes.
+  `spec/vectors/client-ops.tsv` records 42 recorded, 3 fixture-only and 0 no-live methods.
+  The three fixture-only reads are `publicationCharter`, `publicationArbitration` and
+  `escrowInfo`.
 - The strict cover and knowledge chains are recorded locally against real r-sure and r-gen
   roots; the CI dispatch for that campaign is pending because the commits are unpushed. There
   is no independent audit.
 - No multi-validator finality campaign.
-- The live browser journey covers a representative path, not all 34 writes; the remaining
-  writes have fake-transport unit coverage and fixture browser rendering.
-- The live browser journey does not fund a commission (that needs an r-cash-funded account);
-  the escrow is covered by the 18-suite campaign and the fake-transport client tests.
+- The live browser journey covers a representative path, not all 34 writes; every write now
+  has a live path through the Node client or the CLI, and the browser renders every form in
+  fixture mode.
+- The live browser journey does not fund a commission: the browser has no r-cash deposit
+  surface. The escrow is covered by the 19-suite campaign and the client-op map.
 - The r-sure and r-gen roots remain disabled by default; enabling them is an explicit
   `make install-with-siblings` opt-in.
 

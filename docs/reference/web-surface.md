@@ -38,13 +38,13 @@ are errors.
 
 ## Tests
 
-147 vitest tests cover fixture reads, fake-bridge live reads and writes, node transport
+153 vitest tests cover fixture reads, fake-bridge live reads and writes, node transport
 behaviour, refusals, finality, keystore storage, settings, deploy history, surface coverage
 and form coverage. The WASM smoke and the devnet live script run outside the default vitest
 suite.
 
 Playwright covers the browser: 27 fixture tests in Chromium and a Pixel 7 project (all 12
-routes, all 32 write methods, settings, catalogue, keystore, deploy history), plus one live
+routes, all 34 write methods, settings, catalogue, keystore, deploy history), plus one live
 Chromium journey with 13 steps, 10 finalized writes and 1 refusal; CI dispatch 45270193372
 recorded both on the pinned node `e2d073d`. The fixture suite blocks `/api` and `/wasm`; the
 live suite runs against a devnet.
@@ -53,4 +53,5 @@ live suite runs against a devnet.
 
 No hosted backend, indexer, search, content host, fiat ramp or account system. No public
 testnet run, no audit and no multi-validator finality campaign. Commission funding assumes an
-r-cash-funded account. The live browser journey is representative, not all 34 writes.
+r-cash-funded account. The live browser journey is representative, not all 34 writes; every
+write has a live path through the Node client or the CLI.

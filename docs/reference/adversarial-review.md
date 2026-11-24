@@ -14,7 +14,7 @@
 | RPA-007 | Credential status was read from the issuance record, not `Credential("get")` | S2 / P0 | fixed |
 | RPA-009 | Independent technical review is outstanding | S2 / P1 | risk-accepted to 2027-02-28; review packet prepared, review outstanding |
 | RPA-003, RPA-004 | The fund editor guard and the cover proposal-status guard diverged from the source | S3 / P2 | fixed |
-| RPA-008 | Eleven client writes have no live test | S3 / P2 | risk-accepted; explicit in the client-op map |
+| RPA-008 | Eleven client writes have no live test | S3 / P2 | fixed by the 2026-11-24 full client-op live map (42 recorded, 3 fixture-only, 0 no live) |
 | RPA-010 | There is no schema source of truth | S4 / P2 | fixed by `spec/schemas` and `make check-schemas` |
 
 RPA-005, RPA-006 and RPA-007 were found by the first real-sibling campaign. The

@@ -50,11 +50,11 @@ make siblings-install                  # r-sure 0da5d04, then r-gen bcc840c --fr
 make install-with-siblings             # r-print with both roots enabled
 make sibling-fixture                   # real policy and Claim/KAsset/Provenance artifacts
 make sibling-suites-strict             # unit_cover and unit_knowledge
-make client-live RPRINT_SIBLINGS=1     # cover step
+make client-live RPRINT_SIBLINGS=1     # full client journey
 make cli-live RPRINT_SIBLINGS=1        # cover and knowledge journey
 ```
 
-`unit-all` stays at 18 suites; `unit_cover` and `unit_knowledge` are in the `SIBLING` group
+`unit-all` stays at 19 suites; `unit_cover` and `unit_knowledge` are in the `SIBLING` group
 and report `not_run` until `deployments/sibling-fixture.json` exists. Do not report the
 sibling campaign as passing without `deployments/sibling-suite-results.json` (or the CI
 artifact) from a healthy devnet.

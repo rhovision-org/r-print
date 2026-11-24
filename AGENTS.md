@@ -7,7 +7,7 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
 | Path | Contents |
 |---|---|
 | `contracts/src/deploy/` | 13 numbered Rholang deploy terms and the shared library fragments |
-| `harness/` | installer, fixtures and 18 behavioural suites |
+| `harness/` | installer, fixtures and 19 behavioural suites |
 | `spec/lean/` | Lean 4.12 model, axiom audit, vectors and `Model/System.lean` boundary |
 | `spec/graph/` | the named integration vertices and edges |
 | `spec/flows/` | the arm and invariant manifest, including `lean`/`lean_status` |
@@ -190,10 +190,10 @@ make siblings-install # install r-sure and r-gen with the shared key file
 make install-with-siblings # enable both roots and install r-print
 make sibling-fixture # write deployments/sibling-fixture.json
 make sibling-suites-strict # unit_cover and unit_knowledge
-make unit-all        # all 18 behavioural suites
+make unit-all        # all 19 behavioural suites
 make client-lint client-test client-wasm client-check
 make client-wasm-pack client-wasm-node client-wasm-smoke
-make client-live     # real WASM signing + HTTP against a healthy devnet
+make client-live     # full WASM client journey; needs RPRINT_SIBLINGS=1 and the fixture
 make cli-live        # CLI read/submit against the same devnet
 make web-install web-test web-build
 make web-e2e-install web-e2e-fixture web-e2e-live

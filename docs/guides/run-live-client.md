@@ -12,10 +12,18 @@ keeps the book and CI usable with no node.
 - Node 22 and `npm`
 - Docker, plus the `r-cash` and `rchain-rust` checkouts used by the devnet
 - A running local devnet with r-print installed
+- For the full live client journey: the pinned r-sure and r-gen roots and
+  `deployments/sibling-fixture.json` with an active policy
 
 ```sh
 make venv
 make devnet-up rcash-keys rcash-bootstrap keys install
+```
+
+For the sibling-backed client journey:
+
+```sh
+make siblings-venv siblings-install install-with-siblings sibling-fixture
 ```
 
 The install writes `deployments/devnet.json`. Its `root_uri` is the directory the client uses
@@ -88,7 +96,9 @@ rprint wallet sign-payload --keystore key.json --password-env RPRINT_PASSWORD \
   --payload "$PAYLOAD"
 ```
 
-`make client-live` and `make cli-live` run the recorded smoke paths against a devnet.
+`make client-live RPRINT_SIBLINGS=1` runs the full client journey, including the cover
+attach, and writes a `methods` list that `make check-client-ops` enforces. `make cli-live
+RPRINT_SIBLINGS=1` runs the CLI escrow and knowledge journeys against the same devnet.
 
 ## Browser end-to-end
 

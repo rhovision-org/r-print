@@ -88,6 +88,25 @@ items:
     closed_on: '2026-11-24'
     review: owner-authorized
     expiry: null
+  - id: RPA-008
+    priority: P2
+    decision: fixed
+    owner: patrick
+    rationale: >-
+      The 2026-11-24 WASM client journey exercised every client write and
+      recorded the methods it credits; the map now has 42 recorded, 3
+      fixture-only and 0 no-live rows, and check-client-ops enforces the
+      artifact's methods list.
+    evidence:
+      - kind: test
+        ref: web/tests/live-client.ts
+      - kind: gate
+        ref: spec/vectors/client-ops.tsv
+      - kind: doc
+        ref: docs/reference/verification.md
+    closed_on: '2026-11-24'
+    review: owner-authorized
+    expiry: null
   - id: RPA-009
     priority: P1
     decision: risk-accepted
