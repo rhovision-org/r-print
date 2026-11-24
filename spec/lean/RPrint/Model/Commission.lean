@@ -151,39 +151,33 @@ def escrowOfProposal (p : ProposalState) (_funderId : Id) : EscrowState :=
     milestones := p.milestones, graceBlocks := 0, disputeWindowBlocks := 0,
     hardDeadline := 0, disputeAt := none, nonce := 0 }
 
-def commissionFund (p : ProposalState) (funder : Id) (isEditor : Bool) :
+def commissionFund (p : ProposalState) (funder : Id) :
     Option (ProposalState × EscrowState) :=
-  if !isEditor then none
-  else if p.status = ProposalStatus.accepted then
+  if p.status = ProposalStatus.accepted then
     some ({ p with status := ProposalStatus.funded, funderId := some funder },
           escrowOfProposal p funder)
   else none
 
 theorem commission_fund_requires_accepted (p : ProposalState) (funder : Id)
-    (isEditor : Bool) (h : p.status ≠ ProposalStatus.accepted) :
-    commissionFund p funder isEditor = none := by
-  by_cases he : isEditor = true
-  · simp [commissionFund, he, h]
-  · have hef : isEditor = false := by simpa using he
-    simp [commissionFund, hef]
+    (h : p.status ≠ ProposalStatus.accepted) :
+    commissionFund p funder = none := by
+  simp [commissionFund, h]
 
-theorem commission_fund_requires_editor (p : ProposalState) (funder : Id)
-    (isEditor : Bool) (h : isEditor = false) :
-    commissionFund p funder isEditor = none := by
+theorem commission_fund_any_caller (p : ProposalState) (funder : Id)
+    (h : p.status = ProposalStatus.accepted) :
+    ∃ p' e, commissionFund p funder = some (p', e) := by
   simp [commissionFund, h]
 
 theorem commission_fund_creates_active_escrow (p : ProposalState) (funder : Id)
-    (isEditor : Bool) (p' : ProposalState) (e : EscrowState)
-    (h : commissionFund p funder isEditor = some (p', e)) :
+    (p' : ProposalState) (e : EscrowState)
+    (h : commissionFund p funder = some (p', e)) :
     e.status = EscrowStatus.active ∧ e.total = p.total ∧ e.purse = p.total := by
   unfold commissionFund at h
   split at h
   · simp at h
-  · split at h
-    · simp at h
-      rcases h with ⟨rfl, rfl⟩
-      simp [escrowOfProposal]
-    · simp at h
+    rcases h with ⟨rfl, rfl⟩
+    simp [escrowOfProposal]
+  · simp at h
 
 def commissionCancel (p : ProposalState) (authorized : Bool) : Option ProposalState :=
   if !authorized then none
@@ -407,6 +401,18 @@ theorem escrow_dispute_only_active (s : EscrowState) (callerAuthorized : Bool)
   · simp [escrowDispute, hc, h]
   · have hcf : callerAuthorized = false := by simpa using hc
     simp [escrowDispute, hcf]
+
+theorem escrow_dispute_conserves (s : EscrowState) (callerAuthorized : Bool)
+    (now : Height) (s' : EscrowState) (hs : escrowConserves s)
+    (h : escrowDispute s callerAuthorized now = some s') : escrowConserves s' := by
+  by_cases hc : callerAuthorized = true
+  · by_cases ha : s.status = EscrowStatus.active
+    · simp [escrowDispute, hc, ha] at h
+      cases h
+      simpa [escrowConserves] using hs
+    · simp [escrowDispute, hc, ha] at h
+  · have hcf : callerAuthorized = false := by simpa using hc
+    simp [escrowDispute, hcf] at h
 
 def escrowArbitrate (s : EscrowState) (nonce : Nat) (writerBps : Nat)
     (authorized : Bool) : Option EscrowState :=

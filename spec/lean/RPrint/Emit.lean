@@ -110,10 +110,24 @@ def escrowActive : EscrowState :=
 def articleDraft : ArticleState :=
   { articleId := 1, publicationId := 1, firstAuthor := 1, status := ArticleStatus.draft,
     contentHash := 0, kassetUri := none, requireKAsset := false, corrections := [],
-    publishedContentHash := none }
+    attestations := [], publishedContentHash := none }
+
+def articleSubmitted : ArticleState :=
+  { articleDraft with status := ArticleStatus.submitted, contentHash := 9 }
 
 def articleApproved : ArticleState :=
   { articleDraft with status := ArticleStatus.approved, contentHash := 9 }
+
+def attestation1 : Attestation :=
+  { id := 1, kind := 2, attestor := 3, evidenceHash := 4 }
+
+def articleFull : ArticleState :=
+  { articleSubmitted with attestations := List.replicate 16 attestation1 }
+
+def articleAttestLine (o : Option ArticleState) : String :=
+  match o with
+  | none => "none"
+  | some s => s!"{articleStatusName s.status},{s.contentHash},{s.attestations.length}"
 
 def correction : Correction :=
   { kind := CorrectionKind.correction, bodyHash := 1, reasonHash := 2, articleHash := 9 }
@@ -181,11 +195,11 @@ def main : IO Unit := do
   emit "commission.accept.wrong_status" "2"
     (okNone (commissionAccept proposalAccepted 2 true))
   emit "commission.fund.ok" "3"
-    (match commissionFund proposalAccepted 3 true with
+    (match commissionFund proposalAccepted 3 with
      | none => "none"
      | some (_, e) => s!"{escrowStatusName e.status},{e.purse},{e.total}")
   emit "commission.fund.not_accepted" "3"
-    (okNone (commissionFund proposalProposed 3 true))
+    (okNone (commissionFund proposalProposed 3))
   emit "commission.cancel.ok" "true"
     (match commissionCancel proposalAccepted true with
      | none => "none"
@@ -234,9 +248,23 @@ def main : IO Unit := do
   emit "article.attachKnowledge.published" "published"
     (okNone (articleAttachKnowledge { articleApproved with
       status := ArticleStatus.published } true 1))
+  emit "article.attest.ok" "true,submitted"
+    (articleAttestLine (articleAttest articleSubmitted true attestation1))
+  emit "article.attest.role" "false"
+    (articleAttestLine (articleAttest articleSubmitted false attestation1))
+  emit "article.attest.draft" "draft"
+    (articleAttestLine (articleAttest articleDraft true attestation1))
+  emit "article.attest.cap" "16"
+    (articleAttestLine (articleAttest articleFull true attestation1))
 
   emit "cover.attach.ok" "active,insured,asset"
     (coverLine (coverAttach coverBase 21 coverPolicy))
+  emit "cover.attach.proposed" "proposed"
+    (coverLine (coverAttach { coverBase with proposalStatus := ProposalStatus.proposed }
+      21 coverPolicy))
+  emit "cover.attach.funded" "funded"
+    (coverLine (coverAttach { coverBase with proposalStatus := ProposalStatus.funded }
+      21 coverPolicy))
   emit "cover.attach.inactive" "inactive"
     (coverLine (coverAttach coverBase 21
       { coverPolicy with status := CoverFactStatus.inactive }))

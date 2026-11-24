@@ -10,6 +10,22 @@
       "input": "published",
       "output": "none"
     },
+    "article.attest.cap": {
+      "input": "16",
+      "output": "none"
+    },
+    "article.attest.draft": {
+      "input": "draft",
+      "output": "none"
+    },
+    "article.attest.ok": {
+      "input": "true,submitted",
+      "output": "submitted,9,1"
+    },
+    "article.attest.role": {
+      "input": "false",
+      "output": "none"
+    },
     "article.correct.append_only": {
       "input": "published",
       "output": "published,9,1"
@@ -58,6 +74,10 @@
       "input": "wrong asset",
       "output": "none"
     },
+    "cover.attach.funded": {
+      "input": "funded",
+      "output": "none"
+    },
     "cover.attach.inactive": {
       "input": "inactive",
       "output": "none"
@@ -73,6 +93,10 @@
     "cover.attach.overwrite": {
       "input": "different",
       "output": "none"
+    },
+    "cover.attach.proposed": {
+      "input": "proposed",
+      "output": "21,9,7"
     },
     "cover.attach.replay": {
       "input": "same",

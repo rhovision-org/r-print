@@ -46,19 +46,25 @@ def coverOk (s : CoverState) (p : PolicyFact) : Bool :=
   (p.status == CoverFactStatus.active) && (p.insured == s.treasury) &&
     (p.assetId == s.assetId)
 
+def coverOpen (s : CoverState) : Bool :=
+  s.proposalStatus == ProposalStatus.proposed ||
+    s.proposalStatus == ProposalStatus.accepted
+
 def coverAttach (s : CoverState) (uri : Id) (p : PolicyFact) : Option CoverState :=
-  match s.coverUri with
-  | some u => if u = uri then some s else none
-  | none =>
-      if coverOk s p then
-        some { s with
-          coverUri := some uri
-          coverStatus := some p.status
-          coverAssetId := some p.assetId
-          coverPerClaimLimit := some p.perClaimLimit
-          coverAggregateRemaining := some p.aggregateRemaining
-          coverInsured := some p.insured }
-      else none
+  if !coverOpen s then none
+  else
+    match s.coverUri with
+    | some u => if u = uri then some s else none
+    | none =>
+        if coverOk s p then
+          some { s with
+            coverUri := some uri
+            coverStatus := some p.status
+            coverAssetId := some p.assetId
+            coverPerClaimLimit := some p.perClaimLimit
+            coverAggregateRemaining := some p.aggregateRemaining
+            coverInsured := some p.insured }
+        else none
 
 def coverAttachSystem (s : CoverState) (e : EscrowState) (uri : Id)
     (p : PolicyFact) : Option (CoverState × EscrowState) :=
@@ -66,48 +72,68 @@ def coverAttachSystem (s : CoverState) (e : EscrowState) (uri : Id)
   | none => none
   | some s' => some (s', e)
 
+theorem cover_attach_requires_open_proposal (s : CoverState) (uri : Id) (p : PolicyFact)
+    (h : s.proposalStatus ≠ ProposalStatus.proposed)
+    (h2 : s.proposalStatus ≠ ProposalStatus.accepted) :
+    coverAttach s uri p = none := by
+  have ho : coverOpen s = false := by
+    simp [coverOpen, h, h2]
+  simp [coverAttach, ho]
+
 theorem cover_attach_requires_active_policy (s : CoverState) (uri : Id) (p : PolicyFact)
     (huri : s.coverUri = none) (h : p.status ≠ CoverFactStatus.active) :
     coverAttach s uri p = none := by
-  simp [coverAttach, coverOk, huri, h]
+  cases hcov : coverOpen s with
+  | false => simp [coverAttach, hcov]
+  | true => simp [coverAttach, hcov, coverOk, huri, h]
 
 theorem cover_attach_requires_insured (s : CoverState) (uri : Id) (p : PolicyFact)
     (huri : s.coverUri = none) (hactive : p.status = CoverFactStatus.active)
     (h : p.insured ≠ s.treasury) :
     coverAttach s uri p = none := by
-  simp [coverAttach, coverOk, huri, hactive, h]
+  cases hcov : coverOpen s with
+  | false => simp [coverAttach, hcov]
+  | true => simp [coverAttach, hcov, coverOk, huri, hactive, h]
 
 theorem cover_attach_requires_asset (s : CoverState) (uri : Id) (p : PolicyFact)
     (huri : s.coverUri = none) (hactive : p.status = CoverFactStatus.active)
     (hins : p.insured = s.treasury) (h : p.assetId ≠ s.assetId) :
     coverAttach s uri p = none := by
-  simp [coverAttach, coverOk, huri, hactive, hins, h]
+  cases hcov : coverOpen s with
+  | false => simp [coverAttach, hcov]
+  | true => simp [coverAttach, hcov, coverOk, huri, hactive, hins, h]
 
 theorem cover_attach_single_assignment (s : CoverState) (uri u : Id) (p : PolicyFact)
     (huri : s.coverUri = some u) (h : u ≠ uri) :
     coverAttach s uri p = none := by
-  simp [coverAttach, huri, h]
+  cases hcov : coverOpen s with
+  | false => simp [coverAttach, hcov]
+  | true => simp [coverAttach, hcov, huri, h]
 
 theorem cover_attach_replay (s : CoverState) (uri : Id) (p : PolicyFact)
-    (huri : s.coverUri = some uri) :
+    (hopen : coverOpen s = true) (huri : s.coverUri = some uri) :
     coverAttach s uri p = some s := by
-  simp [coverAttach, huri]
+  simp [coverAttach, hopen, huri]
 
 theorem cover_attach_preserves_status (s : CoverState) (uri : Id) (p : PolicyFact)
     (s' : CoverState) (h : coverAttach s uri p = some s') :
     s'.proposalStatus = s.proposalStatus := by
   unfold coverAttach at h
-  cases hc : s.coverUri with
-  | some u =>
-      simp [hc] at h
-      obtain ⟨_, hs⟩ := h
-      cases hs
-      rfl
-  | none =>
-      simp [hc] at h
-      obtain ⟨_, hs⟩ := h
-      cases hs
-      rfl
+  cases hcov : coverOpen s with
+  | false => simp [hcov] at h
+  | true =>
+      simp [hcov] at h
+      cases hc : s.coverUri with
+      | some u =>
+          simp [hc] at h
+          obtain ⟨_, hs⟩ := h
+          cases hs
+          rfl
+      | none =>
+          simp [hc] at h
+          obtain ⟨_, hs⟩ := h
+          cases hs
+          rfl
 
 theorem cover_attachSystem_escrow (s : CoverState) (e : EscrowState) (uri : Id)
     (p : PolicyFact) (s' : CoverState) (e' : EscrowState)

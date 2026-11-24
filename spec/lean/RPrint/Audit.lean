@@ -14,6 +14,11 @@ namespace RPrint
 #print axioms RPrint.article_approve_requires_submitted
 #print axioms RPrint.article_attachKnowledge_preserves_hash
 #print axioms RPrint.article_attachKnowledge_refused_after_publish
+#print axioms RPrint.article_attest_append_only
+#print axioms RPrint.article_attest_cap
+#print axioms RPrint.article_attest_preserves_hash
+#print axioms RPrint.article_attest_requires_role
+#print axioms RPrint.article_attest_requires_status
 #print axioms RPrint.article_correct_append_only
 #print axioms RPrint.article_correct_cap
 #print axioms RPrint.article_correct_only_published_or_retracted
@@ -34,7 +39,7 @@ namespace RPrint
 #print axioms RPrint.commission_cancel_requires_writer_or_editor
 #print axioms RPrint.commission_fund_creates_active_escrow
 #print axioms RPrint.commission_fund_requires_accepted
-#print axioms RPrint.commission_fund_requires_editor
+#print axioms RPrint.commission_fund_any_caller
 #print axioms RPrint.commission_propose_initial
 #print axioms RPrint.commission_propose_requires_writer
 #print axioms RPrint.commit_all_or_none
@@ -65,6 +70,7 @@ namespace RPrint
 #print axioms RPrint.escrow_cancel_requires_role_or_funder
 #print axioms RPrint.escrow_dispute_only_active
 #print axioms RPrint.escrow_dispute_requires_writer_or_funder
+#print axioms RPrint.escrow_dispute_conserves
 #print axioms RPrint.escrow_expire_conserves
 #print axioms RPrint.escrow_expire_too_early_refused
 #print axioms RPrint.escrow_release_bounded_by_purse
@@ -121,6 +127,7 @@ namespace RPrint
 #print axioms RPrint.article_attachKnowledge_refused_from_draft
 
 -- Sibling adapter ties
+#print axioms RPrint.cover_attach_requires_open_proposal
 #print axioms RPrint.cover_attach_requires_active_policy
 #print axioms RPrint.cover_attach_requires_insured
 #print axioms RPrint.cover_attach_requires_asset
