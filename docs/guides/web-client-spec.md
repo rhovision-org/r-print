@@ -78,20 +78,22 @@ editions and commissions are reached by URI.
 
 ## Tests
 
-- 153 vitest tests: fixture reads, every live write through a fake bridge/transport, every
+- 159 vitest tests: fixture reads, every live write through a fake bridge/transport, every
   read's mapping, refusals vs errors, finality timeouts, keystore storage, settings, deploy
   history, surface and form coverage.
 - `web/tests/wasm-smoke.mjs`: the WASM boundary; no network.
 - `web/tests/live-client.ts`: the real WASM + HTTP stack against a devnet; exercises every
-  client write, including membership changes, pause, proposal cancel, article
-  attest/correct/retract and coordination create/record, and writes a `methods` list that
-  `make check-client-ops` enforces.
-- Playwright fixture: 27 tests across Chromium and a Pixel 7 project; every route and every
+  client write and the publication charter/arbitration reads, including membership changes,
+  pause, proposal cancel, article attest/correct/retract and coordination create/record, and
+  writes a `methods` list that `make check-client-ops` enforces.
+- Playwright fixture: 28 tests across Chromium and a Pixel 7 project; every route and every
   write form; `/api` and `/wasm` are blocked to prove isolation.
-- Playwright live: one Chromium journey, 13 steps, 10 finalized deploys and 1 refusal; two
-  keystores, a 2-of-2 publication, article lifecycle, edition seal, admin multisig pause and
-  a deliberate `paused` refusal, then a reload and read-back. CI dispatch 45270193372
-  recorded both browser suites on the pinned node `e2d073d`.
+- Playwright live: one Chromium journey, 18 steps, 14 finalized deploys and 1 refusal; two
+  keystores, a 2-of-2 publication, article lifecycle, edition seal, a writer proposal, a
+  native-vault r-cash deposit, the publisher's accept and fund, an escrow read, admin
+  multisig pause and a deliberate `paused` refusal, then a reload and read-back. Its artifact
+  lists `publicationAdmin` and `escrowInfo`; the earlier 13-step version was recorded in CI
+  dispatch 45270193372 on the pinned node `e2d073d`.
 
 ## Browser end-to-end
 
@@ -111,8 +113,10 @@ gate; live mode runs in the devnet job and writes
 ## Limits
 
 Live mode is devnet-only. Reads are at the node's tip and are not finality-checked. Writes
-require a funded native REV vault; commission funding assumes an r-cash-funded account. The
-client does not fetch or host content. The live browser journey is a representative path, but
-every one of the 34 writes has a live path through `web/tests/live-client.ts` or the CLI live
-tests; browser commission funding remains uncovered because the browser has no r-cash deposit
-surface. No public testnet run and no audit.
+require a funded native REV vault; commission funding needs the funder's r-cash account,
+which the Network action tops up from that vault. The deposit is value-moving and has no
+contract op id: after a timeout, check the deploy id rather than resubmitting. The client
+does not fetch or host content. The live browser journey is a representative path, but every
+one of the 34 writes has a live path through `web/tests/live-client.ts` or the CLI live
+tests. The browser does not attach the r-sure cover or the r-gen knowledge chain. No public
+testnet run and no audit.

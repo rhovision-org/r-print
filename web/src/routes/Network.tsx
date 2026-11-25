@@ -6,7 +6,7 @@ import { useApi } from "../lib/api-context";
 import { HttpTransport } from "../lib/node-client";
 import { useSession } from "../lib/session";
 import { useSettings } from "../lib/settings";
-import type { CatalogueEntry } from "../lib/types";
+import { isAccountFunding, type CatalogueEntry } from "../lib/types";
 import { useAsync } from "../lib/useAsync";
 
 const SAMPLE_KEYS = [
@@ -32,6 +32,12 @@ export function Network() {
   const [componentKey, setComponentKey] = useState("component:payments");
   const [resolved, setResolved] = useState<string | null>(null);
   const [faucet, setFaucet] = useState<string | null>(null);
+  const [rcashAccountFactory, setRcashAccountFactory] = useState(
+    settings.rcashAccountFactory,
+  );
+  const [depositAmount, setDepositAmount] = useState(10);
+  const [depositResult, setDepositResult] = useState<string | null>(null);
+  const [depositBusy, setDepositBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [entry, setEntry] = useState<CatalogueEntry>({
     id: "",
@@ -42,7 +48,14 @@ export function Network() {
 
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    update({ nodeUrl, rootUri, shardId, phloLimit, phloPrice });
+    update({
+      nodeUrl,
+      rootUri,
+      shardId,
+      phloLimit,
+      phloPrice,
+      rcashAccountFactory,
+    });
   }
 
   function loadManifest() {
@@ -50,12 +63,16 @@ export function Network() {
     try {
       const parsed = JSON.parse(manifest) as {
         root_uri?: string;
+        rcash?: { account_factory_uri?: string };
         components?: Record<string, string>;
       };
       if (typeof parsed.root_uri !== "string") {
         throw new Error("manifest has no root_uri");
       }
       setRootUri(parsed.root_uri);
+      if (typeof parsed.rcash?.account_factory_uri === "string") {
+        setRcashAccountFactory(parsed.rcash.account_factory_uri);
+      }
       setManifest("");
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : String(failure));
@@ -86,6 +103,35 @@ export function Network() {
       setFaucet(JSON.stringify(response));
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : String(failure));
+    }
+  }
+
+  async function requestDeposit() {
+    setError(null);
+    setDepositResult(null);
+    if (!isAccountFunding(api)) {
+      setError("the r-cash funding helper is only available in live mode");
+      return;
+    }
+    if (!settings.rcashAccountFactory.trim()) {
+      setError("save the r-cash account factory first");
+      return;
+    }
+    setDepositBusy(true);
+    try {
+      const reply = await api.fundNativeAccount(depositAmount);
+      setDepositResult(
+        reply.ok
+          ? `Funded ${reply.value.ownerId || "the r-cash account"}`
+          : `Refused: ${reply.reason}`,
+      );
+    } catch (failure) {
+      setError(
+        `${failure instanceof Error ? failure.message : String(failure)}. ` +
+          "Check the deploy id before retrying; do not submit the same deposit twice.",
+      );
+    } finally {
+      setDepositBusy(false);
     }
   }
 
@@ -127,6 +173,13 @@ export function Network() {
           <TextField label="Node URL" name="nodeUrl" value={nodeUrl} onChange={setNodeUrl} />
           <TextField label="Root URI" name="rootUri" value={rootUri} onChange={setRootUri} />
           <TextField label="Shard id" name="shardId" value={shardId} onChange={setShardId} />
+          <TextField
+            label="r-cash account factory"
+            name="rcashAccountFactory"
+            value={rcashAccountFactory}
+            onChange={setRcashAccountFactory}
+            placeholder="rho:id:…"
+          />
           <NumberField label="Phlo limit" name="phloLimit" value={phloLimit} onChange={setPhloLimit} min={0} />
           <NumberField label="Phlo price" name="phloPrice" value={phloPrice} onChange={setPhloPrice} min={0} />
           <button type="submit">Save settings</button>
@@ -136,7 +189,8 @@ export function Network() {
       <section className="panel">
         <h2>Import a deployment manifest</h2>
         <p className="muted">
-          Paste <code>deployments/devnet.json</code> to take its <code>root_uri</code>.
+          Paste <code>deployments/devnet.json</code> to take its <code>root_uri</code> and
+          <code>rcash.account_factory_uri</code>.
         </p>
         <textarea
           className="manifest"
@@ -207,7 +261,8 @@ export function Network() {
         <h2>Devnet faucet</h2>
         <p className="muted">
           Funds the unlocked REV address for phlo. Commission funding additionally requires an
-          r-cash-funded account; this faucet only fills the native vault.
+          r-cash-funded account; use the deposit action below to move REV from the native
+          vault into that account.
         </p>
         <button type="button" onClick={requestFaucet} disabled={!session.address}>
           Request 30 REV
@@ -215,6 +270,42 @@ export function Network() {
         {faucet ? (
           <pre className="payload" data-testid="faucet-result">
             {faucet}
+          </pre>
+        ) : null}
+      </section>
+
+      <section className="panel">
+        <h2>Fund the r-cash account</h2>
+        <p className="muted">
+          Moves REV from the unlocked key's native vault into its r-cash account, so a
+          commission can be funded. The deploy is value-moving: after a timeout, check its
+          deploy id before doing anything else; never submit the same deposit twice.
+        </p>
+        <div className="fields">
+          <NumberField
+            label="Deposit amount (REV)"
+            name="depositAmount"
+            value={depositAmount}
+            onChange={setDepositAmount}
+            min={1}
+          />
+          <button
+            type="button"
+            onClick={requestDeposit}
+            disabled={
+              depositBusy ||
+              settings.mode !== "live" ||
+              !session.unlocked ||
+              !settings.rcashAccountFactory.trim() ||
+              depositAmount <= 0
+            }
+          >
+            Deposit REV
+          </button>
+        </div>
+        {depositResult ? (
+          <pre className="payload" data-testid="deposit-result">
+            {depositResult}
           </pre>
         ) : null}
       </section>

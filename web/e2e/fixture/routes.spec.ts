@@ -185,6 +185,8 @@ test.describe("fixture routes", () => {
     await expect(page.getByTestId("node-height")).toHaveText("2050");
     await expect(page.getByTestId("node-accepts")).toHaveText("yes");
     await expect(page.getByRole("button", { name: "Request 30 REV" })).toBeDisabled();
+    await expect(page.getByLabel("r-cash account factory")).toHaveValue("");
+    await expect(page.getByRole("button", { name: "Deposit REV" })).toBeDisabled();
     await expect(page.getByTestId("network-catalogue-item")).toHaveCount(0);
   });
 

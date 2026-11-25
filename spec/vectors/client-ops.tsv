@@ -2,11 +2,11 @@ method	kind	arm	builder	op	expected	test	live
 resolveComponent	read	PrintRoot@"resolve"	read_term	resolve	(true, {uri, version})	web/tests/live-client.ts	recorded
 networkStatus	read	HTTP	HTTP.status	status	(true, network)	web/tests/live-client.ts	recorded
 publicationInfo	read	Publication@"info"	read_term	info	(true, publicationState)	web/tests/live-client.ts	recorded
-publicationCharter	read	Publication@"charter"	read_term	charter	(true, charter)	web/src/test/live-api.test.ts	fixture-only
+publicationCharter	read	Publication@"charter"	read_term	charter	(true, charter)	web/tests/live-client.ts	recorded
 publicationMembers	read	Publication@"members"	read_term	members	(true, memberMap)	web/tests/live-client.ts	recorded
-publicationArbitration	read	Publication@"arbitration"	read_term	arbitration	(true, authority)	web/src/test/live-api.test.ts	fixture-only
+publicationArbitration	read	Publication@"arbitration"	read_term	arbitration	(true, authority)	web/tests/live-client.ts	recorded
 commissionProposalInfo	read	CommissionProposal@"info"	read_term	info	(true, proposalState)	web/tests/live-client.ts	recorded
-escrowInfo	read	CommissionEscrow@"info"	read_term	info	(true, escrowState)	web/src/test/live-api.test.ts	fixture-only
+escrowInfo	read	CommissionEscrow@"info"	read_term	info	(true, escrowState)	web/e2e/live/journey.spec.ts	recorded
 articleInfo	read	Article@"info"	read_term	info	(true, articleState)	web/tests/live-client.ts	recorded
 editionInfo	read	Edition@"info"	read_term	info	(true, editionState)	web/tests/live-client.ts	recorded
 coordinationInfo	read	CoordinationRecord@"info"	read_term	info	(true, coordinationState)	web/tests/live-client.ts	recorded

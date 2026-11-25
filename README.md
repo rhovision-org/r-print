@@ -15,15 +15,16 @@ over a content hash, an edition is an ordered manifest, and corrections are appe
 > `RprintApi` method is implemented, the key stays in WASM, and writes require finality.
 > The recorded live smoke founded a publication with a 2-of-2 admin set, wrote an article
 > through its lifecycle, sealed a one-article edition and paused through admin multisig on
-> the local 50403 devnet (rholo node build `5b9685e`). A 2026-11-24 extended client journey
-> recorded 24 finalized deploys and 32 credited methods, covering the client writes credited
-> to it; with the CLI journey every client write has a live path. The client-op map is 42
-> recorded, 3 fixture-only and 0 no live. The CI dispatch devnet recorded
+> the local 50403 devnet (rholo node build `5b9685e`). A 2026-11-25 extended client journey
+> recorded 24 finalized deploys and 34 credited methods, covering the client writes and the
+> last fixture-only reads; with the CLI journey every client write has a live path. The
+> client-op map is 45 recorded, 0 fixture-only and 0 no live. The CI dispatch devnet recorded
 > 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
 > A Chromium fixture suite renders every route and every write form with `/api` and `/wasm`
-> blocked; a live browser journey records 10 finalized writes and 1 refusal on the local
-> devnet. CI dispatch 45270193372 recorded the 27 fixture tests and the 13-step browser
-> journey on the pinned node `e2d073d`, alongside 18/18 suites. The r-sure cover and r-gen
+> blocked; a live browser journey records 14 finalized writes and 1 refusal on the local
+> devnet, including a native-vault r-cash deposit and a funded commission. CI dispatch
+> 45270193372 recorded the 27 fixture tests and the earlier 13-step browser journey on the
+> pinned node `e2d073d`, alongside 18/18 suites. The r-sure cover and r-gen
 > knowledge surfaces now verify their full chains: an active policy insured to the publication
 > treasury and asset, and a reciprocal Claim/KAsset/Provenance/credential link authored by the
 > article author. A 2026-11-24 fresh local 40403 devnet recorded 18/18 suites, 2/2
@@ -121,9 +122,10 @@ The measured contract campaign on 2026-11-23 passed all 18 suites on a local sin
 devnet (rholo node 0.1.0 build `8fe0136`). The live client smoke was recorded later on the
 local 50403 devnet (node build `5b9685e`): 11 steps, 11 finalized deploys. The CI dispatch
 devnet on the pinned node build `e2d073d` recorded 18/18 suites and 11/11 finalized live
-steps. The browser fixture suite records 27 tests over two projects; the browser live
-journey recorded 13 steps, 10 finalized writes and 1 refusal locally and in the CI dispatch
-run 45270193372. There is no claim of a public testnet or audited deployment.
+steps. The browser fixture suite records 28 tests over two projects; the 2026-11-25 local
+browser live journey recorded 18 steps, 14 finalized writes and 1 refusal, and the earlier
+13-step, 10-finalized version was recorded in CI dispatch 45270193372. There is no claim of a
+public testnet or audited deployment.
 
 ## The graph
 
@@ -153,8 +155,9 @@ and the web client maps every `RprintApi` method to a typed form.
   WASM blocked, and runs one real browser journey against a devnet in live mode.
 - **No indexer.** Discovery is a local catalogue of links and share URIs.
 
-Commission funding still assumes an r-cash-funded account; the devnet faucet only fills the
-native REV vault used for phlo.
+Commission funding needs the funder's r-cash account; the devnet faucet fills the native REV
+vault used for phlo, and the Network page can deposit from that vault into the r-cash account.
+The deposit is value-moving, so a timed-out deploy is checked by id, never resubmitted blind.
 
 ## Documentation
 

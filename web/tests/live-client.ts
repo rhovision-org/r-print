@@ -37,6 +37,8 @@ const REQUIRED_METHODS = [
   "resolveComponent",
   "networkStatus",
   "publicationInfo",
+  "publicationCharter",
+  "publicationArbitration",
   "publicationMembers",
   "commissionProposalInfo",
   "articleInfo",
@@ -211,6 +213,25 @@ async function main() {
     );
     const publicationUri = created.uri;
     steps.push({ step: "create-publication", uri: publicationUri });
+
+    const charter = credit(
+      "publicationCharter",
+      await api.publicationCharter(publicationUri),
+    );
+    assert.equal(charter.nameHash, `name:${suffix}`);
+    assert.equal(charter.mastheadHash, `mast:${suffix}`);
+    assert.equal(charter.assetId, "REV");
+    assert.equal(charter.treasuryAccountId, policy.insured ?? wallet.address);
+    steps.push({ step: "read-publication-charter" });
+
+    const arbitration = credit(
+      "publicationArbitration",
+      await api.publicationArbitration(publicationUri),
+    );
+    assert.ok(arbitration.kind === "publication" || arbitration.kind === "platform");
+    assert.ok(arbitration.threshold > 0);
+    assert.ok(arbitration.keys.length >= arbitration.threshold);
+    steps.push({ step: "read-publication-arbitration", kind: arbitration.kind });
 
     const memberBridge = new RprintWasmBridge(wasm);
     const member = memberBridge.createWallet(`${password}-member`);

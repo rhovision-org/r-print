@@ -32,6 +32,7 @@ function uriFrom(reply: ReplyJson): string {
   return uri;
 }
 
+
 async function selectByAddress(
   panel: Locator,
   selectLabel: string,
@@ -45,7 +46,7 @@ async function selectByAddress(
     .selectOption(value);
 }
 
-test("browser live journey: publication, article, edition, multisig and refusal", async ({
+test("browser live journey: publication, article, edition, funded commission, multisig and refusal", async ({
   page,
   request,
 }) => {
@@ -58,6 +59,7 @@ test("browser live journey: publication, article, edition, multisig and refusal"
   const publicationId = `pub:e2e-${runId}`;
   const articleId = `article:e2e-${runId}`;
   const editionId = `edition:e2e-${runId}`;
+  const commissionId = `commission:e2e-${runId}`;
   const contentHash = `content:e2e-${runId}`;
   const root = rootUri();
   const steps: string[] = [];
@@ -68,6 +70,8 @@ test("browser live journey: publication, article, edition, multisig and refusal"
   let publicationUri = "";
   let articleUri = "";
   let editionUri = "";
+  let proposalUri = "";
+  let escrowUri = "";
 
   await test.step("fixture starting point", async () => {
     await page.goto("/#/network");
@@ -312,6 +316,113 @@ test("browser live journey: publication, article, edition, multisig and refusal"
     steps.push("edition-create-append-seal");
   });
 
+  await test.step("fund a commission from the browser", async () => {
+    await goHash(page, "#/keystore");
+    await page.getByRole("button", { name: "Lock", exact: true }).click();
+    await expect(page.getByTestId("session-status")).toHaveText("locked");
+    const unlockA = page.getByTestId("form-keystoreUnlock");
+    await selectByAddress(unlockA, "Keystore", addressA);
+    await unlockA.getByLabel("Password", { exact: true }).fill(password);
+    await unlockA.getByRole("button", { name: "Unlock", exact: true }).click();
+    await expect(page.getByTestId("session-address")).toHaveText(addressA);
+
+    await goHash(page, "#/network");
+    const writerFaucetStart = await height(request);
+    await page.getByRole("button", { name: "Request 30 REV" }).click();
+    await expect(page.getByTestId("faucet-result")).toBeVisible({ timeout: 60_000 });
+    await expect
+      .poll(async () => height(request), {
+        timeout: 60_000,
+        intervals: [1_000, 2_000, 5_000],
+      })
+      .toBeGreaterThanOrEqual(writerFaucetStart + 2);
+    steps.push("faucet-writer");
+
+    await goHash(page, "#/");
+    const deadline = (await height(request)) + 500;
+    const propose = form(page, "proposeCommission");
+    await propose.getByLabel("Proposal id", { exact: true }).fill(commissionId);
+    await propose.getByLabel("Publication id", { exact: true }).fill(publicationId);
+    await propose
+      .getByLabel("Canonical publication URI", { exact: true })
+      .fill(publicationUri);
+    await propose.getByLabel("Writer DID", { exact: true }).fill(`byoid:rev:${addressA}`);
+    await propose
+      .getByLabel("Title hash", { exact: true })
+      .fill(`title:commission:e2e-${runId}`);
+    await propose
+      .getByLabel("Brief hash", { exact: true })
+      .fill(`brief:e2e-${runId}`);
+    await propose.getByLabel("Total (minor units)", { exact: true }).fill("5");
+    await propose.getByLabel("Amount", { exact: true }).fill("5");
+    await propose.getByLabel("Deadline height", { exact: true }).fill(String(deadline));
+    const proposed = await submitAndReply(propose, "Propose commission");
+    expect(proposed.ok, JSON.stringify(proposed)).toBe(true);
+    proposalUri = uriFrom(proposed);
+    await goHash(page, `#/commission/${encodeURIComponent(proposalUri)}`);
+    await expect(page.getByTestId("proposal-status")).toHaveAttribute(
+      "data-status",
+      "proposed",
+      { timeout: 300_000 },
+    );
+    steps.push("propose-commission");
+
+    await goHash(page, "#/keystore");
+    await page.getByRole("button", { name: "Lock", exact: true }).click();
+    await expect(page.getByTestId("session-status")).toHaveText("locked");
+    const unlockB = page.getByTestId("form-keystoreUnlock");
+    await selectByAddress(unlockB, "Keystore", addressB);
+    await unlockB.getByLabel("Password", { exact: true }).fill(password);
+    await unlockB.getByRole("button", { name: "Unlock", exact: true }).click();
+    await expect(page.getByTestId("session-address")).toHaveText(addressB);
+
+    await goHash(page, "#/network");
+    const publisherFaucetStart = await height(request);
+    await page.getByRole("button", { name: "Request 30 REV" }).click();
+    await expect(page.getByTestId("faucet-result")).toBeVisible({ timeout: 60_000 });
+    await expect
+      .poll(async () => height(request), {
+        timeout: 60_000,
+        intervals: [1_000, 2_000, 5_000],
+      })
+      .toBeGreaterThanOrEqual(publisherFaucetStart + 2);
+    await page.getByLabel("Deposit amount (REV)", { exact: true }).fill("10");
+    await page.getByRole("button", { name: "Deposit REV" }).click();
+    await expect(page.getByTestId("deposit-result")).toBeVisible({ timeout: 300_000 });
+    await expect(page.getByTestId("deposit-result")).toContainText("Funded");
+    steps.push("deposit-r-cash");
+
+    await goHash(page, `#/commission/${encodeURIComponent(proposalUri)}`);
+    const accept = form(page, "acceptProposal");
+    await clickSubmit(accept, "Submit");
+    await expect(page.getByTestId("proposal-status")).toHaveAttribute(
+      "data-status",
+      "accepted",
+      { timeout: 300_000 },
+    );
+    const fund = form(page, "fundProposal");
+    await clickSubmit(fund, "Submit");
+    await expect(page.getByTestId("proposal-status")).toHaveAttribute(
+      "data-status",
+      "funded",
+      { timeout: 300_000 },
+    );
+    const openEscrow = page.getByRole("link", { name: "Open escrow" });
+    await expect(openEscrow).toBeVisible({ timeout: 60_000 });
+    const href = await openEscrow.getAttribute("href");
+    if (!href) throw new Error("funded proposal has no escrow link");
+    escrowUri = decodeURIComponent(href.replace(/^#\/escrow\//, ""));
+    steps.push("fund-commission");
+
+    await goHash(page, `#/escrow/${encodeURIComponent(escrowUri)}`);
+    await expect(page.getByTestId("escrow-status")).toHaveAttribute(
+      "data-status",
+      "active",
+      { timeout: 60_000 },
+    );
+    steps.push("read-escrow");
+  });
+
   await test.step("admin multisig pause", async () => {
     await goHash(
       page,
@@ -392,7 +503,7 @@ test("browser live journey: publication, article, edition, multisig and refusal"
 
   await test.step("deploy history and finality evidence", async () => {
     await goHash(page, "#/deploy");
-    await expect(page.getByTestId("deploy-row")).toHaveCount(11, {
+    await expect(page.getByTestId("deploy-row")).toHaveCount(15, {
       timeout: 60_000,
     });
     const finalized = page.locator(
@@ -401,7 +512,7 @@ test("browser live journey: publication, article, edition, multisig and refusal"
     const refused = page.locator(
       '[data-testid="deploy-row"][data-status="refused"]',
     );
-    await expect(finalized).toHaveCount(10);
+    await expect(finalized).toHaveCount(14);
     await expect(refused).toHaveCount(1);
     const evidence = await finalized.evaluateAll((rows) =>
       rows.map((row) => ({
@@ -425,12 +536,12 @@ test("browser live journey: publication, article, edition, multisig and refusal"
       "data-unlocked",
       "false",
     );
-    await expect(page.getByTestId("deploy-row")).toHaveCount(11, {
+    await expect(page.getByTestId("deploy-row")).toHaveCount(15, {
       timeout: 60_000,
     });
     await expect(
       page.locator('[data-testid="deploy-row"][data-status="finalized"]'),
-    ).toHaveCount(10);
+    ).toHaveCount(14);
     await expect(
       page.locator('[data-testid="deploy-row"][data-status="refused"]'),
     ).toHaveCount(1);
@@ -473,6 +584,13 @@ test("browser live journey: publication, article, edition, multisig and refusal"
       "sealed",
       { timeout: 60_000 },
     );
+
+    await goHash(page, `#/escrow/${encodeURIComponent(escrowUri)}`);
+    await expect(page.getByTestId("escrow-status")).toHaveAttribute(
+      "data-status",
+      "active",
+      { timeout: 60_000 },
+    );
     steps.push("reload-read-back");
   });
 
@@ -486,8 +604,11 @@ test("browser live journey: publication, article, edition, multisig and refusal"
     publicationUri,
     articleUri,
     editionUri,
-    finalized: 10,
+    proposalUri,
+    escrowUri,
+    finalized: 14,
     refused: 1,
+    methods: ["publicationAdmin", "escrowInfo"],
     steps,
   };
   mkdirSync(resolve(repoRoot(), "deployments"), { recursive: true });

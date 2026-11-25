@@ -414,4 +414,21 @@ export interface LiveConfig {
   processedTimeoutMs: number;
   finalityTimeoutMs: number;
   componentUris?: Record<string, string>;
+  /** The pinned r-cash account factory for the live native-vault top-up. */
+  rcashAccountFactoryUri?: string;
+}
+
+/**
+ * The live-only funding helper. It is deliberately not part of `RprintApi`: the deposit is
+ * an r-cash precharge rail, not an r-print contract arm.
+ */
+export interface AccountFunding {
+  fundNativeAccount(amount: number): Promise<Reply<{ ownerId: string }>>;
+}
+
+export function isAccountFunding(value: unknown): value is AccountFunding {
+  return (
+    typeof (value as Partial<AccountFunding> | null | undefined)?.fundNativeAccount ===
+    "function"
+  );
 }

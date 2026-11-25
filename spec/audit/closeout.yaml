@@ -93,13 +93,17 @@ items:
     decision: fixed
     owner: patrick
     rationale: >-
-      The 2026-11-24 WASM client journey exercised every client write and
-      recorded the methods it credits; the map now has 42 recorded, 3
-      fixture-only and 0 no-live rows, and check-client-ops enforces the
-      artifact's methods list.
+      The 2026-11-25 WASM client journey exercised the publication charter and
+      arbitration reads and every client write credited to it; the 2026-11-25
+      browser journey deposits native REV into the r-cash account, funds a
+      commission and reads the escrow back. The map now has 45 recorded, 0
+      fixture-only and 0 no-live rows, and check-client-ops enforces both
+      artifacts' methods lists.
     evidence:
       - kind: test
         ref: web/tests/live-client.ts
+      - kind: test
+        ref: web/e2e/live/journey.spec.ts
       - kind: gate
         ref: spec/vectors/client-ops.tsv
       - kind: doc

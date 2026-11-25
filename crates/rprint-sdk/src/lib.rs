@@ -156,6 +156,91 @@ pub fn proposal_fund_term(proposal_uri: &str, op_id: &str) -> String {
     )
 }
 
+/// Top up the connected key's r-cash account from its native REV vault.
+///
+/// The pinned `rcash-sdk` deposit helper omits the account arm's `dId`, so this builds the
+/// deployed five-argument `account!("deposit", dId, "REV", payment, ret)` directly. ERTP
+/// answers `(true, n)` or `(false, reason)`. A refusal before `revFund` succeeds is returned
+/// as `(false, reason)`; once value is in flight an unexpected branch calls `1/0` so the
+/// deploy rolls back rather than replying with value moved. The success reply is
+/// `(true, ownerId)`.
+pub fn rcash_deposit_term(account_factory_uri: &str, amount: i64) -> String {
+    if amount <= 0 {
+        return "new deployId(`rho:rchain:deployId`) in { deployId!((false, \"amount\")) }"
+            .to_string();
+    }
+    format!(
+        r#"
+new deployerId(`rho:rchain:deployerId`), deployerIdOps(`rho:rchain:deployerId:ops`),
+    rl(`rho:registry:lookup`), factoryCh, accountCh, pkCh, ertpCh, issuerCh, purseCh,
+    fundCh, wdCh, depCh, deployId(`rho:rchain:deployId`) in {{
+  rl!(`{account_factory_uri}`, *factoryCh) |
+  deployerIdOps!("pubKeyBytes", *deployerId, *pkCh) |
+  for (factory <- factoryCh; @pk <- pkCh) {{
+    factory!("getOrCreate", pk, *accountCh) |
+    for (@ac <- accountCh) {{
+      match ac {{
+        (true, account, ownerId) => {{
+          rl!(`rho:rchain:ertp`, *ertpCh) |
+          for (@e <- ertpCh) {{
+            match e {{
+              (false, reason) => {{ deployId!((false, reason)) }}
+              (_, ERTP) => {{
+                @ERTP!("getRevIssuer", *issuerCh) |
+                for (@ri <- issuerCh) {{
+                  match ri {{
+                    (false, reason) => {{ deployId!((false, reason)) }}
+                    (revBrand, issuer) => {{
+                      @issuer!("makeEmptyPurse", *purseCh) |
+                      for (@mp <- purseCh) {{
+                        match mp {{
+                          (true, purse) => {{
+                            @purse!("revFund", *deployerId, {amount}, *fundCh) |
+                            for (@rf <- fundCh) {{
+                              match rf {{
+                                (false, reason) => {{ deployId!((false, reason)) }}
+                                _ => {{
+                                  @purse!("withdraw", (revBrand, {amount}), *wdCh) |
+                                  for (@wd <- wdCh) {{
+                                    match wd {{
+                                      (true, payment) => {{
+                                        @account!("deposit", *deployerId, "REV", payment, *depCh) |
+                                        for (@d <- depCh) {{
+                                          match d {{
+                                            (true, _) => {{ deployId!((true, ownerId)) }}
+                                            _ => {{ 1/0 }}
+                                          }}
+                                        }}
+                                      }}
+                                      _ => {{ 1/0 }}
+                                    }}
+                                  }}
+                                }}
+                              }}
+                            }}
+                          }}
+                          (false, reason) => {{ deployId!((false, reason)) }}
+                          _ => {{ deployId!((false, "purse")) }}
+                        }}
+                      }}
+                    }}
+                    _ => {{ deployId!((false, "issuer")) }}
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }}
+        (false, reason) => {{ deployId!((false, reason)) }}
+        _ => {{ deployId!((false, "account")) }}
+      }}
+    }}
+  }}
+}}
+"#
+    )
+}
+
 pub fn proposal_attach_cover_term(proposal_uri: &str, op_id: &str, cover_uri: &str) -> String {
     call_term(
         proposal_uri,
@@ -605,5 +690,22 @@ mod tests {
             admin_payload("publication:p", 3, "pause", &[]),
             "rprint:admin:v1|publication:p|3|pause|"
         );
+    }
+
+    #[test]
+    fn rcash_deposit_uses_the_five_argument_account_arm() {
+        let term = rcash_deposit_term("rho:id:factory", 10);
+        assert!(term.contains("rho:id:factory"));
+        assert!(term.contains("getOrCreate"));
+        assert!(term.contains("account!(\"deposit\", *deployerId, \"REV\""));
+        assert!(term.contains("deployId!((true, ownerId))"));
+        assert!(term.contains("1/0"));
+    }
+
+    #[test]
+    fn rcash_deposit_refuses_a_non_positive_amount_without_value() {
+        let term = rcash_deposit_term("rho:id:factory", 0);
+        assert!(term.contains("(false, \"amount\")"));
+        assert!(!term.contains("getOrCreate"));
     }
 }

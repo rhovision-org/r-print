@@ -11,13 +11,14 @@ The node was rholo node `0.1.0` build `8fe0136`. A later live-client smoke on th
 and sealed an edition: 11 steps, 11 finalized deploys. The CI dispatch devnet on the pinned
 node build `e2d073d` independently recorded 18/18 suites and 11/11 finalized live steps. A
 browser fixture suite covers every route and write form with the node and WASM blocked; a
-live Chromium journey records 13 steps, 10 finalized writes and 1 refusal on the local
-devnet. CI dispatch 45270193372 independently recorded 27 fixture tests, 18/18 suites,
-11/11 live-client steps and the same 13-step browser journey on the pinned node build
-`e2d073d`. The r-sure cover and r-gen knowledge arms verify their full chains. On 2026-11-24 a
-fresh local 40403 devnet recorded 18/18 suites (232 assertions), 2/2 real-sibling suites (43
-assertions), the CLI cover + knowledge journey and a 12-step web live smoke; the CI dispatch is
-pending because the commits are unpushed.
+live Chromium journey records 18 steps, 14 finalized writes and 1 refusal on the local
+devnet, including a native-vault r-cash deposit and a funded commission. CI dispatch
+45270193372 independently recorded 27 fixture tests, 18/18 suites, 11/11 live-client steps
+and the earlier 13-step browser journey on the pinned node build `e2d073d`. The r-sure cover
+and r-gen knowledge arms verify their full chains. On 2026-11-24 a fresh local 40403 devnet
+recorded 19/19 suites (259 assertions), 2/2 real-sibling suites (43 assertions), the CLI
+cover + knowledge journey and a 12-step web live smoke; the CI dispatch is pending because
+the commits are unpushed.
 A Lean 4.12 model covers publication authority, commission escrow, article lifecycle, edition
 seal, coordination records and the two sibling ties. M15 adds a 26-invariant rigor ledger, a
 33-arm guard bridge, a 29-pair race matrix, a 20-arm `proved-conformance` bundle and an

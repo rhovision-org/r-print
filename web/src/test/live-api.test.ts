@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MemoryDeployLog } from "../lib/deploy-log";
 import {
+  ConfigError,
   DeployFailed,
   FinalityTimeout,
   type DeployStatus,
@@ -427,5 +428,80 @@ describe("LiveApi writes", () => {
     await expect(api.publishArticle("rho:id:a", { opId: "op" })).rejects.toBeInstanceOf(
       WalletLockedError,
     );
+  });
+});
+
+describe("LiveApi r-cash funding", () => {
+  function setupFunding() {
+    const bridge = new FakeBridge();
+    const transport = new FakeTransport();
+    const log = new MemoryDeployLog();
+    const api = new LiveApi({
+      bridge,
+      transport,
+      config: {
+        ...CONFIG,
+        rcashAccountFactoryUri: "rho:id:rcash-account-factory",
+      },
+      log,
+    });
+    return { bridge, transport, log, api };
+  }
+
+  it("builds, signs, submits and awaits finality for the deposit", async () => {
+    const { api, bridge, transport, log } = setupFunding();
+    transport.statusReply = {
+      ProcessedWithSuccess: {
+        deployResult: [{ ok: true, values: ["1111owner"] }],
+        block: { blockHash: "block-4", blockNumber: 12 },
+      },
+    };
+    const reply = await api.fundNativeAccount(10);
+    expect(reply).toEqual({ ok: true, value: { ownerId: "1111owner" } });
+    expect(bridge.terms[0]).toEqual(
+      expect.objectContaining({
+        op: "rcashDeposit",
+        accountFactoryUri: "rho:id:rcash-account-factory",
+        amount: 10,
+      }),
+    );
+    expect(transport.submitted).toHaveLength(1);
+    expect(log.list()[0]?.status).toBe("finalized");
+  });
+
+  it("returns a refused deposit instead of throwing", async () => {
+    const { api, transport, log } = setupFunding();
+    transport.statusReply = {
+      ProcessedWithSuccess: {
+        deployResult: [{ ok: false, reason: "amount" }],
+        block: { blockHash: "block-5", blockNumber: 13 },
+      },
+    };
+    expect(await api.fundNativeAccount(10)).toEqual({ ok: false, reason: "amount" });
+    expect(log.list()[0]?.status).toBe("refused");
+  });
+
+  it("requires a configured account factory", async () => {
+    const { api } = setup();
+    await expect(api.fundNativeAccount(10)).rejects.toBeInstanceOf(ConfigError);
+    await expect(api.fundNativeAccount(10)).rejects.toThrow("r-cash account factory");
+  });
+
+  it("requires a positive integer amount", async () => {
+    const { api } = setupFunding();
+    await expect(api.fundNativeAccount(0)).rejects.toThrow("positive integer");
+    await expect(api.fundNativeAccount(1.5)).rejects.toThrow("positive integer");
+  });
+
+  it("refuses to deposit with a locked wallet", async () => {
+    const { api, bridge } = setupFunding();
+    bridge.unlocked = false;
+    await expect(api.fundNativeAccount(10)).rejects.toBeInstanceOf(WalletLockedError);
+  });
+
+  it("throws when the deposit never finalizes", async () => {
+    const { api, transport } = setupFunding();
+    transport.finalized = false;
+    await expect(api.fundNativeAccount(10)).rejects.toBeInstanceOf(FinalityTimeout);
   });
 });
