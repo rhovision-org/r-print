@@ -38,14 +38,14 @@ Eleven deploys, all `finalized`; the machine-readable record is
 `deployments/live-client-results.json`. `make cli-live` separately records a CLI
 create-and-read against the same devnet. These are local results, not a public testnet run.
 
-The extended journey on 2026-11-24 ran the same real stack on the local 40403 devnet and
-recorded **24 finalized deploys** and **32 credited methods**: the 31 map rows credited to
+The extended journey on 2026-11-25 ran the same real stack on the local 40403 devnet and
+recorded **24 finalized deploys** and **34 credited methods**: the 33 map rows credited to
 `web/tests/live-client.ts`, plus `publicationAdmin`, which the map credits to the browser.
-It covers `setRole`, `attestSelf`, `removeMember`, direct `pausePublication`, proposal
-cancel, article attest/correct/retract and coordination create/record, and it reads the
-publication back unchanged around the coordination record. The artifact carries the
-`methods` list that `make check-client-ops` enforces; the client-op map is **42 recorded,
-3 fixture-only, 0 no live**.
+It covers the publication charter and arbitration reads, `setRole`, `attestSelf`,
+`removeMember`, direct `pausePublication`, proposal cancel, article attest/correct/retract
+and coordination create/record, and it reads the publication back unchanged around the
+coordination record. The artifact carries the `methods` list that `make check-client-ops`
+enforces; the client-op map is **45 recorded, 0 fixture-only, 0 no live**.
 
 ## Browser end-to-end campaign
 
@@ -53,16 +53,20 @@ The Playwright layer runs the reference app in a real Chromium browser:
 
 | Suite | Result |
 |---|---|
-| Fixture, `fixture-chromium` + `fixture-mobile` | **27 tests**, all 12 routes, all 34 write methods (35 form instances), settings, catalogue, keystore, deploy history and a mobile smoke |
-| Live, `live-chromium` | **13 steps**, **10 finalized** writes and **1 refused** deploy |
+| Fixture, `fixture-chromium` + `fixture-mobile` | **28 tests**, all 12 routes, all 34 write methods (35 form instances), settings, catalogue, keystore, deploy history and a mobile smoke |
+| Live, `live-chromium` | **18 steps**, **14 finalized** writes and **1 refused** deploy |
 
 The fixture suite runs with no node and no generated WASM: it aborts `**/api/**` and
 `**/wasm/**` and fails if either is requested. The live suite switches the app from fixture
 to live in the browser, creates two keystores, funds the publisher from the devnet faucet,
 founds a 2-of-2 publication, adds a writer, runs an article through create → submit →
-approve → publish, creates and seals an edition, pauses through the admin multisig, then
-submits an article against the paused publication and asserts the `paused` refusal. It
-reloads and reads the publication, article, edition, deploy history and keystores back.
+approve → publish, creates and seals an edition, unlocks the writer and faucets them,
+proposes a commission as the writer, unlocks the publisher and deposits native REV into the
+publisher's r-cash account through the Network action, accepts and funds the proposal, reads
+the escrow back, then pauses through the admin multisig, submits an article against the
+paused publication and asserts the `paused` refusal. It reloads and reads the publication,
+article, edition, escrow, deploy history and keystores back. The browser artifact lists
+`publicationAdmin` and `escrowInfo`, so `make check-client-ops` enforces both.
 
 The recorded local run used rholo node build `5b9685e` on the local 40403 devnet. The result
 is `deployments/browser-e2e-results.json`. The fixture suite is a push/PR CI gate; the live
@@ -107,7 +111,7 @@ The M13 model tranche adds four evidence layers around the state machines:
 | Guard bridge (`ArmGuards.lean`, `spec/guards/arms.yaml`) | **33** mutating cornerstone arms: **33** `proved`, **0** `partial`, **0** `owed` |
 | Race matrix (`spec/flows/races.yaml`) | **29** arm pairs over six cells; **29** proved, **0** `owed` |
 | Conformance bundle (`EmitCorpus.lean`, `spec/vectors/core.tsv`) | **20** `proved-conformance` arms, **20** emitted rows |
-| Client-op map (`spec/vectors/client-ops.tsv`) | **45** methods (**34** writes, **11** reads): **42** recorded, **3** fixture-only, **0** no live test |
+| Client-op map (`spec/vectors/client-ops.tsv`) | **45** methods (**34** writes, **11** reads): **45** recorded, **0** fixture-only, **0** no live test |
 
 The guard bridge is a drift check, not a semantics-preserving extraction. The race matrix is
 pair-level, not scheduler-level race freedom. `proved-conformance` is a finite bundle of a
@@ -188,7 +192,7 @@ counts.
 | `make check-guard-bridge` | 33 mutating arms: 33 proved, 0 partial, 0 owed |
 | `make check-race-matrix` | 29 pairs: 29 proved, 0 owed |
 | `make check-conformance` | 20 promoted arms, 20 emitted rows |
-| `make check-client-ops` | 45 methods: 42 recorded, 3 fixture-only, 0 no live |
+| `make check-client-ops` | 45 methods: 45 recorded, 0 fixture-only, 0 no live |
 | `make check-capabilities` | 31 capability rows, 24 published bundles, 3 findings |
 | `make check-schemas` | 7 state schemas, 7 examples, doc and source field sets agree |
 | `make check-arm-inventory` | 124 deployed arms: 33 guard, 46 flow, 78 inventory |
@@ -197,7 +201,7 @@ counts.
 | `make docs-check` | SUMMARY coverage, links, orphans, component coverage, install keys, mdBook build (57 chapters) |
 | `make formal-check` | Lean build, axiom audit, vector corpora, strict flow traceability |
 | `make client-check` | Rust fmt/clippy/tests, wasm32 check, wasm-pack web build, WASM smoke, web typecheck/test/build |
-| `make check-graph` | 25 vertices, 36 edges (20 implemented, 10 surface, 6 design) |
+| `make check-graph` | 25 vertices, 37 edges (20 implemented, 11 surface, 6 design) |
 
 ## What the suites actually assert
 
@@ -240,20 +244,18 @@ counts.
   membership has no query in the pinned r-gen rev. A real chain with a self-consistent fake
   provenance is accepted; RPA-001 is risk-accepted for that residual and expires on
   2027-02-28, and RT-012 is the evidence.
-- No client write lacks a live test. The 2026-11-24 WASM client journey exercised the 23
-  writes and eight reads credited to it; the CLI journeys cover the remaining 11 writes.
-  `spec/vectors/client-ops.tsv` records 42 recorded, 3 fixture-only and 0 no-live methods.
-  The three fixture-only reads are `publicationCharter`, `publicationArbitration` and
-  `escrowInfo`.
+- No client write lacks a live test. The 2026-11-25 WASM client journey exercised 24 writes
+  and ten reads, recording all 33 map rows credited to it plus `publicationAdmin`; the CLI
+  journeys cover the remaining writes and the escrow/knowledge arms.
+  `spec/vectors/client-ops.tsv` records 45 recorded, 0 fixture-only and 0 no-live methods.
 - The strict cover and knowledge chains are recorded locally against real r-sure and r-gen
   roots; the CI dispatch for that campaign is pending because the commits are unpushed. There
   is no independent audit.
 - No multi-validator finality campaign.
 - The live browser journey covers a representative path, not all 34 writes; every write now
   has a live path through the Node client or the CLI, and the browser renders every form in
-  fixture mode.
-- The live browser journey does not fund a commission: the browser has no r-cash deposit
-  surface. The escrow is covered by the 19-suite campaign and the client-op map.
+  fixture mode. The browser deposits native REV into the r-cash account and funds one
+  commission; it does not attach the r-sure cover or the r-gen knowledge chain.
 - The r-sure and r-gen roots remain disabled by default; enabling them is an explicit
   `make install-with-siblings` opt-in.
 

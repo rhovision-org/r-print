@@ -175,7 +175,7 @@ milestones:
     hazop: {nodes: 9, rows: 47, negative: 45}
     capabilities: {rows: 31, published_bundles: 24, findings: 3}
     schemas: {states: 7, examples: 7}
-    client_ops: {methods: 45, writes: 34, reads: 11, recorded: 42, fixture_only: 3, no_live: 0}
+    client_ops: {methods: 45, writes: 34, reads: 11, recorded: 45, fixture_only: 0, no_live: 0}
     suites: {total: 19, passing: 19, assertions: 259}
     note: "the coordination record is deployed and proved-model; provenance, not authority; room and poll facts stay off-chain"
 suites_total: 19
@@ -194,29 +194,30 @@ live_client:
               releaseMilestone, cancelEscrow, disputeEscrow, resolveDispute, expireEscrow,
               arbitrateEscrow]
     scope: "fund from an r-cash account, submit and release, cancel, dispute, resolve, expire and arbitrate"
-    not_covered: "browser escrow funding (no r-cash deposit surface)"
+    not_covered: "public testnet, multi-validator"
   full_client_coverage:
-    recorded: 2026-11-24
+    recorded: 2026-11-25
     evidence: deployments/live-client-results.json
     node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
-    steps: 20
+    steps: 22
     finalized_deploys: 24
-    methods: 32
-    map_methods: 31
-    scope: "publication, setRole/attestSelf/removeMember, direct pause/resume, commission propose/cover/cancel, article attest/correct/retract, coordination create/record, edition and admin multisig through the WASM client; 23 writes and 8 reads are credited to this test"
-    not_covered: "browser commission funding (no r-cash deposit surface), public testnet, multi-validator"
+    methods: 34
+    map_methods: 33
+    scope: "publication charter/arbitration/members, setRole/attestSelf/removeMember, direct pause/resume, commission propose/cover/cancel, article attest/correct/retract, coordination create/record, edition and admin multisig through the WASM client; 24 writes and 10 reads are credited to this test"
+    not_covered: "public testnet, multi-validator"
 browser_e2e:
-  recorded: 2026-11-23
+  recorded: 2026-11-25
   node: "rholo node 0.1.0 (5b9685eca38250a9f0d81fb3da2f410328721aec)"
   fixture:
     projects: 2
-    tests: 27
+    tests: 28
     scope: "all 12 routes, all 34 write methods (35 form instances), settings, catalogue, keystore, deploy history, mobile smoke; /api and /wasm blocked"
   live:
-    steps: 13
-    finalized_deploys: 10
+    steps: 18
+    finalized_deploys: 14
     refused_deploys: 1
-    scope: "live boot, network status and root resolve, two keystores, faucet, 2-of-2 publication, member, article lifecycle, edition append/seal, admin multisig pause, paused refusal, reload read-back"
+    methods: [publicationAdmin, escrowInfo]
+    scope: "live boot, network status and root resolve, two keystores, faucet, 2-of-2 publication, member, article lifecycle, edition append/seal, writer faucet and proposal, native-vault r-cash deposit, publisher accept and fund, escrow read, admin multisig pause, paused refusal, reload read-back"
   artifact: "deployments/browser-e2e-results.json"
   ci:
     run: 45270193372
@@ -227,7 +228,7 @@ browser_e2e:
     finalized_deploys: 10
     refused_deploys: 1
     suites_passing: 18
-  not_covered: "browser commission funding (no r-cash deposit surface), browser-side r-sure and r-gen roots, public testnet, multi-validator finality; browser writes are a representative path, and all 34 client writes are live-tested through the Node client or the CLI"
+  not_covered: "browser-side r-sure and r-gen roots, public testnet, multi-validator finality; browser writes are a representative path, and all 34 client writes are live-tested through the Node client or the CLI"
 formal_model: "See the M13 and M15 milestone blocks and docs/reference/verification.md; those carry the current measured counts."
 surfaces:
   r_sure_cover: "CommissionProposal.attachCover verifies active status, insured and asset; single-assignment; disabled by default"

@@ -163,14 +163,16 @@ findings:
     actions: [IMP-003]
     disposition: fixed
     note: >-
-      The client-op map records 42 recorded, 3 fixture-only and 0 no-live
-      methods. The 2026-11-24 WASM client journey exercised and listed in
+      The client-op map records 45 recorded, 0 fixture-only and 0 no-live
+      methods. The 2026-11-25 WASM client journey exercised and listed in
       deployments/live-client-results.json every method credited to it,
-      including membership changes, pause, proposal cancel, article
-      attest/correct/retract and coordination create/record. The CLI journey
-      carries the escrow and knowledge rows. Browser commission funding remains
-      a browser-UI limitation because the browser has no r-cash deposit surface;
-      it is not an unrecorded client method.
+      including the publication charter and arbitration reads, membership
+      changes, pause, proposal cancel, article attest/correct/retract and
+      coordination create/record. The CLI journey carries the escrow and
+      knowledge rows. The 2026-11-25 browser journey deposits native REV into
+      the publisher's r-cash account, proposes as the writer, accepts and funds
+      as the publisher, and reads the active escrow back; the browser artifact
+      lists publicationAdmin and escrowInfo.
   - id: RPA-009
     title: Independent technical review is outstanding
     severity: S2

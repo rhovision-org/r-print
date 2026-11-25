@@ -23,6 +23,7 @@ import {
 } from "./node-client";
 import type { DecodedReply, SignOptions, WasmBridge } from "./wasm-bridge";
 import type {
+  AccountFunding,
   AdminInput,
   ArbitrationAuthority,
   ArbitrateInput,
@@ -76,7 +77,7 @@ export interface LiveApiOptions {
   log: DeployLog;
 }
 
-export class LiveApi implements RprintApi {
+export class LiveApi implements RprintApi, AccountFunding {
   private readonly components = new Map<string, string>();
   private readonly bridge: WasmBridge;
   private readonly transport: NodeTransport;
@@ -248,6 +249,35 @@ export class LiveApi implements RprintApi {
     writerBps: number,
   ): Promise<Reply<PayloadResult>> {
     return this.extras().arbitratePayloadFor(escrowId, nonce, writerBps);
+  }
+
+  /**
+   * Live-only: top up the unlocked key's r-cash account from the native REV vault.
+   *
+   * This is not an `RprintApi` method. The deploy is value-moving and has no contract op id;
+   * an ambiguous submit must be rechecked by deploy id, never re-signed.
+   */
+  async fundNativeAccount(amount: number): Promise<Reply<{ ownerId: string }>> {
+    const factory = this.config.rcashAccountFactoryUri ?? "";
+    if (!factory) {
+      throw new ConfigError(
+        "r-cash account factory is not configured; import deployments/devnet.json or set it in Network settings",
+      );
+    }
+    if (!Number.isInteger(amount) || amount <= 0) {
+      throw new ConfigError("deposit amount must be a positive integer");
+    }
+    return this.write(
+      "fundNativeAccount",
+      {
+        op: "rcashDeposit",
+        accountFactoryUri: factory,
+        amount,
+        opId: `deposit:${Date.now().toString(36)}`,
+      },
+      factory,
+      (values) => ({ ownerId: str(values[0]) }),
+    );
   }
 
   // --------------------------------------------------------------- writes

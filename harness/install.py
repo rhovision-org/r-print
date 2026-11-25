@@ -184,12 +184,19 @@ def main(argv: list[str] | None = None) -> int:
     rcash_manifest = configured_manifest(
         cfg.get("rcash_manifest", rcash["root_manifest_path"]))
     if rcash_manifest.is_file():
-        rcash_root = load_json(rcash_manifest)["root_uri"]
+        rcash_state = load_json(rcash_manifest)
+        rcash_root = rcash_state["root_uri"]
+        rcash_account_factory = rcash_state.get("account_factory_uri", "")
     elif args.dry_run:
         rcash_root = "rho:id:dryrun-rcash"
+        rcash_account_factory = "rho:id:dryrun-rcash-account-factory"
     else:
         raise SystemExit(f"install: missing r-cash manifest {rcash_manifest}; "
                          "run `make rcash-install` first")
+
+    if not args.dry_run and not rcash_account_factory:
+        raise SystemExit(f"install: r-cash manifest {rcash_manifest} has no "
+                         "account_factory_uri; reinstall the r-cash rail")
 
     if not args.dry_run:
         verify_rcash(
@@ -281,6 +288,10 @@ def main(argv: list[str] | None = None) -> int:
         manifest.parent.mkdir(parents=True, exist_ok=True)
         state["profile"] = args.profile
         state["install_order"] = order
+        state["rcash"] = {
+            "root_uri": rcash_root,
+            "account_factory_uri": rcash_account_factory,
+        }
         manifest.write_text(json.dumps({"root_uri": root_uri, **state}, indent=2) + "\n")
         print(f"install: wrote {manifest}")
     return 0

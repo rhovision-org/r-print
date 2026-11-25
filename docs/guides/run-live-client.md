@@ -27,7 +27,8 @@ make siblings-venv siblings-install install-with-siblings sibling-fixture
 ```
 
 The install writes `deployments/devnet.json`. Its `root_uri` is the directory the client uses
-to resolve factories and the codec.
+to resolve factories and the codec. Its `rcash.account_factory_uri` is the pinned r-cash
+account factory the browser uses for the native-vault top-up.
 
 ## Build and start
 
@@ -54,8 +55,13 @@ The status banner should say "Live mode" and show the wallet as locked.
 5. Wait a block or two before the first write.
 
 Commission funding is different: the escrow pulls from the funder's **r-cash account**, not
-the native vault. Fund that account with the r-cash tooling or the harness before pressing
-**Fund proposal**.
+the native vault. On **Network**, use **Fund the r-cash account** to deposit native REV into
+the unlocked key's account; the manifest's `rcash.account_factory_uri` supplies the factory,
+and the field is editable if you are not importing the manifest. Then press **Fund
+proposal**.
+
+The deposit is a value-moving deploy with no contract operation id. If it times out, check
+its deploy id in **Deploy** before doing anything else; never submit the same deposit twice.
 
 ## Write
 

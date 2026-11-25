@@ -35,6 +35,17 @@ const read = wasm.build_term(
 assert.match(read, /^new return, rl\(/);
 assert.doesNotMatch(read, /deployId/);
 
+const deposit = wasm.build_term(
+  JSON.stringify({
+    op: "rcashDeposit",
+    accountFactoryUri: "rho:id:factory",
+    amount: 10,
+    opId: "deposit:smoke",
+  }),
+);
+assert.match(deposit, /getOrCreate/);
+assert.match(deposit, /account!\("deposit", \*deployerId, "REV"/);
+
 const wallet = new wasm.Wallet();
 const created = JSON.parse(wallet.create("smoke-password"));
 assert.match(created.address, /^1111/);

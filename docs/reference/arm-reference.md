@@ -95,9 +95,9 @@ authority; it never writes the publication cell. Room and poll facts stay off-ch
 
 Reads use `explore_call_term`; writes use the signed-deploy `call_term`. The web client's
 forms cover every write method, and `make client-wasm-smoke` pins the WASM boundary.
-`spec/vectors/client-ops.tsv` maps all 45 methods: 42 are `recorded`, 3 are `fixture-only`
-and 0 have no live test. `make check-client-ops` keeps that map explicit; the three
-fixture-only reads are the only methods without live evidence.
+`spec/vectors/client-ops.tsv` maps all 45 methods: 45 are `recorded`, 0 are `fixture-only`
+and 0 have no live test. `make check-client-ops` keeps that map explicit. The native-vault
+r-cash deposit is a live-only helper, not an `RprintApi` method, so it has no map row.
 
 ## Reply shapes
 

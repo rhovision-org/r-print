@@ -62,6 +62,7 @@ a prose sketch.
 
 | Verb | From → To | Arms | Status |
 |---|---|---|---|
+| `credits` | purse → account | `Account.deposit` (native-vault top-up) | surface |
 | `funds` | account → escrow | `CommissionEscrowFactory.createFunded` | implemented |
 | `escrows` | escrow → purse | `CommissionEscrow.balance/release` | implemented |
 | `releasesMilestone` | escrow → account | `CommissionEscrow.release` | implemented |

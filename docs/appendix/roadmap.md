@@ -21,20 +21,20 @@
 | M12 | Sibling surfaces | Passing locally (2026-11-24): 18/18 suites, 2/2 real-sibling suites (45 assertions), 3 CLI live tests, 12-step web live smoke; a fresh CI devnet dispatch is pending owner approval (scheduled run 45405719109 failed for environmental reasons) |
 | M13 | Rigor ledger, conformance and audit | Passing (2026-11-24): 26 invariants, 31 guard arms (all proved), 28 race pairs (all proved), 19 conformance arms, 10 findings, 12 red-team probes, 32 HAZOP rows |
 | M14 | Close the material gaps | Partial (2026-11-24): adapter policy/claim/credential membership, 31/31 guard arms, six state schemas, live escrow journey, arm inventory; provenance membership and the independent review remain |
-| M15 | Completeness surfaces | Partial (2026-11-24): coordination record implemented (19/19 suites, 259 assertions, 14 red-team probes, 47 HAZOP rows); the client-op map is 42 recorded / 3 fixture-only / 0 no live; subscriptions, revenue splits and syndication remain design; multi-validator and testnet campaigns outstanding |
+| M15 | Completeness surfaces | Partial (2026-11-25): coordination record implemented (19/19 suites, 259 assertions, 14 red-team probes, 47 HAZOP rows); the client-op map is 45 recorded / 0 fixture-only / 0 no live, and the browser deposits native REV and funds a commission; subscriptions, revenue splits and syndication remain design; multi-validator and testnet campaigns outstanding |
 
 The acceptance map is `spec/acceptance.yaml`; the recorded contract campaign is 18/18 suites
 on the local 50403 devnet with rholo node build `8fe0136`. A fresh 2026-11-24 local 40403
 devnet with the pinned r-sure and r-gen roots then recorded 19/19 suites (259 assertions),
 2/2 sibling suites (45 assertions), the CLI cover + knowledge journey and a 12-step web smoke.
 The live client smoke recorded 11 finalized steps on the same devnet with node build
-`5b9685e`; the 2026-11-24 extended client journey then recorded 24 finalized deploys and 32
-credited methods, covering every client write. The CI devnet dispatch run
-recorded 18/18 suites and 11/11 finalized live steps on the pinned node build `e2d073d`.
-The browser layer records 27 fixture tests over two projects and a 13-step live Chromium
-journey with 10 finalized writes and 1 refusal, locally on node build `5b9685e` and in CI
-dispatch 45270193372 on the pinned node build `e2d073d` (18/18 suites and 11/11 live-client
-steps in the same job).
+`5b9685e`; the 2026-11-25 extended client journey then recorded 24 finalized deploys and 34
+credited methods, covering every client write and the last fixture-only reads. The CI devnet
+dispatch run recorded 18/18 suites and 11/11 finalized live steps on the pinned node build
+`e2d073d`. The browser layer records 28 fixture tests over two projects and an 18-step live
+Chromium journey with 14 finalized writes and 1 refusal, locally on node build `5b9685e`;
+the earlier 13-step version was recorded in CI dispatch 45270193372 on the pinned node build
+`e2d073d` (18/18 suites and 11/11 live-client steps in the same job).
 
 ## Next
 

@@ -119,7 +119,10 @@ Authority order: `contracts/src` and the static gates > `spec/` > `docs/` > this
   per signer; never hold two secrets at once. The contract counts distinct keys.
 - **Fixture default.** Tests, CI and the book must work with no node. Live mode is opt-in.
 - **Funding precondition.** The faucet fills the native REV vault for phlo; commission funding
-  additionally needs an r-cash-funded account. Say so; do not hide precharge failures.
+  additionally needs an r-cash-funded account. The Network page's live-only deposit action
+  moves REV from that vault into the account with the shared `rcash_deposit_term`. The deposit
+  is value-moving and has no contract op id: after a timeout, check the deploy id; never
+  resubmit the same deposit. Say so; do not hide precharge failures.
 - **Browser e2e.** The fixture suite blocks `/api` and `/wasm`; it must pass with no node and
   no generated WASM. The live suite uses one browser context, hash navigation after the
   initial load (a document reload locks the WASM wallet), state waits and no

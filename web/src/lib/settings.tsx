@@ -21,6 +21,8 @@ export interface Settings {
   finalityTimeoutMs: number;
   catalogue: CatalogueEntry[];
   componentUris: Record<string, string>;
+  /** The pinned r-cash account factory used by the live "Fund r-cash account" action. */
+  rcashAccountFactory: string;
 }
 
 const STORAGE_KEY = "rprint.settings.v1";
@@ -40,6 +42,7 @@ export function defaultSettings(): Settings {
     finalityTimeoutMs: 120_000,
     catalogue: [],
     componentUris: {},
+    rcashAccountFactory: "",
   };
 }
 
@@ -59,6 +62,10 @@ export function loadSettings(): Settings {
         parsed.componentUris && typeof parsed.componentUris === "object"
           ? parsed.componentUris
           : {},
+      rcashAccountFactory:
+        typeof parsed.rcashAccountFactory === "string"
+          ? parsed.rcashAccountFactory
+          : base.rcashAccountFactory,
     };
   } catch {
     return base;
@@ -84,6 +91,7 @@ export function liveConfig(settings: Settings): LiveConfig {
     processedTimeoutMs: settings.processedTimeoutMs,
     finalityTimeoutMs: settings.finalityTimeoutMs,
     componentUris: settings.componentUris,
+    rcashAccountFactoryUri: settings.rcashAccountFactory,
   };
 }
 

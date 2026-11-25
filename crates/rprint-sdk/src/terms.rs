@@ -18,6 +18,7 @@ use crate::{
     proposal_attach_cover_term, proposal_cancel_term, proposal_fund_term, propose_commission_term,
     publication_add_member_term, publication_admin_term, publication_attest_self_term,
     publication_pause_term, publication_remove_member_term, publication_set_role_term,
+    rcash_deposit_term,
 };
 
 /// One client operation. The `op` tag is camelCase; fields are camelCase.
@@ -204,6 +205,13 @@ pub enum TermRequest {
         poll_id_hash: String,
         outcome_hash: String,
         signatures: Value,
+    },
+    /// Top up the caller's r-cash account from the native REV vault. `op_id` is for the
+    /// client deploy log; the term has no idempotency key.
+    RcashDeposit {
+        account_factory_uri: String,
+        amount: i64,
+        op_id: String,
     },
     /// An explore-deploy read. `args` are JSON values rendered as Rholang literals.
     Read {
@@ -426,6 +434,11 @@ pub fn build(request: &TermRequest) -> String {
             outcome_hash,
             signatures,
         ),
+        TermRequest::RcashDeposit {
+            account_factory_uri,
+            amount,
+            op_id: _,
+        } => rcash_deposit_term(account_factory_uri, *amount),
         TermRequest::Read { uri, binding, args } => {
             let rendered = args.as_ref().map(|items| {
                 items
@@ -827,6 +840,17 @@ mod tests {
                     ]),
                 ),
                 "C!(\"record\"",
+            ),
+            (
+                json(
+                    "rcashDeposit",
+                    serde_json::Map::from_iter([
+                        ("accountFactoryUri".into(), field("rho:id:factory")),
+                        ("amount".into(), Value::from(10)),
+                        ("opId".into(), field("op1")),
+                    ]),
+                ),
+                "account!(\"deposit\"",
             ),
         ];
         for (request, arm) in cases {

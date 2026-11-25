@@ -27,6 +27,15 @@ edges:
     source: contracts/src/deploy/20_commission.rho
     status: implemented
 
+  - id: credits-account
+    verb: credits
+    from: purse
+    to: account
+    kind: call
+    arms: [Account.deposit]
+    source: configs/rcash.json
+    status: surface
+
   - id: funds-escrow
     verb: funds
     from: account

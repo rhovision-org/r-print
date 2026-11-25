@@ -16,7 +16,7 @@ use rprint_sdk::{
     create_publication_term, escrow_arbitrate_term, escrow_cancel_term, escrow_dispute_term,
     escrow_expire_term, escrow_release_term, escrow_resolve_dispute_term, escrow_submit_term,
     explore_call_term, proposal_accept_term, proposal_attach_cover_term, proposal_fund_term,
-    propose_commission_term,
+    propose_commission_term, rcash_deposit_term,
 };
 use rprint_wallet::{decode_reply_json, DeploySignOptions, Wallet};
 use serde_json::{json, Value};
@@ -429,8 +429,9 @@ async fn attaches_cover_and_knowledge_live() {
 
 /// Fund the caller's r-cash account from their native REV vault.
 ///
-/// The pinned `rcash-sdk` deposit helper omits the account arm's `dId`, so this
-/// builds the term with the deployed five-argument `account!("deposit", ...)`.
+/// The pinned `rcash-sdk` deposit helper omits the account arm's `dId`, so the shared SDK
+/// builder uses the deployed five-argument `account!("deposit", ...)` and propagates a
+/// refused deposit. The deploy is value-moving; an ambiguous submit is never retried.
 async fn fund_native_account(client: &NodeClient, wallet: &Wallet, amount: i64) {
     let config: Value = serde_json::from_str(
         &fs::read_to_string(repo_root().join("configs/devnet.json")).expect("devnet config"),
@@ -450,34 +451,7 @@ async fn fund_native_account(client: &NodeClient, wallet: &Wallet, amount: i64) 
     let factory = manifest["account_factory_uri"]
         .as_str()
         .expect("rcash account_factory_uri");
-    let term = format!(
-        r#"
-new deployerId(`rho:rchain:deployerId`), deployerIdOps(`rho:rchain:deployerId:ops`),
-    rl(`rho:registry:lookup`), factoryCh, accountCh, pkCh, ertpCh, issuerCh, purseCh,
-    fundCh, wdCh, depCh, deployId(`rho:rchain:deployId`) in {{
-  rl!(`{factory}`, *factoryCh) |
-  deployerIdOps!("pubKeyBytes", *deployerId, *pkCh) |
-  for (factory <- factoryCh; @pk <- pkCh) {{
-    factory!("getOrCreate", pk, *accountCh) |
-    for (@(true, account, ownerId) <- accountCh) {{
-      rl!(`rho:rchain:ertp`, *ertpCh) | for (@(_, ERTP) <- ertpCh) {{
-        @ERTP!("getRevIssuer", *issuerCh) | for (@(revBrand, issuer) <- issuerCh) {{
-          @issuer!("makeEmptyPurse", *purseCh) | for (@(true, purse) <- purseCh) {{
-            @purse!("revFund", *deployerId, {amount}, *fundCh) | for (@_ <- fundCh) {{
-              @purse!("withdraw", (revBrand, {amount}), *wdCh) |
-              for (@(true, payment) <- wdCh) {{
-                @account!("deposit", *deployerId, "REV", payment, *depCh) |
-                for (@d <- depCh) {{ deployId!((ownerId, d)) }}
-              }}
-            }}
-          }}
-        }}
-      }}
-    }}
-  }}
-}}
-"#
-    );
+    let term = rcash_deposit_term(factory, amount);
     let reply = submit_and_decode(client, wallet, &term).await;
     assert_eq!(reply["ok"], true, "deposit: {reply}");
 }

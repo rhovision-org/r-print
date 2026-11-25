@@ -39,8 +39,8 @@ items:
     finding: RPA-008
     status: fixed
     compatibility: none
-    tests: 42 recorded client-op rows, 0 no live; the WASM client lists all 31 methods credited to it and cli-live covers fund, submit, release, cancel, dispute, resolve, expire and arbitrate
-    action: the Node/WASM client now exercises membership changes, pause, proposal cancel, article attest/correct/retract and coordination create/record and writes a methods list that check-client-ops enforces; browser commission funding remains out of scope because the browser has no r-cash deposit surface
+    tests: 45 recorded client-op rows, 0 fixture-only, 0 no live; the WASM client lists all 33 methods credited to it, the browser journey lists publicationAdmin and escrowInfo, and cli-live covers fund, submit, release, cancel, dispute, resolve, expire and arbitrate
+    action: the Node/WASM client exercises the publication charter/arbitration reads, membership changes, pause, proposal cancel, article attest/correct/retract and coordination create/record; the browser deposits native REV into the r-cash account, proposes as the writer, accepts and funds as the publisher, and reads the escrow back; check-client-ops enforces both artifacts' methods lists
     files:
       - path: crates/rprint-cli/tests/devnet_live.rs
         function: funds_settles_and_resolves_an_escrow_live
@@ -48,6 +48,12 @@ items:
       - path: web/tests/live-client.ts
         function: main
         lines: '1-700'
+      - path: web/e2e/live/journey.spec.ts
+        function: fund a commission from the browser
+        lines: '330-440'
+      - path: web/src/lib/live-api.ts
+        function: fundNativeAccount
+        lines: '252-290'
       - path: spec/vectors/client-ops.tsv
         function: rows
         lines: '1-46'

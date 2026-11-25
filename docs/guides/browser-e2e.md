@@ -29,7 +29,7 @@ file watcher, which can hit an open-file limit in a large checkout.
 | `fixture-mobile` | `e2e/mobile` | The same fixture app on a Pixel 7 viewport |
 | `live-chromium` | `e2e/live` | The real browser → Vite → WASM → HTTP node path |
 
-The fixture suite has 27 tests. `e2e/support/fixture-test.ts` aborts `**/api/**` and
+The fixture suite has 28 tests. `e2e/support/fixture-test.ts` aborts `**/api/**` and
 `**/wasm/**` and fails if either is requested, so a fixture pass cannot hide a node or WASM
 dependency. The live suite is one serial test with `test.step` phases; it writes
 `deployments/browser-e2e-results.json` only on success. The Playwright JSON and HTML reports
@@ -46,15 +46,20 @@ switches to live in Network settings, then:
 4. founds a 2-of-2 publication and adds a writer;
 5. creates, submits, approves and publishes an article;
 6. creates, appends and seals an edition;
-7. prepares the Codec payload and pauses through two signatures;
-8. submits an article against the paused publication and asserts the `paused` refusal;
-9. checks the deploy history for 10 finalized deploys and 1 refusal;
-10. reloads and reads the publication, member, article, edition, keystores and settings back.
+7. unlocks the writer, faucets them, and proposes a commission as the writer;
+8. unlocks the publisher, deposits native REV into the publisher's r-cash account, accepts
+   the proposal, funds the escrow, and reads the escrow back;
+9. prepares the Codec payload and pauses through two signatures;
+10. submits an article against the paused publication and asserts the `paused` refusal;
+11. checks the deploy history for 14 finalized deploys and 1 refusal;
+12. reloads and reads the publication, member, article, edition, escrow, keystores and
+    settings back.
 
-The recorded local run is 13 steps with rholo node build `5b9685e`. The live run does not
-fund a commission, attach an r-sure policy or an r-gen K-Asset, and does not submit all 32
-writes live; the remaining writes have fake-transport unit coverage and fixture browser
-rendering.
+The recorded 2026-11-25 local run is 18 steps with rholo node build `5b9685e`. The live run
+does not attach an r-sure policy or an r-gen K-Asset, and does not submit all 34 writes live;
+the remaining writes have fake-transport unit coverage and fixture browser rendering. The
+browser artifact lists `publicationAdmin` and `escrowInfo`, which `make check-client-ops`
+enforces.
 
 ## Determinism
 
